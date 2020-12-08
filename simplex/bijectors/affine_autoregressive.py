@@ -4,6 +4,7 @@
 import torch
 import torch.nn as nn
 
+
 from simplex.utils import clamp_preserve_gradients
 
 # TODO: Import Bijector
