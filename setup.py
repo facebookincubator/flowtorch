@@ -3,9 +3,8 @@
 import os
 import re
 import sys
-from glob import glob
 
-from setuptools import Extension, find_packages, setup
+from setuptools import find_packages, setup
 
 
 REQUIRED_MAJOR = 3
@@ -19,11 +18,6 @@ DEV_REQUIRES = TEST_REQUIRES + [
     "sphinx",
     "sphinx-autodoc-typehints",
 ]
-TUTORIALS_REQUIRES = ["jupyter", "matplotlib", "cma", "torchvision"]
-
-TORCH_COMPILE_ARGS = ["-fopenmp"]
-
-CPP_COMPILE_ARGS = ["-std=c++14", "-Werror"]
 
 
 # Check for python version
@@ -52,7 +46,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name="Simplex",
+    name="simplex",
     version=version,
     description="Deep probabilistic modelling with PyTorch",
     author="Simplex Development Team",
@@ -83,11 +77,9 @@ setup(
     install_requires=[
         "torch>=1.6.0",
     ],
-    packages=find_packages("simplex/"),
-    package_dir={"": "simplex"},
+    packages=find_packages("simplex"),
     extras_require={
         "dev": DEV_REQUIRES,
         "test": TEST_REQUIRES,
-        "tutorials": TUTORIALS_REQUIRES,
     },
 )
