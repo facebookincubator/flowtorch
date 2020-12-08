@@ -1,2 +1,2 @@
 simplex.egg-info
-/simplex/__pycache__/*.pyc
+*.pyc

@@ -1,4 +1,5 @@
 # Copyright (c) Simplex Development Team. All Rights Reserved
+# SPDX-License-Identifier: MIT
 
 import os
 import re
