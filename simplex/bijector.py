@@ -1,6 +1,8 @@
 # Copyright (c) Simplex Development Team. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
+import torch
+
 class Bijector(object):
     event_dim = 0
 

@@ -4,12 +4,10 @@
 import torch
 import torch.nn as nn
 
-
+import simplex
 from simplex.utils import clamp_preserve_gradients
 
-# TODO: Import Bijector
-
-class AffineAutoregressive(object):
+class AffineAutoregressive(simplex.Bijector):
     def __init__(
             self,
             log_scale_min_clip=-5.,
