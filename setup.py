@@ -16,8 +16,10 @@ TEST_REQUIRES = ["pytest", "pytest-cov"]
 DEV_REQUIRES = TEST_REQUIRES + [
     "isort",
     "flake8",
+    "recommonmark",
     "sphinx",
     "sphinx-autodoc-typehints",
+    "sphinx_rtd_theme",
 ]
 
 

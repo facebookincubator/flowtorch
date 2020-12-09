@@ -13,6 +13,20 @@ Simplex is a library for deep probabilistic modelling in PyTorch.
     cd simplex
     pip install -e .
 
+# Building Docs
+
+To build documentation
+
+    cd docs
+    sphinx-apidoc -o source ../simplex/
+    make html
+
+To preview built HTML documentation
+
+    cd docs/_build/html
+    python -m http.server  # python 3 
+    python -m SimpleHTTPServer  # python 2
+
 # Developing
 
 Install dev dependencies
