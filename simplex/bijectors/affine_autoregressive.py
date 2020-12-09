@@ -8,6 +8,9 @@ import simplex
 from simplex.utils import clamp_preserve_gradients
 
 class AffineAutoregressive(simplex.Bijector):
+    event_dim = 1
+    autoregressive = True
+
     def __init__(
             self,
             log_scale_min_clip=-5.,
@@ -51,3 +54,7 @@ class AffineAutoregressive(simplex.Bijector):
         _, log_scale, _ = params(x)
         log_scale = clamp_preserve_gradients(log_scale, self.log_scale_min_clip, self.log_scale_max_clip)
         return log_scale.sum(-1)
+
+    def param_shapes(self, dist):
+        # A mean and log variance for every dimension of base distribution
+        return dist.batch_shape + dist.event_shape, dist.batch_shape + dist.event_shape
