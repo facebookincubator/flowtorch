@@ -80,8 +80,8 @@ setup(
     install_requires=[
         "torch>=1.6.0",
     ],
-    packages=find_packages("simplex"),
-    package_dir={"": "simplex"},
+    packages=find_packages("simplex", "simplex.*"),
+    #package_dir={"": "simplex"},
     extras_require={
         "dev": DEV_REQUIRES,
         "test": TEST_REQUIRES,
