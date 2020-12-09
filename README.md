@@ -18,3 +18,7 @@ Simplex is a library for deep probabilistic modelling in PyTorch.
 Install dev dependencies
 
     pip install -e .[dev]
+    
+Running tests
+
+    pytest
