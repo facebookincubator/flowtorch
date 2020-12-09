@@ -26,3 +26,13 @@ To preview built HTML documentation
     cd docs/_build/html
     python -m http.server  # python 3 
     python -m SimpleHTTPServer  # python 2
+
+# Developing
+
+Install dev dependencies
+
+    pip install -e .[dev]
+    
+Running tests
+
+    pytest
