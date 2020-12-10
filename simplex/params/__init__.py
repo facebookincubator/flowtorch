@@ -25,6 +25,7 @@ Parameters should take care of caching when necessary.
 
 from simplex.params.dense_autoregressive import DenseAutoregressive
 
+
 __all__ = [
     "DenseAutoregressive",
 ]

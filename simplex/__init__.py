@@ -3,3 +3,4 @@
 __version__ = "0.0"
 
 from simplex.bijector import Bijector
+from simplex.param import Params

@@ -7,7 +7,6 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-
 def sample_mask_indices(input_dim, hidden_dim, simple=True):
     """
     Samples the indices assigned to hidden units during the construction of MADE masks
@@ -96,72 +95,81 @@ class MaskedLinear(nn.Linear):
         masked_weight = self.weight * self.mask
         return F.linear(_input, masked_weight, self.bias)
 
-
+# TODO: API for a conditional version of this?
 class DenseAutoregressive(nn.Module):
     def __init__(
             self,
-            input_dim,
-            context_dim,
-            hidden_dims,
-            param_dims=[1, 1],
+            input_shape,
+            param_shapes,
+            *,
+            hidden_dims=[256, 256],
+            nonlinearity=nn.ReLU(),
             permutation=None,
-            skip_connections=False,
-            nonlinearity=nn.ReLU()):
+            skip_connections=False):
         super().__init__()
-        if input_dim == 1:
-            warnings.warn('ConditionalAutoRegressiveNN input_dim = 1. Consider using an affine transformation instead.')
-        self.input_dim = input_dim
-        self.context_dim = context_dim
+
+        # Save keyword args
+        self.input_shape = input_shape
+        self.param_shapes = param_shapes
         self.hidden_dims = hidden_dims
-        self.param_dims = param_dims
-        self.count_params = len(param_dims)
-        self.output_multiplier = sum(param_dims)
-        self.all_ones = (torch.tensor(param_dims) == 1).all().item()
+        self.skip_connections = skip_connections
+        self.nonlinearity = nonlinearity
+
+        # TODO: Implement conditional version!
+        self.context_dims = 0
+
+        # Work out flattened input and output shapes
+        self.input_dims = torch.sum(torch.tensor(self.input_shape)).item()
+        self.output_multiplier = sum([max(torch.sum(torch.tensor(s)).item(), 1) for s in self.param_shapes])
+        if self.input_dims == 1:
+            warnings.warn('AutoRegressiveNN input_dim = 1. Consider using an affine transformation instead.')
+        self.count_params = len(self.param_shapes)
 
         # Calculate the indices on the output corresponding to each parameter
-        ends = torch.cumsum(torch.tensor(param_dims), dim=0)
+        ends = torch.cumsum(torch.tensor([max(torch.sum(torch.tensor(s)).item(), 1) for s in self.param_shapes]), dim=0)
         starts = torch.cat((torch.zeros(1).type_as(ends), ends[:-1]))
         self.param_slices = [slice(s.item(), e.item()) for s, e in zip(starts, ends)]
 
         # Hidden dimension must be not less than the input otherwise it isn't
         # possible to connect to the outputs correctly
-        for h in hidden_dims:
-            if h < input_dim:
+        for h in self.hidden_dims:
+            if h < self.input_dims:
                 raise ValueError('Hidden dimension must not be less than input dimension.')
 
         if permutation is None:
             # By default set a random permutation of variables, which is important for performance with multiple steps
-            P = torch.randperm(input_dim, device='cpu').to(torch.Tensor().device)
+            P = torch.randperm(self.input_dims, device='cpu').to(torch.Tensor().device)
         else:
             # The permutation is chosen by the user
             P = permutation.type(dtype=torch.int64)
+
+        # TODO: Check that the permutation is valid for the input dimension!
+        # Implement ispermutation() that sorts permutation and checks whether it
+        # has all integers from 0, 1, ..., self.input_dims - 1
+
         self.register_buffer('permutation', P)
 
         # Create masks
         self.masks, self.mask_skip = create_mask(
-            input_dim=input_dim, context_dim=context_dim, hidden_dims=hidden_dims, permutation=self.permutation,
+            input_dim=self.input_dims, context_dim=self.context_dims, hidden_dims=hidden_dims, permutation=self.permutation,
             output_dim_multiplier=self.output_multiplier)
 
         # Create masked layers
-        layers = [MaskedLinear(input_dim + context_dim, hidden_dims[0], self.masks[0])]
+        layers = [MaskedLinear(self.input_dims + self.context_dims, hidden_dims[0], self.masks[0])]
         for i in range(1, len(hidden_dims)):
             layers.append(MaskedLinear(hidden_dims[i - 1], hidden_dims[i], self.masks[i]))
-        layers.append(MaskedLinear(hidden_dims[-1], input_dim * self.output_multiplier, self.masks[-1]))
+        layers.append(MaskedLinear(hidden_dims[-1], self.input_dims * self.output_multiplier, self.masks[-1]))
         self.layers = nn.ModuleList(layers)
 
         if skip_connections:
             self.skip_layer = MaskedLinear(
-                input_dim +
-                context_dim,
-                input_dim *
-                self.output_multiplier,
+                self.input_dims +
+                self.context_dims,
+                self.input_dims * self.output_multiplier,
                 self.mask_skip,
                 bias=False)
         else:
             self.skip_layer = None
-
-        # Save the nonlinearity
-        self.f = nonlinearity
 
     def forward(self, x=None, context=None):
         if x is None:
@@ -179,25 +187,12 @@ class DenseAutoregressive(nn.Module):
     def _forward(self, x):
         h = x
         for layer in self.layers[:-1]:
-            h = self.f(layer(h))
+            h = self.nonlinearity(layer(h))
         h = self.layers[-1](h)
 
         if self.skip_layer is not None:
             h = h + self.skip_layer(x)
 
-        # Shape the output, squeezing the parameter dimension if all ones
-        if self.output_multiplier == 1:
-            return (h, self.permutation)
-        else:
-            h = h.reshape(list(x.size()[:-1]) + [self.output_multiplier, self.input_dim])
-
-            # Squeeze dimension if all parameters are one dimensional
-            if self.count_params == 1:
-                return h + (self.permutation,)
-
-            elif self.all_ones:
-                return torch.unbind(h, dim=-2) + (self.permutation,)
-
-            # If not all ones, then probably don't want to squeeze a single dimension parameter
-            else:
-                return tuple([h[..., s, :] for s in self.param_slices]) + (self.permutation,)
+        # Shape the output
+        h = tuple(h[..., p_slice, :].reshape(h.shape[:-2] + p_shape + self.input_shape) for p_slice, p_shape in zip(self.param_slices, self.param_shapes))
+        return h + (self.permutation,)
