@@ -185,6 +185,7 @@ class DenseAutoregressive(nn.Module):
         return self._forward(x)
 
     def _forward(self, x):
+        # TODO: Flatten x. This will fail when len(input_shape) > 0
         h = x
         for layer in self.layers[:-1]:
             h = self.nonlinearity(layer(h))
@@ -194,5 +195,6 @@ class DenseAutoregressive(nn.Module):
             h = h + self.skip_layer(x)
 
         # Shape the output
+        h = h.reshape(x.size()[:-len(self.input_shape)] + (self.output_multiplier, self.input_dims))
         h = tuple(h[..., p_slice, :].reshape(h.shape[:-2] + p_shape + self.input_shape) for p_slice, p_shape in zip(self.param_slices, self.param_shapes))
         return h + (self.permutation,)

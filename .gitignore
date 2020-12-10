@@ -2,3 +2,4 @@ simplex.egg-info
 *.pyc
 .ipynb_checkpoints/
 docs/_build/
+debug/.vscode
