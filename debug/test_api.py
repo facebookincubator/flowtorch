@@ -25,7 +25,9 @@ print('x', x)
 print('y', y)
 print('inv(y)', y_inv)"""
 
-hypernet = params.DenseAutoregressive(torch.Size((input_dim,)), [torch.Size(()), torch.Size(())])
+# Example of lazily instantiating hypernetwork
+p = simplex.Params(simplex.params.DenseAutoregressive)
+hypernet = p(torch.Size((input_dim,)), [torch.Size(()), torch.Size(())])
 
 base_dist = torch.distributions.Normal(torch.zeros(input_dim), torch.ones(input_dim))
 x = base_dist.sample()

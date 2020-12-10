@@ -97,6 +97,8 @@ class MaskedLinear(nn.Linear):
 
 # TODO: API for a conditional version of this?
 class DenseAutoregressive(nn.Module):
+    autoregressive = True
+
     def __init__(
             self,
             input_shape,
