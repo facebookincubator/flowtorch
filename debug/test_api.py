@@ -6,6 +6,8 @@ import simplex
 import simplex.bijectors as bijectors
 import simplex.params as params
 
+import functools
+
 # Settings
 torch.manual_seed(0)
 batch_dim = 100
@@ -36,7 +38,8 @@ print('inv(y)', y_inv)"""
 #print(hypernet(x))
 
 # Example of creating transformed distribution
-flow = simplex.bijectors.AffineAutoregressive(simplex.Params(simplex.params.DenseAutoregressive))
+#flow = simplex.bijectors.AffineAutoregressive(simplex.Params(simplex.params.DenseAutoregressive))
+flow = simplex.bijectors.AffineAutoregressive(simplex.params.DenseAutoregressive(skip_connections=True))
 base_dist = torch.distributions.Normal(torch.zeros(input_dim), torch.ones(input_dim))
 
 new_dist, params = flow(base_dist)
@@ -45,5 +48,8 @@ print(type(new_dist), type(params))
 print(new_dist.rsample())
 print(new_dist.log_prob(base_dist.sample()))
 
-for n, p in params.named_parameters():
-    print(n, p)
+#p = simplex.params.DenseAutoregressive()
+#print(type(p))
+
+#for n, p in params.named_parameters():
+#    print(n, p)
