@@ -51,7 +51,7 @@ class Bijector(object):
         """
         raise NotImplementedError
 
-    def log_abs_det_jacobian(self, x, y, params=None):
+    def log_abs_det_jacobian(self, x, params=None):
         """
         Computes the log det jacobian `log |dy/dx|` given input and output. 
         By default, assumes a volume preserving bijection.
