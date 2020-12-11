@@ -26,10 +26,24 @@ print('y', y)
 print('inv(y)', y_inv)"""
 
 # Example of lazily instantiating hypernetwork
-p = simplex.Params(simplex.params.DenseAutoregressive)
-hypernet = p(torch.Size((input_dim,)), [torch.Size(()), torch.Size(())])
+# TODO: Remove layer of indirection from the following (possibly with class decorator)!
+#p = simplex.Params(simplex.params.DenseAutoregressive)
+#hypernet = p(torch.Size((input_dim,)), [torch.Size(()), torch.Size(())])
 
+#base_dist = torch.distributions.Normal(torch.zeros(input_dim), torch.ones(input_dim))
+#x = base_dist.sample()
+
+#print(hypernet(x))
+
+# Example of creating transformed distribution
+flow = simplex.bijectors.AffineAutoregressive(simplex.Params(simplex.params.DenseAutoregressive))
 base_dist = torch.distributions.Normal(torch.zeros(input_dim), torch.ones(input_dim))
-x = base_dist.sample()
 
-print(hypernet(x))
+new_dist, params = flow(base_dist)
+print(type(new_dist), type(params))
+
+print(new_dist.rsample())
+print(new_dist.log_prob(base_dist.sample()))
+
+for n, p in params.named_parameters():
+    print(n, p)

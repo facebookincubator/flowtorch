@@ -5,10 +5,16 @@ import torch
 import torch.distributions
 from torch.distributions import constraints
 
+import simplex
+import simplex.distributions
+
 class Bijector(object):
+    # Metadata about (the default) bijector
     event_dim = 0
     domain = constraints.real_vector
     codomain = constraints.real_vector
+    identity_initialization = True
+    autoregressive = False
 
     # TODO: Returning inverse of bijection
     #def __init__(self):
@@ -21,7 +27,13 @@ class Bijector(object):
         """
         # If the input is a distribution then return transformed distribution
         if isinstance(x, torch.distributions.Distribution):
-            raise NotImplementedError('Transforms of distributions not yet implemented!')
+            # Create transformed distribution
+            # TODO: Check that if bijector is autoregressive then parameters are as well
+            # Possibly do this in simplex.Bijector.__init__ and call from simple.bijectors.*.__init__
+            input_shape = x.batch_shape + x.event_shape
+            params = self.param_fn(input_shape, self.param_shapes(x)) # <= this is where hypernets etc. are instantiated
+            new_dist = simplex.distributions.TransformedDistribution(x, self, params)
+            return new_dist, params            
 
         # TODO: Handle other types of inputs such as tensors
         else:

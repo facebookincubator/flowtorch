@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 
 import simplex
+import simplex.params
 from simplex.utils import clamp_preserve_gradients
 
 class AffineAutoregressive(simplex.Bijector):
@@ -13,11 +14,13 @@ class AffineAutoregressive(simplex.Bijector):
 
     def __init__(
             self,
+            param_fn=simplex.Params(simplex.params.DenseAutoregressive),
             log_scale_min_clip=-5.,
             log_scale_max_clip=3.,
             sigmoid_bias=2.0,
     ):
         #super().__init__()
+        self.param_fn = param_fn
         self.log_scale_min_clip = log_scale_min_clip
         self.log_scale_max_clip = log_scale_max_clip
         self.sigmoid_bias = sigmoid_bias
@@ -57,4 +60,4 @@ class AffineAutoregressive(simplex.Bijector):
 
     def param_shapes(self, dist):
         # A mean and log variance for every dimension of base distribution
-        return dist.batch_shape + dist.event_shape, dist.batch_shape + dist.event_shape
+        return torch.Size([]), torch.Size([])
