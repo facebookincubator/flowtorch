@@ -24,8 +24,9 @@ Parameters should take care of caching when necessary.
 """
 
 from simplex.params.dense_autoregressive import DenseAutoregressive
-
+from simplex.params.decorators import lazy_parameters
 
 __all__ = [
+    "lazy_parameters",
     "DenseAutoregressive",
 ]

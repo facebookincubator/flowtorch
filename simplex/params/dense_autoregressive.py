@@ -1,11 +1,15 @@
 # Copyright (c) Simplex Development Team. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
+import functools
 import warnings
 
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
+
+import simplex
+from simplex.params.decorators import lazy_parameters
 
 def sample_mask_indices(input_dim, hidden_dim, simple=True):
     """
@@ -96,6 +100,7 @@ class MaskedLinear(nn.Linear):
         return F.linear(_input, masked_weight, self.bias)
 
 # TODO: API for a conditional version of this?
+@lazy_parameters
 class DenseAutoregressive(nn.Module):
     autoregressive = True
 
