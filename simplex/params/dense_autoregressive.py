@@ -103,6 +103,7 @@ class MaskedLinear(nn.Linear):
 @lazy_parameters
 class DenseAutoregressive(nn.Module):
     autoregressive = True
+    state = 0
 
     def __init__(
             self,

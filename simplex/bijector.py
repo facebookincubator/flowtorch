@@ -16,6 +16,11 @@ class Bijector(object):
     identity_initialization = True
     autoregressive = False
 
+    x_cache = None
+    y_cache = None
+    J_cache = None
+    params_state = 0
+
     # TODO: Returning inverse of bijection
     #def __init__(self):
     #    self._inv = None
@@ -41,17 +46,55 @@ class Bijector(object):
 
     def forward(self, x, params=None):
         """
+        Layer of indirection to implement caching
+        """
+        if self.x_cache is x and self.params_state == params.state:
+            return self.y_cache
+        else:
+            y = self._forward(x, params)
+            self.x_cache = x
+            self.y_cache = y
+            self.params_state = params.state
+            return y
+
+    def _forward(self, x, params=None):
+        """
         Abstract method to compute forward transformation.
         """
         raise NotImplementedError
 
     def inverse(self, y, params=None):
+        if self.y_cache is y and self.params_state == params.state:
+            return self.x_cache
+        else:
+            x = self._inverse(y, params)
+            self.x_cache = x
+            self.y_cache = y
+            self.params_state = params.state
+            return x
+
+    def _inverse(self, y, params=None):
         """
         Abstract method to compute inverse transformation.
         """
         raise NotImplementedError
 
     def log_abs_det_jacobian(self, x, y, params=None):
+        """
+        Computes the log det jacobian `log |dy/dx|` given input and output. 
+        By default, assumes a volume preserving bijection.
+        """
+        if self.x_cache is x and self.y_cache is y and self.J_cache is not None and self.params_state == params.state:
+            return self.J_cache
+        else:
+            J = self._log_abs_det_jacobian(x, y, params)
+            self.x_cache = x
+            self.y_cache = y
+            self.J_cache = J
+            self.params_state = params.state
+            return J
+
+    def _log_abs_det_jacobian(self, x, y, params=None):
         """
         Computes the log det jacobian `log |dy/dx|` given input and output. 
         By default, assumes a volume preserving bijection.

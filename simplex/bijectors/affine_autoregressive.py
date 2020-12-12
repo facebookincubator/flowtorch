@@ -28,14 +28,14 @@ class AffineAutoregressive(simplex.Bijector):
         self.sigmoid = nn.Sigmoid()
         self.logsigmoid = nn.LogSigmoid()
 
-    def forward(self, x, params=None):
+    def _forward(self, x, params=None):
         mean, log_scale, _ = params(x)
         log_scale = clamp_preserve_gradients(log_scale, self.log_scale_min_clip, self.log_scale_max_clip)
         scale = torch.exp(log_scale)
         y = scale * x + mean
         return y
 
-    def inverse(self, y, params=None):
+    def _inverse(self, y, params=None):
         x_size = y.size()[:-1]
         _, _, perm = params()
         input_dim = y.size(-1)
@@ -52,7 +52,7 @@ class AffineAutoregressive(simplex.Bijector):
         x = torch.stack(x, dim=-1)
         return x
 
-    def log_abs_det_jacobian(self, x, y, params=None):
+    def _log_abs_det_jacobian(self, x, y, params=None):
         # Note: params will take care of caching "mean, log_scale, perm = params(x)"
         _, log_scale, _ = params(x)
         log_scale = clamp_preserve_gradients(log_scale, self.log_scale_min_clip, self.log_scale_max_clip)

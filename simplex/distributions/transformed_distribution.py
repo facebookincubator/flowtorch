@@ -15,6 +15,7 @@ class TransformedDistribution(torch.distributions.Distribution):
 
         self.params = weakref.proxy(params)
         self.bijector = bijector
+        self.cache = {}
         
         shape = self.base_dist.batch_shape + self.base_dist.event_shape
         event_dim = max(len(self.base_dist.event_shape), self.bijector.event_dim)
@@ -55,5 +56,7 @@ class TransformedDistribution(torch.distributions.Distribution):
         x = self.bijector.inverse(y, self.params)
         log_prob = _sum_rightmost(self.bijector.log_abs_det_jacobian(x, y, self.params), event_dim - self.bijector.event_dim)
         log_prob = log_prob + _sum_rightmost(self.base_dist.log_prob(x), event_dim - len(self.base_dist.event_shape))
+
+        #self.cache(y,)
 
         return log_prob
