@@ -39,7 +39,7 @@ print('inv(y)', y_inv)"""
 
 # Example of creating transformed distribution
 #flow = simplex.bijectors.AffineAutoregressive(simplex.Params(simplex.params.DenseAutoregressive))
-flow = simplex.bijectors.AffineAutoregressive(simplex.params.DenseAutoregressive(skip_connections=True))
+flow = simplex.bijectors.AffineAutoregressive(simplex.params.DenseAutoregressive(skip_connections=False))
 base_dist = torch.distributions.Normal(torch.zeros(input_dim), torch.ones(input_dim))
 
 new_dist, params = flow(base_dist)
