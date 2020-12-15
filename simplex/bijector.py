@@ -51,13 +51,13 @@ class Bijector(object):
         """
         Layer of indirection to implement caching
         """
-        if self.x_cache is x and self.state_cache == params.state:
+        if self.x_cache is x and self.state_cache == params.param.state:
             return self.y_cache
         else:
             y = self._forward(x, params)
             self.x_cache = x
             self.y_cache = y
-            self.state_cache = params.state
+            self.state_cache = params.params.state
             return y
 
     def _forward(self, x, params=None):
@@ -67,13 +67,13 @@ class Bijector(object):
         raise NotImplementedError
 
     def inverse(self, y, params=None):
-        if self.y_cache is y and self.state_cache == params.state:
+        if self.y_cache is y and self.state_cache == params.params.state:
             return self.x_cache
         else:
             x = self._inverse(y, params)
             self.x_cache = x
             self.y_cache = y
-            self.state_cache = params.state
+            self.state_cache = params.params.state
             return x
 
     def _inverse(self, y, params=None):

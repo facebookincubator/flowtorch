@@ -102,7 +102,6 @@ class MaskedLinear(nn.Linear):
 # TODO: API for a conditional version of this?
 class DenseAutoregressive(simplex.Params):
     autoregressive = True
-    state = 0
 
     def __init__(
             self,

@@ -9,6 +9,7 @@ class Params(object):
     x_cache = None
     p_cache = None
     state_cache = 0
+    state = 0
 
     def __init__(self, **kwargs):
         super(Params, self).__init__()

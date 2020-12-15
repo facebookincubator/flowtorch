@@ -25,14 +25,14 @@ means, log_sds, perm = params(x)
 print(means.shape, log_sds.shape, perm)
 
 # Try out low-level methods of bijector
-#x = torch.randn(input_dim)
-#y = bijection.forward(x, params=hypernet)
-#y_inv = bijection.inverse(y, params=hypernet)
+x = torch.randn(input_dim)
+y = bijection.forward(x, params=params)
+y_inv = bijection.inverse(y, params=params)
 
-#print(bijection) # <= testing inheritance from simplex.Bijector
-#print('x', x)
-#print('y', y)
-#print('inv(y)', y_inv)"""
+print(bijection) # <= testing inheritance from simplex.Bijector
+print('x', x)
+print('y', y)
+print('inv(y)', y_inv)
 
 # Example of lazily instantiating hypernetwork
 # TODO: Remove layer of indirection from the following (possibly with class decorator)!
