@@ -121,7 +121,9 @@ class DenseAutoregressive(simplex.Params):
         self.context_dims = 0
 
         # Work out flattened input and output shapes
-        self.input_dims = torch.sum(torch.tensor(input_shape)).item()
+        self.input_dims = torch.sum(torch.tensor(input_shape)).int().item()
+        if self.input_dims == 0:
+            self.input_dims = 1  # scalars represented by torch.Size([])
         self.output_multiplier = sum([max(torch.sum(torch.tensor(s)).item(), 1) for s in param_shapes])
         if self.input_dims == 1:
             warnings.warn('DenseAutoregressive input_dim = 1. Consider using an affine transformation instead.')
