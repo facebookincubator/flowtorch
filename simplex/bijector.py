@@ -8,6 +8,7 @@ from torch.distributions import constraints
 import simplex
 import simplex.distributions
 
+
 class Bijector(object):
     # Metadata about (the default) bijector
     event_dim = 0
@@ -24,7 +25,7 @@ class Bijector(object):
     # TODO: Returning inverse of bijection
     def __init__(self, param_fn, **kwargs):
         super(Bijector, self).__init__()
-        #self._inv = None
+        # self._inv = None
         self.param_fn = param_fn
         for n, v in kwargs.items():
             setattr(self, n, v)
@@ -39,26 +40,31 @@ class Bijector(object):
             # TODO: Check that if bijector is autoregressive then parameters are as well
             # Possibly do this in simplex.Bijector.__init__ and call from simple.bijectors.*.__init__
             input_shape = base_dist.batch_shape + base_dist.event_shape
-            params = self.param_fn(input_shape, self.param_shapes(base_dist)) # <= this is where hypernets etc. are instantiated
-            new_dist = simplex.distributions.TransformedDistribution(base_dist, self, params)
+            params = self.param_fn(
+                input_shape, self.param_shapes(base_dist)
+            )  # <= this is where hypernets etc. are instantiated
+            new_dist = simplex.distributions.TransformedDistribution(
+                base_dist, self, params
+            )
             return new_dist, params
 
         # TODO: Handle other types of inputs such as tensors
         else:
-            raise TypeError(f'Bijector called with invalid type: {type(base_dist)}')
+            raise TypeError(f"Bijector called with invalid type: {type(base_dist)}")
 
     def forward(self, x, params=None):
         """
         Layer of indirection to implement caching
         """
-        if self.x_cache is x and self.state_cache == params.param.state:
-            return self.y_cache
-        else:
-            y = self._forward(x, params)
-            self.x_cache = x
-            self.y_cache = y
-            self.state_cache = params.params.state
-            return y
+        # if self.x_cache is x and self.state_cache == params.param.state:
+        #     return self.y_cache
+        # else:
+        #     y = self._forward(x, params)
+        #     self.x_cache = x
+        #     self.y_cache = y
+        #     self.state_cache = params.params.state
+        #     return y
+        return self._forward(x, params)
 
     def _forward(self, x, params=None):
         """
@@ -84,10 +90,15 @@ class Bijector(object):
 
     def log_abs_det_jacobian(self, x, y, params=None):
         """
-        Computes the log det jacobian `log |dy/dx|` given input and output. 
+        Computes the log det jacobian `log |dy/dx|` given input and output.
         By default, assumes a volume preserving bijection.
         """
-        if self.x_cache is x and self.y_cache is y and self.J_cache is not None and self.state_cache == params.params.state:
+        if (
+            self.x_cache is x
+            and self.y_cache is y
+            and self.J_cache is not None
+            and self.state_cache == params.params.state
+        ):
             return self.J_cache
         else:
             J = self._log_abs_det_jacobian(x, y, params)
@@ -99,7 +110,7 @@ class Bijector(object):
 
     def _log_abs_det_jacobian(self, x, y, params=None):
         """
-        Computes the log det jacobian `log |dy/dx|` given input and output. 
+        Computes the log det jacobian `log |dy/dx|` given input and output.
         By default, assumes a volume preserving bijection.
         """
 
@@ -116,4 +127,4 @@ class Bijector(object):
         return None
 
     def __repr__(self):
-        return self.__class__.__name__ + '()'
+        return self.__class__.__name__ + "()"

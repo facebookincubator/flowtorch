@@ -4,5 +4,5 @@
 from simplex.distributions.transformed_distribution import TransformedDistribution
 
 __all__ = [
-    'TransformedDistribution',
+    "TransformedDistribution",
 ]

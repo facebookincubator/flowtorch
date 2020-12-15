@@ -2,11 +2,10 @@
 # SPDX-License-Identifier: MIT
 
 import torch
+
 import simplex
 import simplex.bijectors as bijectors
 import simplex.params as params
-
-import functools
 
 # Settings
 torch.manual_seed(0)
@@ -29,20 +28,20 @@ x = torch.randn(input_dim)
 y = bijection.forward(x, params=params)
 y_inv = bijection.inverse(y, params=params)
 
-print(bijection) # <= testing inheritance from simplex.Bijector
-print('x', x)
-print('y', y)
-print('inv(y)', y_inv)
+print(bijection)  # <= testing inheritance from simplex.Bijector
+print("x", x)
+print("y", y)
+print("inv(y)", y_inv)
 
 # Example of lazily instantiating hypernetwork
 # TODO: Remove layer of indirection from the following (possibly with class decorator)!
-#p = simplex.Params(simplex.params.DenseAutoregressive)
-#hypernet = p(torch.Size((input_dim,)), [torch.Size(()), torch.Size(())])
+# p = simplex.Params(simplex.params.DenseAutoregressive)
+# hypernet = p(torch.Size((input_dim,)), [torch.Size(()), torch.Size(())])
 
-#base_dist = torch.distributions.Normal(torch.zeros(input_dim), torch.ones(input_dim))
-#x = base_dist.sample()
+# base_dist = torch.distributions.Normal(torch.zeros(input_dim), torch.ones(input_dim))
+# x = base_dist.sample()
 
-#print(hypernet(x))
+# print(hypernet(x))
 
 # Example of creating transformed distribution
 flow = simplex.bijectors.AffineAutoregressive(simplex.params.DenseAutoregressive())
@@ -54,8 +53,8 @@ print(type(new_dist), type(params))
 print(new_dist.rsample())
 print(new_dist.log_prob(base_dist.sample()))
 
-#p = simplex.params.DenseAutoregressive()
-#print(type(p))
+# p = simplex.params.DenseAutoregressive()
+# print(type(p))
 
-#for n, p in params.named_parameters():
+# for n, p in params.named_parameters():
 #    print(n, p)

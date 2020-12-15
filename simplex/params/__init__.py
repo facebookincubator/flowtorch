@@ -19,7 +19,7 @@ as autoregressive neural networks being a function of the input random variable.
 In all cases, they should be callables that you can pass to classes deriving from
 Bijector. They encapsulate *all* of the state for a bijection.
 
-Parameters should take care of caching when necessary. 
+Parameters should take care of caching when necessary.
 
 """
 

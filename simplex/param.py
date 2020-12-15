@@ -2,10 +2,12 @@
 # SPDX-License-Identifier: MIT
 import torch
 
+
 class Params(object):
     """
     Deferred initialization of parameters.
     """
+
     x_cache = None
     p_cache = None
     state_cache = 0
@@ -13,7 +15,7 @@ class Params(object):
 
     def __init__(self, **kwargs):
         super(Params, self).__init__()
-        #self._inv = None
+        # self._inv = None
         for n, v in kwargs.items():
             setattr(self, n, v)
 
@@ -26,7 +28,7 @@ class Params(object):
                 self.mods = modules
 
                 # DEBUG
-                #for m in modules:
+                # for m in modules:
                 #    print(m)
 
                 if buffers is not None:
@@ -35,7 +37,7 @@ class Params(object):
 
             def forward(self, x):
                 return self.params.forward(x, modules=self.mods)
-            
+
         return ParamsModule(self, *self.build(input_shape, param_shapes))
 
     def forward(self, x, context=None, modules=None):
