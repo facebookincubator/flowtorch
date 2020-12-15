@@ -1,3 +1,5 @@
+https://github.com/stefanwebb/simplex/workflows/Python%20package/badge.svg
+
 Copyright (c) Simplex Development Team.
 
 This source code is licensed under the MIT license found in the
