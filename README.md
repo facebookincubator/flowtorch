@@ -1,4 +1,4 @@
-![https://github.com/stefanwebb/simplex/actions?query=workflow%3A%22Python+package%22](https://github.com/stefanwebb/simplex/workflows/Python%20package/badge.svg)
+[![](https://github.com/stefanwebb/simplex/workflows/Python%20package/badge.svg)](https://github.com/stefanwebb/simplex/actions?query=workflow%3A%22Python+package%22)
 
 Copyright (c) Simplex Development Team.
 
