@@ -13,19 +13,26 @@ torch.manual_seed(0)
 batch_dim = 100
 input_dim = 10
 
-# Create stateless bijector and statefull hypernetwork
-"""bijection = bijectors.AffineAutoregressive()
-hypernet = params.DenseAutoregressive(input_dim=input_dim, context_dim=0, hidden_dims=[50])
+# Create stateless bijector and stateful hypernetwork
+base_dist = torch.distributions.Normal(torch.zeros(input_dim), torch.ones(input_dim))
+bijection = bijectors.AffineAutoregressive()
+lazy_params = params.DenseAutoregressive(hidden_dims=[50])
+params = lazy_params(torch.Size([input_dim]), bijection.param_shapes(base_dist))
+
+x = base_dist.rsample(torch.Size([batch_dim]))
+means, log_sds, perm = params(x)
+
+print(means.shape, log_sds.shape, perm)
 
 # Try out low-level methods of bijector
-x = torch.randn(input_dim)
-y = bijection.forward(x, params=hypernet)
-y_inv = bijection.inverse(y, params=hypernet)
+#x = torch.randn(input_dim)
+#y = bijection.forward(x, params=hypernet)
+#y_inv = bijection.inverse(y, params=hypernet)
 
-print(bijection) # <= testing inheritance from simplex.Bijector
-print('x', x)
-print('y', y)
-print('inv(y)', y_inv)"""
+#print(bijection) # <= testing inheritance from simplex.Bijector
+#print('x', x)
+#print('y', y)
+#print('inv(y)', y_inv)"""
 
 # Example of lazily instantiating hypernetwork
 # TODO: Remove layer of indirection from the following (possibly with class decorator)!
@@ -39,14 +46,15 @@ print('inv(y)', y_inv)"""
 
 # Example of creating transformed distribution
 #flow = simplex.bijectors.AffineAutoregressive(simplex.Params(simplex.params.DenseAutoregressive))
-flow = simplex.bijectors.AffineAutoregressive(simplex.params.DenseAutoregressive(skip_connections=False))
+
+"""flow = simplex.bijectors.AffineAutoregressive(simplex.params.DenseAutoregressive(skip_connections=False))
 base_dist = torch.distributions.Normal(torch.zeros(input_dim), torch.ones(input_dim))
 
 new_dist, params = flow(base_dist)
 print(type(new_dist), type(params))
 
 print(new_dist.rsample())
-print(new_dist.log_prob(base_dist.sample()))
+print(new_dist.log_prob(base_dist.sample()))"""
 
 #p = simplex.params.DenseAutoregressive()
 #print(type(p))

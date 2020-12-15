@@ -1,15 +1,65 @@
 # Copyright (c) Simplex Development Team. All Rights Reserved
 # SPDX-License-Identifier: MIT
-
+import torch
 
 class Params(object):
     """
     Deferred initialization of parameters.
     """
-    def __init__(self, parameter_class, **kwargs):
-        self.parameter_class = parameter_class
-        self.kwargs = kwargs
+    x_cache = None
+    p_cache = None
+    state_cache = 0
+
+    def __init__(self, **kwargs):
+        super(Params, self).__init__()
+        #self._inv = None
+        for n, v in kwargs.items():
+            setattr(self, n, v)
 
     def __call__(self, input_shape, param_shapes):
-        hypernet = self.parameter_class(input_shape, param_shapes, **self.kwargs)
-        return hypernet
+        # TODO: Take this class out of Params!
+        class ParamsModule(torch.nn.Module):
+            def __init__(self, params, modules, buffers):
+                super(ParamsModule, self).__init__()
+                self.params = params
+                self.mods = modules
+
+                # DEBUG
+                #for m in modules:
+                #    print(m)
+
+                if buffers is not None:
+                    for n, v in buffers.items():
+                        self.register_buffer(n, v)
+
+            def forward(self, x):
+                return self.params.forward(x, modules=self.mods)
+            
+        return ParamsModule(self, *self.build(input_shape, param_shapes))
+
+    def forward(self, x, context=None, modules=None):
+        if self.x_cache is x and self.state_cache == self.state:
+            return self.p_cache
+        else:
+            p = self._forward(x, context=context, modules=modules)
+            self.x_cache = x
+            self.p_cache = p
+            self.state_cache = self.state
+            return p
+
+    def _forward(self, x, context=None, modules=None):
+        """
+        Abstract method to ***
+        """
+        raise NotImplementedError
+
+    def build(self, input_shape, param_shapes):
+        self.input_shape = input_shape
+        self.param_shapes = param_shapes
+        return self._build(input_shape, param_shapes)
+
+    def _build(self, input_shape, param_shapes):
+        """
+        Abstract method to ***
+        """
+        raise NotImplementedError

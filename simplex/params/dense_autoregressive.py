@@ -100,41 +100,36 @@ class MaskedLinear(nn.Linear):
         return F.linear(_input, masked_weight, self.bias)
 
 # TODO: API for a conditional version of this?
-@lazy_parameters
-class DenseAutoregressive(nn.Module):
+class DenseAutoregressive(simplex.Params):
     autoregressive = True
     state = 0
 
     def __init__(
             self,
-            input_shape,
-            param_shapes,
-            *,
             hidden_dims=[256, 256],
             nonlinearity=nn.ReLU(),
             permutation=None,
-            skip_connections=False):
-        super().__init__()
+            skip_connections=False,
+            ):
+        super(DenseAutoregressive, self).__init__(hidden_dims=hidden_dims,
+                nonlinearity=nonlinearity,
+                permutation=permutation,
+                skip_connections=skip_connections
+            )
 
-        # Save keyword args
-        self.input_shape = input_shape
-        self.param_shapes = param_shapes
-        self.hidden_dims = hidden_dims
-        self.skip_connections = skip_connections
-        self.nonlinearity = nonlinearity
-
+    def _build(self, input_shape, param_shapes):
         # TODO: Implement conditional version!
         self.context_dims = 0
 
         # Work out flattened input and output shapes
-        self.input_dims = torch.sum(torch.tensor(self.input_shape)).item()
-        self.output_multiplier = sum([max(torch.sum(torch.tensor(s)).item(), 1) for s in self.param_shapes])
+        self.input_dims = torch.sum(torch.tensor(input_shape)).item()
+        self.output_multiplier = sum([max(torch.sum(torch.tensor(s)).item(), 1) for s in param_shapes])
         if self.input_dims == 1:
-            warnings.warn('AutoRegressiveNN input_dim = 1. Consider using an affine transformation instead.')
-        self.count_params = len(self.param_shapes)
+            warnings.warn('DenseAutoregressive input_dim = 1. Consider using an affine transformation instead.')
+        self.count_params = len(param_shapes)
 
         # Calculate the indices on the output corresponding to each parameter
-        ends = torch.cumsum(torch.tensor([max(torch.sum(torch.tensor(s)).item(), 1) for s in self.param_shapes]), dim=0)
+        ends = torch.cumsum(torch.tensor([max(torch.sum(torch.tensor(s)).item(), 1) for s in param_shapes]), dim=0)
         starts = torch.cat((torch.zeros(1).type_as(ends), ends[:-1]))
         self.param_slices = [slice(s.item(), e.item()) for s, e in zip(starts, ends)]
 
@@ -144,20 +139,22 @@ class DenseAutoregressive(nn.Module):
             if h < self.input_dims:
                 raise ValueError('Hidden dimension must not be less than input dimension.')
 
-        if permutation is None:
+        if self.permutation is None:
             # By default set a random permutation of variables, which is important for performance with multiple steps
-            P = torch.randperm(self.input_dims, device='cpu').to(torch.Tensor().device)
+            self.permutation = torch.randperm(self.input_dims, device='cpu').to(torch.Tensor().device)
         else:
             # The permutation is chosen by the user
-            P = permutation.type(dtype=torch.int64)
+            self.permutation = self.permutation.type(dtype=torch.int64)
 
         # TODO: Check that the permutation is valid for the input dimension!
         # Implement ispermutation() that sorts permutation and checks whether it
         # has all integers from 0, 1, ..., self.input_dims - 1
 
-        self.register_buffer('permutation', P)
+        buffers = {'permutation': self.permutation}
+        #self.register_buffer('permutation', P)
 
         # Create masks
+        hidden_dims = self.hidden_dims
         self.masks, self.mask_skip = create_mask(
             input_dim=self.input_dims, context_dim=self.context_dims, hidden_dims=hidden_dims, permutation=self.permutation,
             output_dim_multiplier=self.output_multiplier)
@@ -167,19 +164,19 @@ class DenseAutoregressive(nn.Module):
         for i in range(1, len(hidden_dims)):
             layers.append(MaskedLinear(hidden_dims[i - 1], hidden_dims[i], self.masks[i]))
         layers.append(MaskedLinear(hidden_dims[-1], self.input_dims * self.output_multiplier, self.masks[-1]))
-        self.layers = nn.ModuleList(layers)
 
-        if skip_connections:
-            self.skip_layer = MaskedLinear(
+        if self.skip_connections:
+            layers.append(MaskedLinear(
                 self.input_dims +
                 self.context_dims,
                 self.input_dims * self.output_multiplier,
                 self.mask_skip,
-                bias=False)
-        else:
-            self.skip_layer = None
+                bias=False))
 
-    def forward(self, x=None, context=None):
+        layers = nn.ModuleList(layers)
+        return layers, buffers
+
+    def _forward(self, x=None, context=None, modules=None):
         if x is None:
             return None, None, self.permutation
 
@@ -190,17 +187,19 @@ class DenseAutoregressive(nn.Module):
 
         #context = context.expand(x.size()[:-1] + (context.size(-1),))
         #x = torch.cat([context, x], dim=-1)
-        return self._forward(x)
+        return self.__forward(x, modules)
 
-    def _forward(self, x):
+    def __forward(self, x, layers):
         # TODO: Flatten x. This will fail when len(input_shape) > 0
+        # TODO: Get this working again when using skip_layers!
         h = x
-        for layer in self.layers[:-1]:
+        for layer in layers[:-1]:
             h = self.nonlinearity(layer(h))
-        h = self.layers[-1](h)
+        h = layers[-1](h)
 
-        if self.skip_layer is not None:
-            h = h + self.skip_layer(x)
+        # TODO: Get skip_layers working again!
+        #if self.skip_layer is not None:
+        #    h = h + self.skip_layer(x)
 
         # Shape the output
         h = h.reshape(x.size()[:-len(self.input_shape)] + (self.output_multiplier, self.input_dims))

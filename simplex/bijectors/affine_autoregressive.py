@@ -14,19 +14,16 @@ class AffineAutoregressive(simplex.Bijector):
 
     def __init__(
             self,
-            param_fn=simplex.Params(simplex.params.DenseAutoregressive),
+            param_fn=simplex.params.dense_autoregressive,
             log_scale_min_clip=-5.,
             log_scale_max_clip=3.,
             sigmoid_bias=2.0,
     ):
-        #super().__init__()
-        self.param_fn = param_fn
-        self.log_scale_min_clip = log_scale_min_clip
-        self.log_scale_max_clip = log_scale_max_clip
-        self.sigmoid_bias = sigmoid_bias
-
-        self.sigmoid = nn.Sigmoid()
-        self.logsigmoid = nn.LogSigmoid()
+        super(AffineAutoregressive, self).__init__(param_fn=param_fn,
+            log_scale_min_clip=log_scale_min_clip,
+            log_scale_max_clip=log_scale_max_clip,
+            sigmoid_bias=sigmoid_bias
+            )
 
     def _forward(self, x, params=None):
         mean, log_scale, _ = params(x)
