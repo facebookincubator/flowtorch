@@ -1,7 +1,6 @@
 # Copyright (c) Simplex Development Team. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
-import functools
 import warnings
 
 import torch
@@ -9,9 +8,10 @@ import torch.nn as nn
 from torch.nn import functional as F
 
 import simplex
-from simplex.params.decorators import lazy_parameters
+
 
 def sample_mask_indices(input_dim, hidden_dim, simple=True):
+
     """
     Samples the indices assigned to hidden units during the construction of MADE masks
     :param input_dim: the dimensionality of the input variable

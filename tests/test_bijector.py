@@ -1,5 +1,9 @@
 import simplex
+import simplex.params
+import simplex.bijectors
+
 
 def test_bijector_constructor():
-    b = simplex.Bijector()
+    param_fn = simplex.params.DenseAutoregressive()
+    b = simplex.bijectors.AffineAutoregressive(param_fn=param_fn)
     assert b is not None
