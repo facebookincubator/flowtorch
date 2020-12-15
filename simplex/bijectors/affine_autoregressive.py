@@ -26,7 +26,7 @@ class AffineAutoregressive(simplex.Bijector):
             )
 
     def _forward(self, x, params=None):
-        mean, log_scale, _ = params(x)
+        mean, log_scale = params(x)
         log_scale = clamp_preserve_gradients(log_scale, self.log_scale_min_clip, self.log_scale_max_clip)
         scale = torch.exp(log_scale)
         y = scale * x + mean
@@ -34,13 +34,13 @@ class AffineAutoregressive(simplex.Bijector):
 
     def _inverse(self, y, params=None):
         x_size = y.size()[:-1]
-        _, _, perm = params()
+        perm = params.permutation
         input_dim = y.size(-1)
         x = [torch.zeros(x_size, device=y.device)] * input_dim
 
         # NOTE: Inversion is an expensive operation that scales in the dimension of the input
         for idx in perm:
-            mean, log_scale, _ = params(torch.stack(x, dim=-1))
+            mean, log_scale = params(torch.stack(x, dim=-1))
             inverse_scale = torch.exp(-clamp_preserve_gradients(
                 log_scale[..., idx], min=self.log_scale_min_clip, max=self.log_scale_max_clip))
             mean = mean[..., idx]
@@ -51,7 +51,7 @@ class AffineAutoregressive(simplex.Bijector):
 
     def _log_abs_det_jacobian(self, x, y, params=None):
         # Note: params will take care of caching "mean, log_scale, perm = params(x)"
-        _, log_scale, _ = params(x)
+        _, log_scale = params(x)
         log_scale = clamp_preserve_gradients(log_scale, self.log_scale_min_clip, self.log_scale_max_clip)
         return log_scale.sum(-1)
 

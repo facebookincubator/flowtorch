@@ -20,9 +20,9 @@ lazy_params = params.DenseAutoregressive(hidden_dims=[50])
 params = lazy_params(torch.Size([input_dim]), bijection.param_shapes(base_dist))
 
 x = base_dist.rsample(torch.Size([batch_dim]))
-means, log_sds, perm = params(x)
+means, log_sds = params(x)
 
-print(means.shape, log_sds.shape, perm)
+print(means.shape, log_sds.shape, params.permutation)
 
 # Try out low-level methods of bijector
 x = torch.randn(input_dim)
@@ -45,16 +45,14 @@ print('inv(y)', y_inv)
 #print(hypernet(x))
 
 # Example of creating transformed distribution
-#flow = simplex.bijectors.AffineAutoregressive(simplex.Params(simplex.params.DenseAutoregressive))
-
-"""flow = simplex.bijectors.AffineAutoregressive(simplex.params.DenseAutoregressive(skip_connections=False))
+flow = simplex.bijectors.AffineAutoregressive(simplex.params.DenseAutoregressive())
 base_dist = torch.distributions.Normal(torch.zeros(input_dim), torch.ones(input_dim))
 
 new_dist, params = flow(base_dist)
 print(type(new_dist), type(params))
 
 print(new_dist.rsample())
-print(new_dist.log_prob(base_dist.sample()))"""
+print(new_dist.log_prob(base_dist.sample()))
 
 #p = simplex.params.DenseAutoregressive()
 #print(type(p))

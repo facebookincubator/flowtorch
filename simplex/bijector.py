@@ -87,14 +87,14 @@ class Bijector(object):
         Computes the log det jacobian `log |dy/dx|` given input and output. 
         By default, assumes a volume preserving bijection.
         """
-        if self.x_cache is x and self.y_cache is y and self.J_cache is not None and self.state_cache == params.state:
+        if self.x_cache is x and self.y_cache is y and self.J_cache is not None and self.state_cache == params.params.state:
             return self.J_cache
         else:
             J = self._log_abs_det_jacobian(x, y, params)
             self.x_cache = x
             self.y_cache = y
             self.J_cache = J
-            self.state_cache = params.state
+            self.state_cache = params.params.state
             return J
 
     def _log_abs_det_jacobian(self, x, y, params=None):

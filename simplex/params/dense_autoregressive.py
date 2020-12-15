@@ -176,25 +176,17 @@ class DenseAutoregressive(simplex.Params):
         return layers, buffers
 
     def _forward(self, x=None, context=None, modules=None):
-        if x is None:
-            return None, None, self.permutation
-
         # DEBUG: Disabled context
         # We must be able to broadcast the size of the context over the input
         #if context is None:
         #    context = self.context
 
-        #context = context.expand(x.size()[:-1] + (context.size(-1),))
-        #x = torch.cat([context, x], dim=-1)
-        return self.__forward(x, modules)
-
-    def __forward(self, x, layers):
         # TODO: Flatten x. This will fail when len(input_shape) > 0
         # TODO: Get this working again when using skip_layers!
         h = x
-        for layer in layers[:-1]:
+        for layer in modules[:-1]:
             h = self.nonlinearity(layer(h))
-        h = layers[-1](h)
+        h = modules[-1](h)
 
         # TODO: Get skip_layers working again!
         #if self.skip_layer is not None:
@@ -203,4 +195,4 @@ class DenseAutoregressive(simplex.Params):
         # Shape the output
         h = h.reshape(x.size()[:-len(self.input_shape)] + (self.output_multiplier, self.input_dims))
         h = tuple(h[..., p_slice, :].reshape(h.shape[:-2] + p_shape + self.input_shape) for p_slice, p_shape in zip(self.param_slices, self.param_shapes))
-        return h + (self.permutation,)
+        return h
