@@ -8,7 +8,7 @@ import sys
 from setuptools import find_packages, setup
 
 REQUIRED_MAJOR = 3
-REQUIRED_MINOR = 6
+REQUIRED_MINOR = 7
 
 
 TEST_REQUIRES = ["pytest", "pytest-cov"]
