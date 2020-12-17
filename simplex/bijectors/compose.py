@@ -4,13 +4,11 @@
 import torch
 import torch.distributions
 from torch.distributions import constraints
-from torch.distributions.utils import _sum_rightmost
 
 import simplex
 
-class Compose(simplex.Bijector):
-    
 
+class Compose(simplex.Bijector):
     def __init__(self, bijectors):
         self.bijectors = bijectors
         self.event_dim = max([b.event_dim for b in self.bijectors])
@@ -19,7 +17,9 @@ class Compose(simplex.Bijector):
         self.domain = constraints.real_vector
         self.codomain = constraints.real_vector
 
-        self.identity_initialization = all([b.identity_intialization for b in self.bijectors])
+        self.identity_initialization = all(
+            [b.identity_intialization for b in self.bijectors]
+        )
         self.autoregressive = all([b.autoregressive for b in self.bijectors])
 
     def __call__(self, x):
@@ -32,13 +32,15 @@ class Compose(simplex.Bijector):
             # TODO: Check that if bijector is autoregressive then parameters are as well
             # Possibly do this in simplex.Bijector.__init__ and call from simple.bijectors.*.__init__
             input_shape = x.batch_shape + x.event_shape
-            params = self.param_fn(input_shape, self.param_shapes(x)) # <= this is where hypernets etc. are instantiated
+            params = self.param_fn(
+                input_shape, self.param_shapes(x)
+            )  # <= this is where hypernets etc. are instantiated
             new_dist = simplex.distributions.TransformedDistribution(x, self, params)
-            return new_dist, params            
+            return new_dist, params
 
         # TODO: Handle other types of inputs such as tensors
         else:
-            raise TypeError(f'Bijector called with invalid type: {type(x)}')
+            raise TypeError(f"Bijector called with invalid type: {type(x)}")
 
     # NOTE: We overwrite forward rather than _forward so that the composed bijectors
     # can handle the caching separately!
@@ -60,7 +62,7 @@ class Compose(simplex.Bijector):
 
     def log_abs_det_jacobian(self, x, y, params=None):
         """
-        Computes the log det jacobian `log |dy/dx|` given input and output. 
+        Computes the log det jacobian `log |dy/dx|` given input and output.
         By default, assumes a volume preserving bijection.
         """
 

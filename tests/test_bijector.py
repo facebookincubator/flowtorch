@@ -1,6 +1,6 @@
 import simplex
-import simplex.params
 import simplex.bijectors
+import simplex.params
 
 
 def test_bijector_constructor():

@@ -7,15 +7,15 @@ import sys
 
 from setuptools import find_packages, setup
 
-
 REQUIRED_MAJOR = 3
-REQUIRED_MINOR = 6
+REQUIRED_MINOR = 7
 
 
 TEST_REQUIRES = ["pytest", "pytest-cov"]
 DEV_REQUIRES = TEST_REQUIRES + [
-    "isort",
+    "black",
     "flake8",
+    "isort",
     "recommonmark",
     "sphinx",
     "sphinx-autodoc-typehints",
@@ -81,7 +81,7 @@ setup(
         "torch>=1.6.0",
     ],
     packages=find_packages("simplex", "simplex.*"),
-    #package_dir={"": "simplex"},
+    # package_dir={"": "simplex"},
     extras_require={
         "dev": DEV_REQUIRES,
         "test": TEST_REQUIRES,
