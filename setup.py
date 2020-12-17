@@ -77,13 +77,8 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     python_requires=">=3.7",
-    install_requires=[
-        "torch>=1.6.0",
-    ],
+    install_requires=["torch>=1.6.0",],
     packages=find_packages("simplex", "simplex.*"),
     # package_dir={"": "simplex"},
-    extras_require={
-        "dev": DEV_REQUIRES,
-        "test": TEST_REQUIRES,
-    },
+    extras_require={"dev": DEV_REQUIRES, "test": TEST_REQUIRES,},
 )

@@ -247,8 +247,17 @@ class DenseAutoregressive(simplex.Params):
         # Shape the output
         if len(self.input_shape) == 0:
             h = h.reshape(x.size()[:-1] + (self.output_multiplier, self.input_dims))
-            h = tuple(h[..., p_slice, :].reshape(h.shape[:-2] + p_shape + (1,)) for p_slice, p_shape in zip(self.param_slices, self.param_shapes))
+            h = tuple(
+                h[..., p_slice, :].reshape(h.shape[:-2] + p_shape + (1,))
+                for p_slice, p_shape in zip(self.param_slices, self.param_shapes)
+            )
         else:
-            h = h.reshape(x.size()[:-len(self.input_shape)] + (self.output_multiplier, self.input_dims))
-            h = tuple(h[..., p_slice, :].reshape(h.shape[:-2] + p_shape + self.input_shape) for p_slice, p_shape in zip(self.param_slices, self.param_shapes))
+            h = h.reshape(
+                x.size()[: -len(self.input_shape)]
+                + (self.output_multiplier, self.input_dims)
+            )
+            h = tuple(
+                h[..., p_slice, :].reshape(h.shape[:-2] + p_shape + self.input_shape)
+                for p_slice, p_shape in zip(self.param_slices, self.param_shapes)
+            )
         return h
