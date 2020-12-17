@@ -11,7 +11,6 @@ import simplex
 
 
 def sample_mask_indices(input_dim, hidden_dim, simple=True):
-
     """
     Samples the indices assigned to hidden units during the construction of MADE masks
     :param input_dim: the dimensionality of the input variable
@@ -21,7 +20,9 @@ def sample_mask_indices(input_dim, hidden_dim, simple=True):
     :param simple: True to space fractional indices by rounding to nearest int, false round randomly
     :type simple: bool
     """
-    indices = torch.linspace(1, input_dim, steps=hidden_dim, device='cpu').to(torch.Tensor().device)
+    indices = torch.linspace(1, input_dim, steps=hidden_dim, device="cpu").to(
+        torch.Tensor().device
+    )
     if simple:
         # Simple procedure tries to space fractional indices evenly by rounding to nearest int
         return torch.round(indices)
@@ -32,7 +33,9 @@ def sample_mask_indices(input_dim, hidden_dim, simple=True):
         return ints
 
 
-def create_mask(input_dim, context_dim, hidden_dims, permutation, output_dim_multiplier):
+def create_mask(
+    input_dim, context_dim, hidden_dims, permutation, output_dim_multiplier
+):
     """
     Creates MADE masks for a conditional distribution
     :param input_dim: the dimensionality of the input variable
@@ -65,15 +68,29 @@ def create_mask(input_dim, context_dim, hidden_dims, permutation, output_dim_mul
     output_indices = (var_index + 1).repeat(output_dim_multiplier)
 
     # Create mask from input to output for the skips connections
-    mask_skip = (output_indices.unsqueeze(-1) > input_indices.unsqueeze(0)).type_as(var_index)
+    mask_skip = (output_indices.unsqueeze(-1) > input_indices.unsqueeze(0)).type_as(
+        var_index
+    )
 
     # Create mask from input to first hidden layer, and between subsequent hidden layers
-    masks = [(hidden_indices[0].unsqueeze(-1) >= input_indices.unsqueeze(0)).type_as(var_index)]
+    masks = [
+        (hidden_indices[0].unsqueeze(-1) >= input_indices.unsqueeze(0)).type_as(
+            var_index
+        )
+    ]
     for i in range(1, len(hidden_dims)):
-        masks.append((hidden_indices[i].unsqueeze(-1) >= hidden_indices[i - 1].unsqueeze(0)).type_as(var_index))
+        masks.append(
+            (
+                hidden_indices[i].unsqueeze(-1) >= hidden_indices[i - 1].unsqueeze(0)
+            ).type_as(var_index)
+        )
 
     # Create mask from last hidden layer to output layer
-    masks.append((output_indices.unsqueeze(-1) > hidden_indices[-1].unsqueeze(0)).type_as(var_index))
+    masks.append(
+        (output_indices.unsqueeze(-1) > hidden_indices[-1].unsqueeze(0)).type_as(
+            var_index
+        )
+    )
 
     return masks, mask_skip
 
@@ -93,28 +110,30 @@ class MaskedLinear(nn.Linear):
 
     def __init__(self, in_features, out_features, mask, bias=True):
         super().__init__(in_features, out_features, bias)
-        self.register_buffer('mask', mask.data)
+        self.register_buffer("mask", mask.data)
 
     def forward(self, _input):
         masked_weight = self.weight * self.mask
         return F.linear(_input, masked_weight, self.bias)
+
 
 # TODO: API for a conditional version of this?
 class DenseAutoregressive(simplex.Params):
     autoregressive = True
 
     def __init__(
-            self,
-            hidden_dims=[256, 256],
-            nonlinearity=nn.ReLU(),
-            permutation=None,
-            skip_connections=False,
-            ):
-        super(DenseAutoregressive, self).__init__(hidden_dims=hidden_dims,
-                nonlinearity=nonlinearity,
-                permutation=permutation,
-                skip_connections=skip_connections
-            )
+        self,
+        hidden_dims=(256, 256),
+        nonlinearity=nn.ReLU(),  # noqa: B008
+        permutation=None,
+        skip_connections=False,
+    ):
+        super(DenseAutoregressive, self).__init__(
+            hidden_dims=hidden_dims,
+            nonlinearity=nonlinearity,
+            permutation=permutation,
+            skip_connections=skip_connections,
+        )
 
     def _build(self, input_shape, param_shapes):
         # TODO: Implement conditional version!
@@ -124,13 +143,22 @@ class DenseAutoregressive(simplex.Params):
         self.input_dims = torch.sum(torch.tensor(input_shape)).int().item()
         if self.input_dims == 0:
             self.input_dims = 1  # scalars represented by torch.Size([])
-        self.output_multiplier = sum([max(torch.sum(torch.tensor(s)).item(), 1) for s in param_shapes])
+        self.output_multiplier = sum(
+            [max(torch.sum(torch.tensor(s)).item(), 1) for s in param_shapes]
+        )
         if self.input_dims == 1:
-            warnings.warn('DenseAutoregressive input_dim = 1. Consider using an affine transformation instead.')
+            warnings.warn(
+                "DenseAutoregressive input_dim = 1. Consider using an affine transformation instead."
+            )
         self.count_params = len(param_shapes)
 
         # Calculate the indices on the output corresponding to each parameter
-        ends = torch.cumsum(torch.tensor([max(torch.sum(torch.tensor(s)).item(), 1) for s in param_shapes]), dim=0)
+        ends = torch.cumsum(
+            torch.tensor(
+                [max(torch.sum(torch.tensor(s)).item(), 1) for s in param_shapes]
+            ),
+            dim=0,
+        )
         starts = torch.cat((torch.zeros(1).type_as(ends), ends[:-1]))
         self.param_slices = [slice(s.item(), e.item()) for s, e in zip(starts, ends)]
 
@@ -138,11 +166,15 @@ class DenseAutoregressive(simplex.Params):
         # possible to connect to the outputs correctly
         for h in self.hidden_dims:
             if h < self.input_dims:
-                raise ValueError('Hidden dimension must not be less than input dimension.')
+                raise ValueError(
+                    "Hidden dimension must not be less than input dimension."
+                )
 
         if self.permutation is None:
             # By default set a random permutation of variables, which is important for performance with multiple steps
-            self.permutation = torch.randperm(self.input_dims, device='cpu').to(torch.Tensor().device)
+            self.permutation = torch.randperm(self.input_dims, device="cpu").to(
+                torch.Tensor().device
+            )
         else:
             # The permutation is chosen by the user
             self.permutation = self.permutation.type(dtype=torch.int64)
@@ -151,28 +183,46 @@ class DenseAutoregressive(simplex.Params):
         # Implement ispermutation() that sorts permutation and checks whether it
         # has all integers from 0, 1, ..., self.input_dims - 1
 
-        buffers = {'permutation': self.permutation}
-        #self.register_buffer('permutation', P)
+        buffers = {"permutation": self.permutation}
+        # self.register_buffer('permutation', P)
 
         # Create masks
         hidden_dims = self.hidden_dims
         self.masks, self.mask_skip = create_mask(
-            input_dim=self.input_dims, context_dim=self.context_dims, hidden_dims=hidden_dims, permutation=self.permutation,
-            output_dim_multiplier=self.output_multiplier)
+            input_dim=self.input_dims,
+            context_dim=self.context_dims,
+            hidden_dims=hidden_dims,
+            permutation=self.permutation,
+            output_dim_multiplier=self.output_multiplier,
+        )
 
         # Create masked layers
-        layers = [MaskedLinear(self.input_dims + self.context_dims, hidden_dims[0], self.masks[0])]
+        layers = [
+            MaskedLinear(
+                self.input_dims + self.context_dims, hidden_dims[0], self.masks[0]
+            )
+        ]
         for i in range(1, len(hidden_dims)):
-            layers.append(MaskedLinear(hidden_dims[i - 1], hidden_dims[i], self.masks[i]))
-        layers.append(MaskedLinear(hidden_dims[-1], self.input_dims * self.output_multiplier, self.masks[-1]))
+            layers.append(
+                MaskedLinear(hidden_dims[i - 1], hidden_dims[i], self.masks[i])
+            )
+        layers.append(
+            MaskedLinear(
+                hidden_dims[-1],
+                self.input_dims * self.output_multiplier,
+                self.masks[-1],
+            )
+        )
 
         if self.skip_connections:
-            layers.append(MaskedLinear(
-                self.input_dims +
-                self.context_dims,
-                self.input_dims * self.output_multiplier,
-                self.mask_skip,
-                bias=False))
+            layers.append(
+                MaskedLinear(
+                    self.input_dims + self.context_dims,
+                    self.input_dims * self.output_multiplier,
+                    self.mask_skip,
+                    bias=False,
+                )
+            )
 
         layers = nn.ModuleList(layers)
         return layers, buffers
@@ -180,7 +230,7 @@ class DenseAutoregressive(simplex.Params):
     def _forward(self, x=None, context=None, modules=None):
         # DEBUG: Disabled context
         # We must be able to broadcast the size of the context over the input
-        #if context is None:
+        # if context is None:
         #    context = self.context
 
         # TODO: Flatten x. This will fail when len(input_shape) > 0
@@ -191,10 +241,16 @@ class DenseAutoregressive(simplex.Params):
         h = modules[-1](h)
 
         # TODO: Get skip_layers working again!
-        #if self.skip_layer is not None:
+        # if self.skip_layer is not None:
         #    h = h + self.skip_layer(x)
 
         # Shape the output
-        h = h.reshape(x.size()[:-len(self.input_shape)] + (self.output_multiplier, self.input_dims))
-        h = tuple(h[..., p_slice, :].reshape(h.shape[:-2] + p_shape + self.input_shape) for p_slice, p_shape in zip(self.param_slices, self.param_shapes))
+        h = h.reshape(
+            x.size()[: -len(self.input_shape)]
+            + (self.output_multiplier, self.input_dims)
+        )
+        h = tuple(
+            h[..., p_slice, :].reshape(h.shape[:-2] + p_shape + self.input_shape)
+            for p_slice, p_shape in zip(self.param_slices, self.param_shapes)
+        )
         return h

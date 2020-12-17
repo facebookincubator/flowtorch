@@ -2,5 +2,5 @@
 
 __version__ = "0.0"
 
-from simplex.bijector import Bijector
-from simplex.param import Params
+from simplex.bijector import Bijector  # noqa: F401
+from simplex.param import Params  # noqa: F401

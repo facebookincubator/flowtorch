@@ -26,18 +26,22 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install flake8 pytest
+        python -m pip install flake8 black isort pytest
         pip install -e .[dev]
+    - name: Check formatting with black
+      run: |
+        black --check .
+    - name: Check imports with isort
+      run: |
+        isort --check .
     - name: Lint with flake8
       run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        flake8 . --count --show-source --statistics
     - name: Test with pytest
       run: |
         pytest
     - name: Sphinx Build
-      # You may pin to the exact commit or the version.
-      # uses: ammaraskar/sphinx-action@8b4f60114d7fd1faeba1a712269168508d4750d2
-      uses: ammaraskar/sphinx-action@0.4
+      run: |
+        cd docs
+        sphinx-apidoc -o source ../simplex/
+        make html
