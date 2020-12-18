@@ -1,14 +1,14 @@
-# Copyright (c) Simplex Development Team. All Rights Reserved
+# Copyright (c) FlowTorch Development Team. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
 import torch
 import torch.nn.functional as F
 
-import simplex
-from simplex.utils import clipped_sigmoid
+import flowtorch
+from flowtorch.utils import clipped_sigmoid
 
 
-class Sigmoid(simplex.Bijector):
+class Sigmoid(flowtorch.Bijector):
     def _forward(self, x, params=None):
         return clipped_sigmoid(x)
 

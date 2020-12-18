@@ -1,4 +1,4 @@
-# Copyright (c) Simplex Development Team. All Rights Reserved
+# Copyright (c) FlowTorch Development Team. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
 """
@@ -23,7 +23,7 @@ Parameters should take care of caching when necessary.
 
 """
 
-from simplex.params.dense_autoregressive import DenseAutoregressive
+from flowtorch.params.dense_autoregressive import DenseAutoregressive
 
 __all__ = [
     "DenseAutoregressive",

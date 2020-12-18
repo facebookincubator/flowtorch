@@ -43,5 +43,5 @@ jobs:
     - name: Sphinx Build
       run: |
         cd docs
-        sphinx-apidoc -o source ../simplex/
+        sphinx-apidoc -o source ../flowtorch/
         make html

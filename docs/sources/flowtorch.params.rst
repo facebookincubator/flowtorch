@@ -1,13 +1,13 @@
-simplex.params package
+flowtorch.params package
 ======================
 
 Submodules
 ----------
 
-simplex.params.dense\_autoregressive module
+flowtorch.params.dense\_autoregressive module
 -------------------------------------------
 
-.. automodule:: simplex.params.dense_autoregressive
+.. automodule:: flowtorch.params.dense_autoregressive
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ simplex.params.dense\_autoregressive module
 Module contents
 ---------------
 
-.. automodule:: simplex.params
+.. automodule:: flowtorch.params
    :members:
    :undoc-members:
    :show-inheritance:
