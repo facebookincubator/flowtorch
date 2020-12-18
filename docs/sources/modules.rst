@@ -1,7 +1,7 @@
-simplex
+flowtorch
 =======
 
 .. toctree::
    :maxdepth: 4
 
-   simplex
+   flowtorch

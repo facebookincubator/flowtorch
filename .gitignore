@@ -1,4 +1,4 @@
-simplex.egg-info
+flowtorch.egg-info
 *.pyc
 .ipynb_checkpoints/
 docs/_build/

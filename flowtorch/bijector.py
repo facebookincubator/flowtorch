@@ -1,12 +1,12 @@
-# Copyright (c) Simplex Development Team. All Rights Reserved
+# Copyright (c) FlowTorch Development Team. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
 import torch
 import torch.distributions
 from torch.distributions import constraints
 
-import simplex
-import simplex.distributions
+import flowtorch
+import flowtorch.distributions
 
 
 class Bijector(object):
@@ -38,12 +38,12 @@ class Bijector(object):
         if isinstance(base_dist, torch.distributions.Distribution):
             # Create transformed distribution
             # TODO: Check that if bijector is autoregressive then parameters are as well
-            # Possibly do this in simplex.Bijector.__init__ and call from simple.bijectors.*.__init__
+            # Possibly do this in flowtorch.Bijector.__init__ and call from simple.bijectors.*.__init__
             input_shape = base_dist.batch_shape + base_dist.event_shape
             params = self.param_fn(
                 input_shape, self.param_shapes(base_dist)
             )  # <= this is where hypernets etc. are instantiated
-            new_dist = simplex.distributions.TransformedDistribution(
+            new_dist = flowtorch.distributions.TransformedDistribution(
                 base_dist, self, params
             )
             return new_dist, params

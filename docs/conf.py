@@ -20,9 +20,9 @@ sys.path.insert(0, os.path.abspath(".."))
 
 # -- Project information -----------------------------------------------------
 
-project = "simplex"
-copyright = "2020, Simplex Development Team"
-author = "Simplex Development Team"
+project = "flowtorch"
+copyright = "2020, FlowTorch Development Team"
+author = "FlowTorch Development Team"
 
 
 # -- General configuration ---------------------------------------------------

@@ -1,4 +1,4 @@
-# Copyright (c) Simplex Development Team. All Rights Reserved
+# Copyright (c) FlowTorch Development Team. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
 import warnings
@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-import simplex
+import flowtorch
 
 
 def sample_mask_indices(input_dim, hidden_dim, simple=True):
@@ -118,7 +118,7 @@ class MaskedLinear(nn.Linear):
 
 
 # TODO: API for a conditional version of this?
-class DenseAutoregressive(simplex.Params):
+class DenseAutoregressive(flowtorch.Params):
     autoregressive = True
 
     def __init__(

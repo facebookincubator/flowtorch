@@ -1,20 +1,20 @@
-# Copyright (c) Simplex Development Team. All Rights Reserved
+# Copyright (c) FlowTorch Development Team. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
 import torch
 
-import simplex
-import simplex.params
-from simplex.utils import clamp_preserve_gradients
+import flowtorch
+import flowtorch.params
+from flowtorch.utils import clamp_preserve_gradients
 
 
-class AffineAutoregressive(simplex.Bijector):
+class AffineAutoregressive(flowtorch.Bijector):
     event_dim = 1
     autoregressive = True
 
     def __init__(
         self,
-        param_fn=simplex.params.dense_autoregressive,
+        param_fn=flowtorch.params.dense_autoregressive,
         log_scale_min_clip=-5.0,
         log_scale_max_clip=3.0,
         sigmoid_bias=2.0,

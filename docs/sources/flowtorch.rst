@@ -1,4 +1,4 @@
-simplex package
+flowtorch package
 ===============
 
 Subpackages
@@ -7,24 +7,24 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   simplex.bijectors
-   simplex.params
+   flowtorch.bijectors
+   flowtorch.params
 
 Submodules
 ----------
 
-simplex.bijector module
+flowtorch.bijector module
 -----------------------
 
-.. automodule:: simplex.bijector
+.. automodule:: flowtorch.bijector
    :members:
    :undoc-members:
    :show-inheritance:
 
-simplex.utils module
+flowtorch.utils module
 --------------------
 
-.. automodule:: simplex.utils
+.. automodule:: flowtorch.utils
    :members:
    :undoc-members:
    :show-inheritance:
@@ -32,7 +32,7 @@ simplex.utils module
 Module contents
 ---------------
 
-.. automodule:: simplex
+.. automodule:: flowtorch
    :members:
    :undoc-members:
    :show-inheritance:

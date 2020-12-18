@@ -1,13 +1,13 @@
-simplex.bijectors package
+flowtorch.bijectors package
 =========================
 
 Submodules
 ----------
 
-simplex.bijectors.affine\_autoregressive module
+flowtorch.bijectors.affine\_autoregressive module
 -----------------------------------------------
 
-.. automodule:: simplex.bijectors.affine_autoregressive
+.. automodule:: flowtorch.bijectors.affine_autoregressive
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ simplex.bijectors.affine\_autoregressive module
 Module contents
 ---------------
 
-.. automodule:: simplex.bijectors
+.. automodule:: flowtorch.bijectors
    :members:
    :undoc-members:
    :show-inheritance:
