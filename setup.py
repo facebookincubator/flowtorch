@@ -81,7 +81,7 @@ setup(
     install_requires=[
         "torch>=1.6.0",
     ],
-    packages=find_packages("flowtorch", "flowtorch.*"),
+    packages=find_packages(),
     extras_require={
         "dev": DEV_REQUIRES,
         "test": TEST_REQUIRES,
