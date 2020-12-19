@@ -17,17 +17,20 @@ def sample_mask_indices(input_dim, hidden_dim, simple=True):
     :type input_dim: int
     :param hidden_dim: the dimensionality of the hidden layer
     :type hidden_dim: int
-    :param simple: True to space fractional indices by rounding to nearest int, false round randomly
+    :param simple: True to space fractional indices by rounding to nearest
+    int, false round randomly
     :type simple: bool
     """
     indices = torch.linspace(1, input_dim, steps=hidden_dim, device="cpu").to(
         torch.Tensor().device
     )
     if simple:
-        # Simple procedure tries to space fractional indices evenly by rounding to nearest int
+        # Simple procedure tries to space fractional indices evenly by rounding
+        # to nearest int
         return torch.round(indices)
     else:
-        # "Non-simple" procedure creates fractional indices evenly then rounds at random
+        # "Non-simple" procedure creates fractional indices evenly then rounds
+        # at random
         ints = indices.floor()
         ints += torch.bernoulli(indices - ints)
         return ints
@@ -40,13 +43,15 @@ def create_mask(
     Creates MADE masks for a conditional distribution
     :param input_dim: the dimensionality of the input variable
     :type input_dim: int
-    :param context_dim: the dimensionality of the variable that is conditioned on (for conditional densities)
+    :param context_dim: the dimensionality of the variable that is
+    conditioned on (for conditional densities)
     :type context_dim: int
     :param hidden_dims: the dimensionality of the hidden layers(s)
     :type hidden_dims: list[int]
     :param permutation: the order of the input variables
     :type permutation: torch.LongTensor
-    :param output_dim_multiplier: tiles the output (e.g. for when a separate mean and scale parameter are desired)
+    :param output_dim_multiplier: tiles the output (e.g. for when a separate
+    mean and scale parameter are desired)
     :type output_dim_multiplier: int
     """
     # Create mask indices for input, hidden layers, and final layer
@@ -58,8 +63,8 @@ def create_mask(
     # Create the indices that are assigned to the neurons
     input_indices = torch.cat((torch.zeros(context_dim), 1 + var_index))
 
-    # For conditional MADE, introduce a 0 index that all the conditioned variables are connected to
-    # as per Paige and Wood (2016) (see below)
+    # For conditional MADE, introduce a 0 index that all the conditioned
+    # variables are connected to as per Paige and Wood (2016) (see below)
     if context_dim > 0:
         hidden_indices = [sample_mask_indices(input_dim, h) - 1 for h in hidden_dims]
     else:
@@ -104,7 +109,8 @@ class MaskedLinear(nn.Linear):
     :type out_features: int
     :param mask: the mask to apply to the in_features x out_features weight matrix
     :type mask: torch.Tensor
-    :param bias: whether or not `MaskedLinear` should include a bias term. defaults to `True`
+    :param bias: whether or not `MaskedLinear` should include a bias term.
+    defaults to `True`
     :type bias: bool
     """
 
@@ -148,7 +154,8 @@ class DenseAutoregressive(flowtorch.Params):
         )
         if self.input_dims == 1:
             warnings.warn(
-                "DenseAutoregressive input_dim = 1. Consider using an affine transformation instead."
+                "DenseAutoregressive input_dim = 1. "
+                "Consider using an affine transformation instead."
             )
         self.count_params = len(param_shapes)
 
@@ -171,7 +178,8 @@ class DenseAutoregressive(flowtorch.Params):
                 )
 
         if self.permutation is None:
-            # By default set a random permutation of variables, which is important for performance with multiple steps
+            # By default set a random permutation of variables, which is
+            # important for performance with multiple steps
             self.permutation = torch.randperm(self.input_dims, device="cpu").to(
                 torch.Tensor().device
             )
@@ -199,7 +207,9 @@ class DenseAutoregressive(flowtorch.Params):
         # Create masked layers
         layers = [
             MaskedLinear(
-                self.input_dims + self.context_dims, hidden_dims[0], self.masks[0]
+                self.input_dims + self.context_dims,
+                hidden_dims[0],
+                self.masks[0],
             )
         ]
         for i in range(1, len(hidden_dims)):

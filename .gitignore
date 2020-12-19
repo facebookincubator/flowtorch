@@ -3,6 +3,5 @@ flowtorch.egg-info
 .ipynb_checkpoints/
 docs/_build/
 debug/.vscode
-
 build/
 dist/

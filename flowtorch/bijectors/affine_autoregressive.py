@@ -41,7 +41,8 @@ class AffineAutoregressive(flowtorch.Bijector):
         input_dim = y.size(-1)
         x = [torch.zeros(x_size, device=y.device)] * input_dim
 
-        # NOTE: Inversion is an expensive operation that scales in the dimension of the input
+        # NOTE: Inversion is an expensive operation that scales in the
+        # dimension of the input
         for idx in perm:
             mean, log_scale = params(torch.stack(x, dim=-1))
             inverse_scale = torch.exp(
