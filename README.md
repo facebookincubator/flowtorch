@@ -38,4 +38,4 @@ Install dev dependencies
     
 Running tests
 
-    pytest
+    pytest tests -W ignore::DeprecationWarning
