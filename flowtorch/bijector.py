@@ -37,8 +37,9 @@ class Bijector(object):
         # If the input is a distribution then return transformed distribution
         if isinstance(base_dist, torch.distributions.Distribution):
             # Create transformed distribution
-            # TODO: Check that if bijector is autoregressive then parameters are as well
-            # Possibly do this in flowtorch.Bijector.__init__ and call from simple.bijectors.*.__init__
+            # TODO: Check that if bijector is autoregressive then parameters are as
+            # well Possibly do this in simplex.Bijector.__init__ and call from
+            # simple.bijectors.*.__init__
             input_shape = base_dist.batch_shape + base_dist.event_shape
             params = self.param_fn(
                 input_shape, self.param_shapes(base_dist)

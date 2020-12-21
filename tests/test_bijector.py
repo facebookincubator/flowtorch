@@ -1,3 +1,6 @@
+# Copyright (c) FlowTorch Development Team. All Rights Reserved
+# SPDX-License-Identifier: MIT
+
 import flowtorch
 import flowtorch.bijectors
 import flowtorch.params

@@ -28,7 +28,7 @@ class TransformedDistribution(torch.distributions.Distribution):
     def sample(
         self,
         sample_shape=torch.Size(),  # noqa: B008
-    ) -> Tensor:  # noqa: B008
+    ) -> Tensor:
         """
         Generates a sample_shape shaped sample or sample_shape shaped batch of
         samples if the distribution parameters are batched. Samples first from
@@ -67,7 +67,8 @@ class TransformedDistribution(torch.distributions.Distribution):
             event_dim - self.bijector.event_dim,
         )
         log_prob = log_prob + _sum_rightmost(
-            self.base_dist.log_prob(x), event_dim - len(self.base_dist.event_shape)
+            self.base_dist.log_prob(x),
+            event_dim - len(self.base_dist.event_shape),
         )
 
         # self.cache(y,)

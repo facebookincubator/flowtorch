@@ -29,8 +29,9 @@ class Compose(flowtorch.Bijector):
         # If the input is a distribution then return transformed distribution
         if isinstance(x, torch.distributions.Distribution):
             # Create transformed distribution
-            # TODO: Check that if bijector is autoregressive then parameters are as well
-            # Possibly do this in flowtorch.Bijector.__init__ and call from simple.bijectors.*.__init__
+            # TODO: Check that if bijector is autoregressive then parameters
+            # are as well Possibly do this in simplex.Bijector.__init__ and
+            # call from simple.bijectors.*.__init__
             input_shape = x.batch_shape + x.event_shape
             params = self.param_fn(
                 input_shape, self.param_shapes(x)
@@ -42,8 +43,8 @@ class Compose(flowtorch.Bijector):
         else:
             raise TypeError(f"Bijector called with invalid type: {type(x)}")
 
-    # NOTE: We overwrite forward rather than _forward so that the composed bijectors
-    # can handle the caching separately!
+    # NOTE: We overwrite forward rather than _forward so that the composed
+    # bijectors can handle the caching separately!
     def forward(self, x, params=None):
         assert len(params) == len(self.bijectors)
 

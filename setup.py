@@ -8,13 +8,14 @@ import sys
 from setuptools import find_packages, setup
 
 REQUIRED_MAJOR = 3
-REQUIRED_MINOR = 7
+REQUIRED_MINOR = 6
 
 
 TEST_REQUIRES = ["pytest", "pytest-cov"]
 DEV_REQUIRES = TEST_REQUIRES + [
     "black",
     "flake8",
+    "flake8-bugbear",
     "isort",
     "recommonmark",
     "sphinx",
@@ -77,7 +78,7 @@ setup(
     ],
     long_description=long_description,
     long_description_content_type="text/markdown",
-    python_requires=">=3.7",
+    python_requires=f">={REQUIRED_MAJOR}.{REQUIRED_MINOR}",
     install_requires=[
         "torch>=1.6.0",
     ],
