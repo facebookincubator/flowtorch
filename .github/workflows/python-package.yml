@@ -26,20 +26,23 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install flake8 black isort pytest
+        python -m pip install flake8 black isort pytest mypy
         pip install -e .[dev]
     - name: Check formatting with black
       run: |
-        black --check .
+        black --check flowtorch tests
     - name: Check imports with isort
       run: |
-        isort --check .
+        isort --check flowtorch tests
     - name: Lint with flake8
       run: |
-        flake8 . --count --show-source --statistics
+        flake8 flowtorch tests --count --show-source --statistics
+    - name: Type check with mypy
+      run: |
+        mypy flowtorch
     - name: Test with pytest
       run: |
-        pytest
+        pytest tests -W ignore::DeprecationWarning
     - name: Sphinx Build
       run: |
         cd docs

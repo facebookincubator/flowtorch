@@ -3,6 +3,8 @@
 
 import warnings
 
+from typing import Dict, Optional, Sequence, Tuple
+
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
@@ -131,22 +133,24 @@ class DenseAutoregressive(flowtorch.Params):
         self,
         hidden_dims=(256, 256),
         nonlinearity=nn.ReLU(),  # noqa: B008
-        permutation=None,
+        permutation: Optional[torch.Tensor] = None,
         skip_connections=False,
     ):
-        super(DenseAutoregressive, self).__init__(
-            hidden_dims=hidden_dims,
-            nonlinearity=nonlinearity,
-            permutation=permutation,
-            skip_connections=skip_connections,
-        )
+        super(DenseAutoregressive, self).__init__()
+        self.hidden_dims = hidden_dims
+        self.nonlinearity = nonlinearity
+        self.permutation = permutation
+        self.skip_connections = skip_connections
 
-    def _build(self, input_shape, param_shapes):
+    # Continue from here!
+    def _build(
+        self, input_shape: torch.Size, param_shapes: Sequence[torch.Size]
+    ) -> Tuple[nn.ModuleList, Dict[str, torch.Tensor]]:
         # TODO: Implement conditional version!
         self.context_dims = 0
 
         # Work out flattened input and output shapes
-        self.input_dims = torch.sum(torch.tensor(input_shape)).int().item()
+        self.input_dims = int(torch.sum(torch.tensor(input_shape)).int().item())
         if self.input_dims == 0:
             self.input_dims = 1  # scalars represented by torch.Size([])
         self.output_multiplier = sum(
@@ -234,8 +238,7 @@ class DenseAutoregressive(flowtorch.Params):
                 )
             )
 
-        layers = nn.ModuleList(layers)
-        return layers, buffers
+        return nn.ModuleList(layers), buffers
 
     def _forward(self, x=None, context=None, modules=None):
         # DEBUG: Disabled context

@@ -13,11 +13,9 @@ class Params(object):
     state_cache = 0
     state = 0
 
-    def __init__(self, **kwargs):
+    def __init__(self):
         super(Params, self).__init__()
         # self._inv = None
-        for n, v in kwargs.items():
-            setattr(self, n, v)
 
     def __call__(self, input_shape, param_shapes):
         # TODO: Take this class out of Params!
