@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: MIT
 
 import warnings
-
 from typing import Dict, Optional, Sequence, Tuple
 
 import torch

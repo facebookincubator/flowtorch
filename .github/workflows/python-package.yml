@@ -37,7 +37,7 @@ jobs:
     - name: Lint with flake8
       run: |
         flake8 flowtorch tests --count --show-source --statistics
-    - name: Type check with mypy
+    - name: Check types with mypy
       run: |
         mypy flowtorch
     - name: Test with pytest
