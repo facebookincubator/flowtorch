@@ -133,7 +133,7 @@ class DenseAutoregressive(flowtorch.Params):
         hidden_dims=(256, 256),
         nonlinearity=nn.ReLU(),  # noqa: B008
         permutation: Optional[torch.Tensor] = None,
-        skip_connections=False,
+        skip_connections: bool = False,
     ):
         super(DenseAutoregressive, self).__init__()
         self.hidden_dims = hidden_dims
