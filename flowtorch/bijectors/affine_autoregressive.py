@@ -31,8 +31,8 @@ class AffineAutoregressive(flowtorch.Bijector):
         log_scale = clamp_preserve_gradients(
             log_scale, self.log_scale_min_clip, self.log_scale_max_clip
         )
-        scale = torch.exp(log_scale)
-        y = scale * x + mean
+        scale = torch.exp(log_scale / 10)
+        y = scale * x + mean / 100
         return y
 
     def _inverse(self, y, params=None):
@@ -52,7 +52,7 @@ class AffineAutoregressive(flowtorch.Bijector):
                     max=self.log_scale_max_clip,
                 )
             )
-            mean = mean[..., idx]
+            mean = mean[..., idx] / 100
             x[idx] = (y[..., idx] - mean) * inverse_scale
 
         x = torch.stack(x, dim=-1)

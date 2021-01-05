@@ -78,7 +78,8 @@ def create_mask(
         var_index
     )
 
-    # Create mask from input to first hidden layer, and between subsequent hidden layers
+    # Create mask from input to first hidden layer, and between subsequent
+    # hidden layers
     masks = [
         (hidden_indices[0].unsqueeze(-1) >= input_indices.unsqueeze(0)).type_as(
             var_index
@@ -213,11 +214,15 @@ class DenseAutoregressive(flowtorch.Params):
                 self.input_dims + self.context_dims,
                 hidden_dims[0],
                 self.masks[0],
-            )
+            ),
+            torch.nn.PReLU(num_parameters=hidden_dims[0], init=1.0),
         ]
         for i in range(1, len(hidden_dims)):
-            layers.append(
-                MaskedLinear(hidden_dims[i - 1], hidden_dims[i], self.masks[i])
+            layers.extend(
+                [
+                    MaskedLinear(hidden_dims[i - 1], hidden_dims[i], self.masks[i]),
+                    torch.nn.PReLU(num_parameters=hidden_dims[i], init=1.0),
+                ]
             )
         layers.append(
             MaskedLinear(
@@ -237,7 +242,26 @@ class DenseAutoregressive(flowtorch.Params):
                 )
             )
 
+        # Initialize layers
+        self._init_weights(layers)
+
         return nn.ModuleList(layers), buffers
+
+    def _init_weights(self, layers) -> None:
+        input_dim = layers[0].in_features
+        weight_product = torch.eye(input_dim, input_dim)
+
+        for idx in range(0, len(layers), 2):
+            layer = layers[idx]
+            # Initialize biases to 0
+            torch.nn.init.zeros_(layer.bias)
+
+            # Initialize product of weights up until this point so each column has l_2 norm = 0
+            # l.weight ~ input_dims x output_dims
+            weight_product = torch.matmul(layer.weight * layer.mask, weight_product)
+            l2_norm = torch.sum(weight_product.pow(2), dim=1, keepdim=True).sqrt()
+            layer.weight.data.div_(l2_norm + 1e-8)
+            weight_product.data.div_(l2_norm + 1e-8)
 
     def _forward(self, x=None, context=None, modules=None):
         # DEBUG: Disabled context
@@ -248,9 +272,12 @@ class DenseAutoregressive(flowtorch.Params):
         # TODO: Flatten x. This will fail when len(input_shape) > 0
         # TODO: Get this working again when using skip_layers!
         h = x
-        for layer in modules[:-1]:
-            h = self.nonlinearity(layer(h))
+        # print(h)
+        for idx in range(len(modules) // 2):
+            h = modules[2 * idx + 1](modules[2 * idx](h))
+            # print(h)
         h = modules[-1](h)
+        # print(h)
 
         # TODO: Get skip_layers working again!
         # if self.skip_layer is not None:
