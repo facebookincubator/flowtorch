@@ -256,8 +256,9 @@ class DenseAutoregressive(flowtorch.Params):
             # Initialize biases to 0
             torch.nn.init.zeros_(layer.bias)
 
-            # Initialize product of weights up until this point so each column has l_2 norm = 0
-            # l.weight ~ input_dims x output_dims
+            # Initialize product of weights up until this point so each column has
+            # l_2 norm = 0
+            # layer.weight ~ input_dims x output_dims
             weight_product = torch.matmul(layer.weight * layer.mask, weight_product)
             l2_norm = torch.sum(weight_product.pow(2), dim=1, keepdim=True).sqrt()
             layer.weight.data.div_(l2_norm + 1e-8)
