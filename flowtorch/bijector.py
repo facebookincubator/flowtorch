@@ -20,7 +20,7 @@ class Bijector(object):
     autoregressive = False
 
     # TODO: Returning inverse of bijection
-    def __init__(self, param_fn: flowtorch.Params) -> None:
+    def __init__(self, param_fn: "flowtorch.Params") -> None:
         super(Bijector, self).__init__()
         self.param_fn = param_fn
 
