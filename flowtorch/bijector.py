@@ -26,7 +26,9 @@ class Bijector(object):
 
     def __call__(
         self, base_dist: torch.distributions.Distribution
-    ) -> Tuple[flowtorch.distributions.TransformedDistribution, flowtorch.ParamsModule]:
+    ) -> Tuple[
+        flowtorch.distributions.TransformedDistribution, "flowtorch.ParamsModule"
+    ]:
         """
         Returns the distribution formed by passing dist through the bijection
         """
@@ -49,19 +51,27 @@ class Bijector(object):
         else:
             raise TypeError(f"Bijector called with invalid type: {type(base_dist)}")
 
-    def forward(self, x: torch.Tensor, params: flowtorch.ParamsModule) -> torch.Tensor:
+    def forward(
+        self, x: torch.Tensor, params: "flowtorch.ParamsModule"
+    ) -> torch.Tensor:
         return self._forward(x, params)
 
-    def _forward(self, x: torch.Tensor, params: flowtorch.ParamsModule) -> torch.Tensor:
+    def _forward(
+        self, x: torch.Tensor, params: "flowtorch.ParamsModule"
+    ) -> torch.Tensor:
         """
         Abstract method to compute forward transformation.
         """
         raise NotImplementedError
 
-    def inverse(self, y: torch.Tensor, params: flowtorch.ParamsModule) -> torch.Tensor:
+    def inverse(
+        self, y: torch.Tensor, params: "flowtorch.ParamsModule"
+    ) -> torch.Tensor:
         return self._inverse(y, params)
 
-    def _inverse(self, y: torch.Tensor, params: flowtorch.ParamsModule) -> torch.Tensor:
+    def _inverse(
+        self, y: torch.Tensor, params: "flowtorch.ParamsModule"
+    ) -> torch.Tensor:
         """
         Abstract method to compute inverse transformation.
         """
@@ -71,7 +81,7 @@ class Bijector(object):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: flowtorch.ParamsModule,
+        params: "flowtorch.ParamsModule",
     ) -> torch.Tensor:
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.
@@ -83,7 +93,7 @@ class Bijector(object):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: flowtorch.ParamsModule,
+        params: "flowtorch.ParamsModule",
     ) -> torch.Tensor:
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.
