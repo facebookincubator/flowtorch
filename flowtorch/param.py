@@ -8,7 +8,10 @@ import torch.nn as nn
 
 class ParamsModule(torch.nn.Module):
     def __init__(
-        self, params: "Params", modules: nn.ModuleList, buffers: Dict[str, torch.Tensor]
+        self,
+        params: "Params",
+        modules: Optional[nn.ModuleList] = None,
+        buffers: Optional[Dict[str, torch.Tensor]] = None,
     ):
         super(ParamsModule, self).__init__()
         self.params = params
@@ -18,7 +21,9 @@ class ParamsModule(torch.nn.Module):
             for n, v in buffers.items():
                 self.register_buffer(n, v)
 
-    def forward(self, x):
+    def forward(
+        self, x: torch.Tensor
+    ) -> Optional[Union[torch.Tensor, Sequence[torch.Tensor]]]:
         return self.params.forward(x, modules=self.mods)
 
 
@@ -31,7 +36,9 @@ class Params(object):
         super(Params, self).__init__()
 
     def __call__(
-        self, input_shape: torch.Size, param_shapes: Sequence[torch.Size]
+        self,
+        input_shape: torch.Size,
+        param_shapes: Union[torch.Size, Sequence[torch.Size]],
     ) -> ParamsModule:
         return ParamsModule(self, *self.build(input_shape, param_shapes))
 
@@ -45,7 +52,7 @@ class Params(object):
 
     def _forward(
         self,
-        x,
+        x: torch.Tensor,
         context: Optional[torch.Tensor] = None,
         modules: Optional[nn.ModuleList] = None,
     ) -> Optional[Union[torch.Tensor, Sequence[torch.Tensor]]]:
@@ -55,14 +62,18 @@ class Params(object):
         raise NotImplementedError
 
     def build(
-        self, input_shape: torch.Size, param_shapes: Sequence[torch.Size]
+        self,
+        input_shape: torch.Size,
+        param_shapes: Union[torch.Size, Sequence[torch.Size]],
     ) -> Tuple[nn.ModuleList, Dict[str, torch.Tensor]]:
         self.input_shape = input_shape
         self.param_shapes = param_shapes
         return self._build(input_shape, param_shapes)
 
     def _build(
-        self, input_shape: torch.Size, param_shapes: Sequence[torch.Size]
+        self,
+        input_shape: torch.Size,
+        param_shapes: Union[torch.Size, Sequence[torch.Size]],
     ) -> Tuple[nn.ModuleList, Dict[str, torch.Tensor]]:
         """
         Abstract method to ***

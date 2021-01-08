@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 import warnings
-from typing import Dict, Optional, Sequence, Tuple
+from typing import Dict, Optional, Sequence, Tuple, Union
 
 import torch
 import torch.nn as nn
@@ -144,29 +144,32 @@ class DenseAutoregressive(flowtorch.Params):
 
     # Continue from here!
     def _build(
-        self, input_shape: torch.Size, param_shapes: Sequence[torch.Size]
+        self,
+        input_shape: torch.Size,
+        param_shapes: Union[torch.Size, Sequence[torch.Size]],
     ) -> Tuple[nn.ModuleList, Dict[str, torch.Tensor]]:
         # TODO: Implement conditional version!
         self.context_dims = 0
 
         # Work out flattened input and output shapes
+        param_shapes_ = list(param_shapes)
         self.input_dims = int(torch.sum(torch.tensor(input_shape)).int().item())
         if self.input_dims == 0:
             self.input_dims = 1  # scalars represented by torch.Size([])
         self.output_multiplier = sum(
-            [max(torch.sum(torch.tensor(s)).item(), 1) for s in param_shapes]
+            [max(torch.sum(torch.tensor(s)).item(), 1) for s in param_shapes_]
         )
         if self.input_dims == 1:
             warnings.warn(
                 "DenseAutoregressive input_dim = 1. "
                 "Consider using an affine transformation instead."
             )
-        self.count_params = len(param_shapes)
+        self.count_params = len(param_shapes_)
 
         # Calculate the indices on the output corresponding to each parameter
         ends = torch.cumsum(
             torch.tensor(
-                [max(torch.sum(torch.tensor(s)).item(), 1) for s in param_shapes]
+                [max(torch.sum(torch.tensor(s)).item(), 1) for s in param_shapes_]
             ),
             dim=0,
         )

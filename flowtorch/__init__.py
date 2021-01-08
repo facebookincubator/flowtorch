@@ -2,4 +2,4 @@
 # SPDX-License-Identifier: MIT
 
 from flowtorch.bijector import Bijector  # noqa: F401
-from flowtorch.param import Params  # noqa: F401
+from flowtorch.param import Params, ParamsModule  # noqa: F401

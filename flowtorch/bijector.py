@@ -1,6 +1,8 @@
 # Copyright (c) FlowTorch Development Team. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
+from typing import Sequence, Tuple, Union
+
 import torch
 import torch.distributions
 from torch.distributions import constraints
@@ -18,14 +20,13 @@ class Bijector(object):
     autoregressive = False
 
     # TODO: Returning inverse of bijection
-    def __init__(self, param_fn, **kwargs):
+    def __init__(self, param_fn: flowtorch.Params) -> None:
         super(Bijector, self).__init__()
-        # self._inv = None
         self.param_fn = param_fn
-        for n, v in kwargs.items():
-            setattr(self, n, v)
 
-    def __call__(self, base_dist):
+    def __call__(
+        self, base_dist: torch.distributions.Distribution
+    ) -> Tuple[flowtorch.distributions.TransformedDistribution, flowtorch.ParamsModule]:
         """
         Returns the distribution formed by passing dist through the bijection
         """
@@ -48,32 +49,42 @@ class Bijector(object):
         else:
             raise TypeError(f"Bijector called with invalid type: {type(base_dist)}")
 
-    def forward(self, x, params=None):
+    def forward(self, x: torch.Tensor, params: flowtorch.ParamsModule) -> torch.Tensor:
         return self._forward(x, params)
 
-    def _forward(self, x, params=None):
+    def _forward(self, x: torch.Tensor, params: flowtorch.ParamsModule) -> torch.Tensor:
         """
         Abstract method to compute forward transformation.
         """
         raise NotImplementedError
 
-    def inverse(self, y, params=None):
+    def inverse(self, y: torch.Tensor, params: flowtorch.ParamsModule) -> torch.Tensor:
         return self._inverse(y, params)
 
-    def _inverse(self, y, params=None):
+    def _inverse(self, y: torch.Tensor, params: flowtorch.ParamsModule) -> torch.Tensor:
         """
         Abstract method to compute inverse transformation.
         """
         raise NotImplementedError
 
-    def log_abs_det_jacobian(self, x, y, params=None):
+    def log_abs_det_jacobian(
+        self,
+        x: torch.Tensor,
+        y: torch.Tensor,
+        params: flowtorch.ParamsModule,
+    ) -> torch.Tensor:
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.
         By default, assumes a volume preserving bijection.
         """
         return self._log_abs_det_jacobian(x, y, params)
 
-    def _log_abs_det_jacobian(self, x, y, params=None):
+    def _log_abs_det_jacobian(
+        self,
+        x: torch.Tensor,
+        y: torch.Tensor,
+        params: flowtorch.ParamsModule,
+    ) -> torch.Tensor:
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.
         By default, assumes a volume preserving bijection.
@@ -83,13 +94,15 @@ class Bijector(object):
         # self.event_dim may be > 0 for derived classes!
         return torch.zeros_like(x)
 
-    def param_shapes(self, dist):
+    def param_shapes(
+        self, dist: torch.distributions.Distribution
+    ) -> Union[torch.Size, Sequence[torch.Size]]:
         """
         Given a base distribution, calculate the parameters for the transformation
         of that distribution under this bijector. By default, no parameters are
         set.
         """
-        return None
+        return torch.Size([])
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__class__.__name__ + "()"
