@@ -17,11 +17,6 @@ class Bijector(object):
     identity_initialization = True
     autoregressive = False
 
-    x_cache = None
-    y_cache = None
-    J_cache = None
-    state_cache = 0
-
     # TODO: Returning inverse of bijection
     def __init__(self, param_fn, **kwargs):
         super(Bijector, self).__init__()
@@ -54,17 +49,6 @@ class Bijector(object):
             raise TypeError(f"Bijector called with invalid type: {type(base_dist)}")
 
     def forward(self, x, params=None):
-        """
-        Layer of indirection to implement caching
-        """
-        # if self.x_cache is x and self.state_cache == params.param.state:
-        #     return self.y_cache
-        # else:
-        #     y = self._forward(x, params)
-        #     self.x_cache = x
-        #     self.y_cache = y
-        #     self.state_cache = params.params.state
-        #     return y
         return self._forward(x, params)
 
     def _forward(self, x, params=None):
@@ -74,14 +58,7 @@ class Bijector(object):
         raise NotImplementedError
 
     def inverse(self, y, params=None):
-        if self.y_cache is y and self.state_cache == params.params.state:
-            return self.x_cache
-        else:
-            x = self._inverse(y, params)
-            self.x_cache = x
-            self.y_cache = y
-            self.state_cache = params.params.state
-            return x
+        return self._inverse(y, params)
 
     def _inverse(self, y, params=None):
         """
@@ -94,20 +71,7 @@ class Bijector(object):
         Computes the log det jacobian `log |dy/dx|` given input and output.
         By default, assumes a volume preserving bijection.
         """
-        if (
-            self.x_cache is x
-            and self.y_cache is y
-            and self.J_cache is not None
-            and self.state_cache == params.params.state
-        ):
-            return self.J_cache
-        else:
-            J = self._log_abs_det_jacobian(x, y, params)
-            self.x_cache = x
-            self.y_cache = y
-            self.J_cache = J
-            self.state_cache = params.params.state
-            return J
+        return self._log_abs_det_jacobian(x, y, params)
 
     def _log_abs_det_jacobian(self, x, y, params=None):
         """

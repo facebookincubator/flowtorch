@@ -8,11 +8,6 @@ class Params(object):
     Deferred initialization of parameters.
     """
 
-    x_cache = None
-    p_cache = None
-    state_cache = 0
-    state = 0
-
     def __init__(self):
         super(Params, self).__init__()
         # self._inv = None
@@ -39,14 +34,7 @@ class Params(object):
         return ParamsModule(self, *self.build(input_shape, param_shapes))
 
     def forward(self, x, context=None, modules=None):
-        if self.x_cache is x and self.state_cache == self.state:
-            return self.p_cache
-        else:
-            p = self._forward(x, context=context, modules=modules)
-            self.x_cache = x
-            self.p_cache = p
-            self.state_cache = self.state
-            return p
+        return self._forward(x, context=context, modules=modules)
 
     def _forward(self, x, context=None, modules=None):
         """
