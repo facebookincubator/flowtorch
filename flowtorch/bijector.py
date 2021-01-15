@@ -1,7 +1,7 @@
 # Copyright (c) FlowTorch Development Team. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
-from typing import Sequence, Tuple
+from typing import Optional, Sequence, Tuple
 
 import torch
 import torch.distributions
@@ -52,12 +52,12 @@ class Bijector(object):
             raise TypeError(f"Bijector called with invalid type: {type(base_dist)}")
 
     def forward(
-        self, x: torch.Tensor, params: "flowtorch.ParamsModule"
+        self, x: torch.Tensor, params: Optional["flowtorch.ParamsModule"]
     ) -> torch.Tensor:
         return self._forward(x, params)
 
     def _forward(
-        self, x: torch.Tensor, params: "flowtorch.ParamsModule"
+        self, x: torch.Tensor, params: Optional["flowtorch.ParamsModule"]
     ) -> torch.Tensor:
         """
         Abstract method to compute forward transformation.
@@ -65,12 +65,12 @@ class Bijector(object):
         raise NotImplementedError
 
     def inverse(
-        self, y: torch.Tensor, params: "flowtorch.ParamsModule"
+        self, y: torch.Tensor, params: Optional["flowtorch.ParamsModule"]
     ) -> torch.Tensor:
         return self._inverse(y, params)
 
     def _inverse(
-        self, y: torch.Tensor, params: "flowtorch.ParamsModule"
+        self, y: torch.Tensor, params: Optional["flowtorch.ParamsModule"]
     ) -> torch.Tensor:
         """
         Abstract method to compute inverse transformation.
@@ -81,7 +81,7 @@ class Bijector(object):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: "flowtorch.ParamsModule",
+        params: Optional["flowtorch.ParamsModule"],
     ) -> torch.Tensor:
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.
@@ -93,7 +93,7 @@ class Bijector(object):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: "flowtorch.ParamsModule",
+        params: Optional["flowtorch.ParamsModule"],
     ) -> torch.Tensor:
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.

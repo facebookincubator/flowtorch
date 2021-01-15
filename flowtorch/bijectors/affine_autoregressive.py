@@ -1,7 +1,7 @@
 # Copyright (c) FlowTorch Development Team. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
-from typing import Tuple
+from typing import Optional, Tuple
 
 import torch
 
@@ -27,7 +27,10 @@ class AffineAutoregressive(flowtorch.Bijector):
         self.log_scale_max_clip = log_scale_max_clip
         self.sigmoid_bias = sigmoid_bias
 
-    def _forward(self, x: torch.Tensor, params: flowtorch.ParamsModule) -> torch.Tensor:
+    def _forward(
+        self, x: torch.Tensor, params: Optional[flowtorch.ParamsModule]
+    ) -> torch.Tensor:
+        assert isinstance(params, flowtorch.ParamsModule)
         mean, log_scale = params(x)
         log_scale = clamp_preserve_gradients(
             log_scale, self.log_scale_min_clip, self.log_scale_max_clip
@@ -36,7 +39,10 @@ class AffineAutoregressive(flowtorch.Bijector):
         y = scale * x + mean / 100
         return y
 
-    def _inverse(self, y: torch.Tensor, params: flowtorch.ParamsModule) -> torch.Tensor:
+    def _inverse(
+        self, y: torch.Tensor, params: Optional[flowtorch.ParamsModule]
+    ) -> torch.Tensor:
+        assert isinstance(params, flowtorch.ParamsModule)
         x_size = y.size()[:-1]
         input_dim = y.size(-1)
         x = [torch.zeros(x_size, device=y.device)] * input_dim
@@ -58,8 +64,9 @@ class AffineAutoregressive(flowtorch.Bijector):
         return torch.stack(x, dim=-1)
 
     def _log_abs_det_jacobian(
-        self, x: torch.Tensor, y: torch.Tensor, params: flowtorch.ParamsModule
+        self, x: torch.Tensor, y: torch.Tensor, params: Optional[flowtorch.ParamsModule]
     ) -> torch.Tensor:
+        assert isinstance(params, flowtorch.ParamsModule)
         # Note: params will take care of caching "mean, log_scale, perm = params(x)"
         _, log_scale = params(x)
         log_scale = clamp_preserve_gradients(

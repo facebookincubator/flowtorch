@@ -2,18 +2,29 @@
 # SPDX-License-Identifier: MIT
 
 import weakref
+from typing import Any
 
 import torch
-import torch.distributions
+import torch.distributions as dist
 from torch import Tensor
 from torch.distributions.utils import _sum_rightmost
 
+import flowtorch
 
-class TransformedDistribution(torch.distributions.Distribution):
-    def __init__(self, base_distribution, bijector, params, validate_args=None):
+
+class TransformedDistribution(dist.Distribution):
+    default_sample_shape = torch.Size()
+
+    def __init__(
+        self,
+        base_distribution: dist.Distribution,
+        bijector: "flowtorch.Bijector",
+        params: "flowtorch.ParamsModule",
+        validate_args: Any = None,
+    ) -> None:
         self.base_dist = base_distribution
 
-        self.params = weakref.proxy(params)
+        self.params = weakref.ref(params)
         self.bijector = bijector
 
         shape = self.base_dist.batch_shape + self.base_dist.event_shape
@@ -26,7 +37,7 @@ class TransformedDistribution(torch.distributions.Distribution):
 
     def sample(
         self,
-        sample_shape=torch.Size(),  # noqa: B008
+        sample_shape: torch.Size = default_sample_shape,
     ) -> Tensor:
         """
         Generates a sample_shape shaped sample or sample_shape shaped batch of
@@ -36,12 +47,12 @@ class TransformedDistribution(torch.distributions.Distribution):
         """
         with torch.no_grad():
             x = self.base_dist.sample(sample_shape)
-            x = self.bijector.forward(x, self.params)
+            x = self.bijector.forward(x, self.params())
             return x
 
     def rsample(
         self,
-        sample_shape=torch.Size(),  # noqa: B008
+        sample_shape: torch.Size = default_sample_shape,
     ) -> Tensor:
         """
         Generates a sample_shape shaped reparameterized sample or sample_shape
@@ -50,19 +61,19 @@ class TransformedDistribution(torch.distributions.Distribution):
         `transform()` for every transform in the list.
         """
         x = self.base_dist.rsample(sample_shape)
-        x = self.bijector.forward(x, self.params)
+        x = self.bijector.forward(x, self.params())
         return x
 
-    def log_prob(self, y):
+    def log_prob(self, y: torch.Tensor) -> torch.Tensor:
         """
         Scores the sample by inverting the transform(s) and computing the score
         using the score of the base distribution and the log abs det jacobian.
         """
         event_dim = len(self.event_shape)
 
-        x = self.bijector.inverse(y, self.params)
+        x = self.bijector.inverse(y, self.params())
         log_prob = -_sum_rightmost(
-            self.bijector.log_abs_det_jacobian(x, y, self.params),
+            self.bijector.log_abs_det_jacobian(x, y, self.params()),
             event_dim - self.bijector.event_dim,
         )
         log_prob = log_prob + _sum_rightmost(
