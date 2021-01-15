@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 import warnings
-from typing import Dict, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Optional, Sequence, Tuple
 
 import torch
 import torch.nn as nn
@@ -11,7 +11,9 @@ from torch.nn import functional as F
 import flowtorch
 
 
-def sample_mask_indices(input_dim: int, hidden_dim: int, simple: bool=True) -> torch.Tensor:
+def sample_mask_indices(
+    input_dim: int, hidden_dim: int, simple: bool = True
+) -> torch.Tensor:
     """
     Samples the indices assigned to hidden units during the construction of MADE masks
     :param input_dim: the dimensionality of the input variable
@@ -35,8 +37,12 @@ def sample_mask_indices(input_dim: int, hidden_dim: int, simple: bool=True) -> t
 
 
 def create_mask(
-    input_dim: int, context_dim: int, hidden_dims: Sequence[int], permutation: torch.LongTensor, output_dim_multiplier: int
-) -> (Sequence[torch.Tensor], torch.Tensor):
+    input_dim: int,
+    context_dim: int,
+    hidden_dims: Sequence[int],
+    permutation: torch.LongTensor,
+    output_dim_multiplier: int,
+) -> Tuple[Sequence[torch.Tensor], torch.Tensor]:
     """
     Creates MADE masks for a conditional distribution
     :param input_dim: the dimensionality of the input variable
@@ -104,7 +110,9 @@ class MaskedLinear(nn.Linear):
     defaults to `True`
     """
 
-    def __init__(self, in_features: int, out_features: int, mask: torch.Tensor, bias: bool=True) -> None:
+    def __init__(
+        self, in_features: int, out_features: int, mask: torch.Tensor, bias: bool = True
+    ) -> None:
         super().__init__(in_features, out_features, bias)
         self.register_buffer("mask", mask.data)
 
@@ -119,9 +127,9 @@ class DenseAutoregressive(flowtorch.Params):
 
     def __init__(
         self,
-        hidden_dims: Sequence[int]=(256, 256),
-        nonlinearity: nn.Module=nn.ReLU(),  # noqa: B008
-        permutation: Optional[torch.Tensor] = None,
+        hidden_dims: Sequence[int] = (256, 256),
+        nonlinearity: nn.Module = nn.ReLU(),  # noqa: B008
+        permutation: Optional[torch.LongTensor] = None,
         skip_connections: bool = False,
     ) -> None:
         super(DenseAutoregressive, self).__init__()
@@ -134,18 +142,18 @@ class DenseAutoregressive(flowtorch.Params):
     def _build(
         self,
         input_shape: torch.Size,
-        param_shapes: Union[torch.Size, Sequence[torch.Size]],
-    ) -> Tuple[nn.ModuleList, Dict[str, torch.Tensor]]:
+        param_shapes: Sequence[torch.Size],
+    ) -> Tuple[nn.ModuleList, Dict[str, Any]]:
         # TODO: Implement conditional version!
-        self.context_dims = 0
+        self.context_dims = int(0)
 
         # Work out flattened input and output shapes
         param_shapes_ = list(param_shapes)
         self.input_dims = int(torch.sum(torch.tensor(input_shape)).int().item())
         if self.input_dims == 0:
             self.input_dims = 1  # scalars represented by torch.Size([])
-        self.output_multiplier = sum(
-            [max(torch.sum(torch.tensor(s)).item(), 1) for s in param_shapes_]
+        self.output_multiplier = int(
+            sum([max(torch.sum(torch.tensor(s)).item(), 1) for s in param_shapes_])
         )
         if self.input_dims == 1:
             warnings.warn(
@@ -175,12 +183,14 @@ class DenseAutoregressive(flowtorch.Params):
         if self.permutation is None:
             # By default set a random permutation of variables, which is
             # important for performance with multiple steps
-            self.permutation = torch.randperm(self.input_dims, device="cpu").to(
-                torch.Tensor().device
+            self.permutation = torch.LongTensor(
+                torch.randperm(self.input_dims, device="cpu").to(
+                    torch.LongTensor().device
+                )
             )
         else:
             # The permutation is chosen by the user
-            self.permutation = self.permutation.type(dtype=torch.int64)
+            self.permutation = torch.LongTensor(self.permutation)
 
         # TODO: Check that the permutation is valid for the input dimension!
         # Implement ispermutation() that sorts permutation and checks whether it
@@ -238,12 +248,19 @@ class DenseAutoregressive(flowtorch.Params):
 
         return nn.ModuleList(layers), buffers
 
-    def _init_weights(self, layers: Sequence(nn.Module)) -> None:
-        input_dim = layers[0].in_features
+    def _init_weights(self, layers: Sequence[nn.Module]) -> None:
+        input_dim = self.input_dims + self.context_dims
         weight_product = torch.eye(input_dim, input_dim)
 
         for idx in range(0, len(layers), 2):
+            # Required for type checking
             layer = layers[idx]
+            assert (
+                isinstance(layer.bias, torch.Tensor)
+                and isinstance(layer.weight, torch.Tensor)
+                and isinstance(layer.mask, torch.Tensor)
+            )
+
             # Initialize biases to 0
             torch.nn.init.zeros_(layer.bias)
 
@@ -255,7 +272,19 @@ class DenseAutoregressive(flowtorch.Params):
             layer.weight.data.div_(l2_norm + 1e-8)
             weight_product.data.div_(l2_norm + 1e-8)
 
-    def _forward(self, x: Optional[torch.Tensor]=None, context: Optional[torch.Tensor]=None, modules: Optional[nn.ModuleList]=None):
+    def _forward(
+        self,
+        x: Optional[torch.Tensor] = None,
+        context: Optional[torch.Tensor] = None,
+        modules: Optional[nn.ModuleList] = None,
+    ) -> Sequence[torch.Tensor]:
+        # Required for type checking to pass!
+        assert (
+            isinstance(x, torch.Tensor)
+            and context is not None
+            and isinstance(modules, nn.ModuleList)
+        )
+
         # DEBUG: Disabled context
         # We must be able to broadcast the size of the context over the input
         # if context is None:
@@ -265,6 +294,7 @@ class DenseAutoregressive(flowtorch.Params):
         # TODO: Get this working again when using skip_layers!
         h = x
         # print(h)
+
         for idx in range(len(modules) // 2):
             h = modules[2 * idx + 1](modules[2 * idx](h))
             # print(h)
@@ -278,17 +308,23 @@ class DenseAutoregressive(flowtorch.Params):
         # Shape the output
         if len(self.input_shape) == 0:
             h = h.reshape(x.size()[:-1] + (self.output_multiplier, self.input_dims))
-            h = tuple(
-                h[..., p_slice, :].reshape(h.shape[:-2] + p_shape + (1,))
-                for p_slice, p_shape in zip(self.param_slices, self.param_shapes)
+            result = tuple(
+                [
+                    h[..., p_slice, :].reshape(
+                        torch.Size(h.shape[:-2]) + p_shape + torch.Size((1,))
+                    )
+                    for p_slice, p_shape in zip(
+                        self.param_slices, list(self.param_shapes)
+                    )
+                ]
             )
         else:
             h = h.reshape(
                 x.size()[: -len(self.input_shape)]
                 + (self.output_multiplier, self.input_dims)
             )
-            h = tuple(
+            result = tuple(
                 h[..., p_slice, :].reshape(h.shape[:-2] + p_shape + self.input_shape)
-                for p_slice, p_shape in zip(self.param_slices, self.param_shapes)
+                for p_slice, p_shape in zip(self.param_slices, list(self.param_shapes))
             )
-        return h
+        return result

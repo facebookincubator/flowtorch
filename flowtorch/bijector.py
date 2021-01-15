@@ -1,7 +1,7 @@
 # Copyright (c) FlowTorch Development Team. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
-from typing import Sequence, Tuple, Union
+from typing import Sequence, Tuple
 
 import torch
 import torch.distributions
@@ -106,13 +106,13 @@ class Bijector(object):
 
     def param_shapes(
         self, dist: torch.distributions.Distribution
-    ) -> Union[torch.Size, Sequence[torch.Size]]:
+    ) -> Sequence[torch.Size]:
         """
         Given a base distribution, calculate the parameters for the transformation
         of that distribution under this bijector. By default, no parameters are
         set.
         """
-        return torch.Size([])
+        return (torch.Size([]),)
 
     def __repr__(self) -> str:
         return self.__class__.__name__ + "()"
