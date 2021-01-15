@@ -12,7 +12,7 @@ class ParamsModule(torch.nn.Module):
         params: "Params",
         modules: Optional[nn.ModuleList] = None,
         buffers: Optional[Dict[str, torch.Tensor]] = None,
-    ):
+    ) -> None:
         super(ParamsModule, self).__init__()
         self.params = params
         self.mods = modules
@@ -32,7 +32,7 @@ class Params(object):
     Deferred initialization of parameters.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super(Params, self).__init__()
 
     def __call__(

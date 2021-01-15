@@ -11,16 +11,13 @@ from torch.nn import functional as F
 import flowtorch
 
 
-def sample_mask_indices(input_dim, hidden_dim, simple=True):
+def sample_mask_indices(input_dim: int, hidden_dim: int, simple: bool=True) -> torch.Tensor:
     """
     Samples the indices assigned to hidden units during the construction of MADE masks
     :param input_dim: the dimensionality of the input variable
-    :type input_dim: int
     :param hidden_dim: the dimensionality of the hidden layer
-    :type hidden_dim: int
     :param simple: True to space fractional indices by rounding to nearest
     int, false round randomly
-    :type simple: bool
     """
     indices = torch.linspace(1, input_dim, steps=hidden_dim, device="cpu").to(
         torch.Tensor().device
@@ -38,22 +35,17 @@ def sample_mask_indices(input_dim, hidden_dim, simple=True):
 
 
 def create_mask(
-    input_dim, context_dim, hidden_dims, permutation, output_dim_multiplier
-):
+    input_dim: int, context_dim: int, hidden_dims: Sequence[int], permutation: torch.LongTensor, output_dim_multiplier: int
+) -> (Sequence[torch.Tensor], torch.Tensor):
     """
     Creates MADE masks for a conditional distribution
     :param input_dim: the dimensionality of the input variable
-    :type input_dim: int
     :param context_dim: the dimensionality of the variable that is
     conditioned on (for conditional densities)
-    :type context_dim: int
     :param hidden_dims: the dimensionality of the hidden layers(s)
-    :type hidden_dims: list[int]
     :param permutation: the order of the input variables
-    :type permutation: torch.LongTensor
     :param output_dim_multiplier: tiles the output (e.g. for when a separate
     mean and scale parameter are desired)
-    :type output_dim_multiplier: int
     """
     # Create mask indices for input, hidden layers, and final layer
     # We use 0 to refer to the elements of the variable being conditioned on,
@@ -106,21 +98,17 @@ class MaskedLinear(nn.Linear):
     """
     A linear mapping with a given mask on the weights (arbitrary bias)
     :param in_features: the number of input features
-    :type in_features: int
     :param out_features: the number of output features
-    :type out_features: int
     :param mask: the mask to apply to the in_features x out_features weight matrix
-    :type mask: torch.Tensor
     :param bias: whether or not `MaskedLinear` should include a bias term.
     defaults to `True`
-    :type bias: bool
     """
 
-    def __init__(self, in_features, out_features, mask, bias=True):
+    def __init__(self, in_features: int, out_features: int, mask: torch.Tensor, bias: bool=True) -> None:
         super().__init__(in_features, out_features, bias)
         self.register_buffer("mask", mask.data)
 
-    def forward(self, _input):
+    def forward(self, _input: torch.Tensor) -> torch.Tensor:
         masked_weight = self.weight * self.mask
         return F.linear(_input, masked_weight, self.bias)
 
@@ -131,11 +119,11 @@ class DenseAutoregressive(flowtorch.Params):
 
     def __init__(
         self,
-        hidden_dims=(256, 256),
-        nonlinearity=nn.ReLU(),  # noqa: B008
+        hidden_dims: Sequence[int]=(256, 256),
+        nonlinearity: nn.Module=nn.ReLU(),  # noqa: B008
         permutation: Optional[torch.Tensor] = None,
         skip_connections: bool = False,
-    ):
+    ) -> None:
         super(DenseAutoregressive, self).__init__()
         self.hidden_dims = hidden_dims
         self.nonlinearity = nonlinearity
@@ -250,7 +238,7 @@ class DenseAutoregressive(flowtorch.Params):
 
         return nn.ModuleList(layers), buffers
 
-    def _init_weights(self, layers) -> None:
+    def _init_weights(self, layers: Sequence(nn.Module)) -> None:
         input_dim = layers[0].in_features
         weight_product = torch.eye(input_dim, input_dim)
 
@@ -267,7 +255,7 @@ class DenseAutoregressive(flowtorch.Params):
             layer.weight.data.div_(l2_norm + 1e-8)
             weight_product.data.div_(l2_norm + 1e-8)
 
-    def _forward(self, x=None, context=None, modules=None):
+    def _forward(self, x: Optional[torch.Tensor]=None, context: Optional[torch.Tensor]=None, modules: Optional[nn.ModuleList]=None):
         # DEBUG: Disabled context
         # We must be able to broadcast the size of the context over the input
         # if context is None:
