@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 import warnings
-from typing import Any, Dict, Optional, Sequence, Tuple
+from typing import Dict, Optional, Sequence, Tuple
 
 import torch
 import torch.nn as nn
@@ -11,15 +11,16 @@ from torch.nn import functional as F
 import flowtorch
 
 
-def sample_mask_indices(
-    input_dim: int, hidden_dim: int, simple: bool = True
-) -> torch.Tensor:
+def sample_mask_indices(input_dim, hidden_dim, simple=True):
     """
     Samples the indices assigned to hidden units during the construction of MADE masks
     :param input_dim: the dimensionality of the input variable
+    :type input_dim: int
     :param hidden_dim: the dimensionality of the hidden layer
+    :type hidden_dim: int
     :param simple: True to space fractional indices by rounding to nearest
     int, false round randomly
+    :type simple: bool
     """
     indices = torch.linspace(1, input_dim, steps=hidden_dim, device="cpu").to(
         torch.Tensor().device
@@ -37,21 +38,22 @@ def sample_mask_indices(
 
 
 def create_mask(
-    input_dim: int,
-    context_dim: int,
-    hidden_dims: Sequence[int],
-    permutation: torch.LongTensor,
-    output_dim_multiplier: int,
-) -> Tuple[Sequence[torch.Tensor], torch.Tensor]:
+    input_dim, context_dim, hidden_dims, permutation, output_dim_multiplier
+):
     """
     Creates MADE masks for a conditional distribution
     :param input_dim: the dimensionality of the input variable
+    :type input_dim: int
     :param context_dim: the dimensionality of the variable that is
     conditioned on (for conditional densities)
+    :type context_dim: int
     :param hidden_dims: the dimensionality of the hidden layers(s)
+    :type hidden_dims: list[int]
     :param permutation: the order of the input variables
+    :type permutation: torch.LongTensor
     :param output_dim_multiplier: tiles the output (e.g. for when a separate
     mean and scale parameter are desired)
+    :type output_dim_multiplier: int
     """
     # Create mask indices for input, hidden layers, and final layer
     # We use 0 to refer to the elements of the variable being conditioned on,
@@ -76,8 +78,7 @@ def create_mask(
         var_index
     )
 
-    # Create mask from input to first hidden layer, and between subsequent
-    # hidden layers
+    # Create mask from input to first hidden layer, and between subsequent hidden layers
     masks = [
         (hidden_indices[0].unsqueeze(-1) >= input_indices.unsqueeze(0)).type_as(
             var_index
@@ -104,19 +105,21 @@ class MaskedLinear(nn.Linear):
     """
     A linear mapping with a given mask on the weights (arbitrary bias)
     :param in_features: the number of input features
+    :type in_features: int
     :param out_features: the number of output features
+    :type out_features: int
     :param mask: the mask to apply to the in_features x out_features weight matrix
+    :type mask: torch.Tensor
     :param bias: whether or not `MaskedLinear` should include a bias term.
     defaults to `True`
+    :type bias: bool
     """
 
-    def __init__(
-        self, in_features: int, out_features: int, mask: torch.Tensor, bias: bool = True
-    ) -> None:
+    def __init__(self, in_features, out_features, mask, bias=True):
         super().__init__(in_features, out_features, bias)
         self.register_buffer("mask", mask.data)
 
-    def forward(self, _input: torch.Tensor) -> torch.Tensor:
+    def forward(self, _input):
         masked_weight = self.weight * self.mask
         return F.linear(_input, masked_weight, self.bias)
 
@@ -127,11 +130,11 @@ class DenseAutoregressive(flowtorch.Params):
 
     def __init__(
         self,
-        hidden_dims: Sequence[int] = (256, 256),
-        nonlinearity: nn.Module = nn.ReLU(),  # noqa: B008
-        permutation: Optional[torch.LongTensor] = None,
+        hidden_dims=(256, 256),
+        nonlinearity=nn.ReLU(),  # noqa: B008
+        permutation: Optional[torch.Tensor] = None,
         skip_connections: bool = False,
-    ) -> None:
+    ):
         super(DenseAutoregressive, self).__init__()
         self.hidden_dims = hidden_dims
         self.nonlinearity = nonlinearity
@@ -140,32 +143,29 @@ class DenseAutoregressive(flowtorch.Params):
 
     # Continue from here!
     def _build(
-        self,
-        input_shape: torch.Size,
-        param_shapes: Sequence[torch.Size],
-    ) -> Tuple[nn.ModuleList, Dict[str, Any]]:
+        self, input_shape: torch.Size, param_shapes: Sequence[torch.Size]
+    ) -> Tuple[nn.ModuleList, Dict[str, torch.Tensor]]:
         # TODO: Implement conditional version!
-        self.context_dims = int(0)
+        self.context_dims = 0
 
         # Work out flattened input and output shapes
-        param_shapes_ = list(param_shapes)
         self.input_dims = int(torch.sum(torch.tensor(input_shape)).int().item())
         if self.input_dims == 0:
             self.input_dims = 1  # scalars represented by torch.Size([])
-        self.output_multiplier = int(
-            sum([max(torch.sum(torch.tensor(s)).item(), 1) for s in param_shapes_])
+        self.output_multiplier = sum(
+            [max(torch.sum(torch.tensor(s)).item(), 1) for s in param_shapes]
         )
         if self.input_dims == 1:
             warnings.warn(
                 "DenseAutoregressive input_dim = 1. "
                 "Consider using an affine transformation instead."
             )
-        self.count_params = len(param_shapes_)
+        self.count_params = len(param_shapes)
 
         # Calculate the indices on the output corresponding to each parameter
         ends = torch.cumsum(
             torch.tensor(
-                [max(torch.sum(torch.tensor(s)).item(), 1) for s in param_shapes_]
+                [max(torch.sum(torch.tensor(s)).item(), 1) for s in param_shapes]
             ),
             dim=0,
         )
@@ -183,20 +183,19 @@ class DenseAutoregressive(flowtorch.Params):
         if self.permutation is None:
             # By default set a random permutation of variables, which is
             # important for performance with multiple steps
-            self.permutation = torch.LongTensor(
-                torch.randperm(self.input_dims, device="cpu").to(
-                    torch.LongTensor().device
-                )
+            self.permutation = torch.randperm(self.input_dims, device="cpu").to(
+                torch.Tensor().device
             )
         else:
             # The permutation is chosen by the user
-            self.permutation = torch.LongTensor(self.permutation)
+            self.permutation = self.permutation.type(dtype=torch.int64)
 
         # TODO: Check that the permutation is valid for the input dimension!
         # Implement ispermutation() that sorts permutation and checks whether it
         # has all integers from 0, 1, ..., self.input_dims - 1
 
         buffers = {"permutation": self.permutation}
+        # self.register_buffer('permutation', P)
 
         # Create masks
         hidden_dims = self.hidden_dims
@@ -214,15 +213,11 @@ class DenseAutoregressive(flowtorch.Params):
                 self.input_dims + self.context_dims,
                 hidden_dims[0],
                 self.masks[0],
-            ),
-            torch.nn.PReLU(num_parameters=hidden_dims[0], init=1.0),
+            )
         ]
         for i in range(1, len(hidden_dims)):
-            layers.extend(
-                [
-                    MaskedLinear(hidden_dims[i - 1], hidden_dims[i], self.masks[i]),
-                    torch.nn.PReLU(num_parameters=hidden_dims[i], init=1.0),
-                ]
+            layers.append(
+                MaskedLinear(hidden_dims[i - 1], hidden_dims[i], self.masks[i])
             )
         layers.append(
             MaskedLinear(
@@ -242,48 +237,9 @@ class DenseAutoregressive(flowtorch.Params):
                 )
             )
 
-        # Initialize layers
-        self._init_weights(layers)
-
         return nn.ModuleList(layers), buffers
 
-    def _init_weights(self, layers: Sequence[nn.Module]) -> None:
-        input_dim = self.input_dims + self.context_dims
-        weight_product = torch.eye(input_dim, input_dim)
-
-        for idx in range(0, len(layers), 2):
-            # Required for type checking
-            layer = layers[idx]
-            assert (
-                isinstance(layer.bias, torch.Tensor)
-                and isinstance(layer.weight, torch.Tensor)
-                and isinstance(layer.mask, torch.Tensor)
-            )
-
-            # Initialize biases to 0
-            torch.nn.init.zeros_(layer.bias)
-
-            # Initialize product of weights up until this point so each column has
-            # l_2 norm = 1 * scaling constant
-            # layer.weight ~ input_dims x output_dims
-            weight_product = torch.matmul(layer.weight * layer.mask, weight_product)
-            l2_norm = torch.sum(weight_product.pow(2), dim=1, keepdim=True).sqrt()
-            layer.weight.data.div_(l2_norm * 16.0 + 1e-8)
-            weight_product.data.div_(l2_norm + 1e-8)
-
-    def _forward(
-        self,
-        x: Optional[torch.Tensor] = None,
-        context: Optional[torch.Tensor] = None,
-        modules: Optional[nn.ModuleList] = None,
-    ) -> Sequence[torch.Tensor]:
-        # Required for type checking to pass!
-        assert (
-            isinstance(x, torch.Tensor)
-            and context is None
-            and isinstance(modules, nn.ModuleList)
-        )
-
+    def _forward(self, x=None, context=None, modules=None):
         # DEBUG: Disabled context
         # We must be able to broadcast the size of the context over the input
         # if context is None:
@@ -292,9 +248,8 @@ class DenseAutoregressive(flowtorch.Params):
         # TODO: Flatten x. This will fail when len(input_shape) > 0
         # TODO: Get this working again when using skip_layers!
         h = x
-
-        for idx in range(len(modules) // 2):
-            h = modules[2 * idx + 1](modules[2 * idx](h))
+        for layer in modules[:-1]:
+            h = self.nonlinearity(layer(h))
         h = modules[-1](h)
 
         # TODO: Get skip_layers working again!
@@ -304,23 +259,17 @@ class DenseAutoregressive(flowtorch.Params):
         # Shape the output
         if len(self.input_shape) == 0:
             h = h.reshape(x.size()[:-1] + (self.output_multiplier, self.input_dims))
-            result = tuple(
-                [
-                    h[..., p_slice, :].reshape(
-                        torch.Size(h.shape[:-2]) + p_shape + torch.Size((1,))
-                    )
-                    for p_slice, p_shape in zip(
-                        self.param_slices, list(self.param_shapes)
-                    )
-                ]
+            h = tuple(
+                h[..., p_slice, :].reshape(h.shape[:-2] + p_shape + (1,))
+                for p_slice, p_shape in zip(self.param_slices, self.param_shapes)
             )
         else:
             h = h.reshape(
                 x.size()[: -len(self.input_shape)]
                 + (self.output_multiplier, self.input_dims)
             )
-            result = tuple(
+            h = tuple(
                 h[..., p_slice, :].reshape(h.shape[:-2] + p_shape + self.input_shape)
-                for p_slice, p_shape in zip(self.param_slices, list(self.param_shapes))
+                for p_slice, p_shape in zip(self.param_slices, self.param_shapes)
             )
-        return result
+        return h
