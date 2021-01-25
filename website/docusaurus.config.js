@@ -5,7 +5,7 @@ module.exports = {
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/favicon.png',
   organizationName: 'stefanwebb', // Usually your GitHub org/user name.
   projectName: 'flowtorch', // Usually your repo name.
   themeConfig: {
@@ -74,21 +74,25 @@ module.exports = {
           title: 'Community',
           items: [
             {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/docusaurus',
+              label: 'Raise an issue',
+              href: 'https://github.com/stefanwebb/flowtorch/issues/new/choose',
             },
             {
-              label: 'Discord',
-              href: 'https://discordapp.com/invite/docusaurus',
+              label: 'Ask for help',
+              href: 'https://github.com/stefanwebb/flowtorch/discussions/new',
             },
             {
-              label: 'Twitter',
-              href: 'https://twitter.com/docusaurus',
+              label: 'Give us feedback',
+              href: 'https://github.com/stefanwebb/flowtorch/discussions/categories/feedback',
+            },
+            {
+              label: 'Fork the repo',
+              href: 'https://github.com/stefanwebb/flowtorch/fork',
             },
           ],
         },
         {
-          title: 'More',
+          title: 'Legal',
           items: [
             {
               label: 'GitHub',

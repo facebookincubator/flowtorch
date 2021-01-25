@@ -1,7 +1,7 @@
 ---
 id: structure
 title: Structured Representations
-sidebar_label: Structured Representations
+sidebar_label: Structure
 ---
 
 :::caution

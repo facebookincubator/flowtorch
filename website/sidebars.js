@@ -2,7 +2,7 @@ module.exports = {
   usersSidebar: {
     "Getting Started": ['users/intro', 'users/installation', 'users/start'],
     "Basic Concepts": ['users/normalizing_flows', 'users/bijectors', 'users/parameters', 'users/transformed_distributions'],
-    "Advanced Topics": ['users/caching', 'users/initialization', 'users/structure'],
+    "Advanced Topics": ['users/caching', 'users/initialization', 'users/structure', 'users/torchscript'],
   },
   devsSidebar: {
     "General": ['dev/why', 'dev/contributing', 'dev/code_of_conduct', 'dev/about'],
