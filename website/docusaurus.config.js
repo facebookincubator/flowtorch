@@ -40,6 +40,16 @@ module.exports = {
           position: 'left',
         },
         {
+          href: 'https://github.com/stefanwebb/flowtorch/discussions',
+          label: 'Discussions',
+          position: 'right',
+        },
+        {
+          href: 'https://github.com/stefanwebb/flowtorch/releases',
+          label: 'Releases',
+          position: 'right',
+        },
+        {
           href: 'https://github.com/stefanwebb/flowtorch',
           label: 'GitHub',
           position: 'right',
@@ -53,16 +63,16 @@ module.exports = {
           title: 'Docs',
           items: [
             {
-              label: 'API Reference',
-              to: 'api',
-            },
-            {
               label: 'Users Guide',
               to: 'users',
             },
             {
               label: 'Developers Guide',
               to: 'dev',
+            },
+            {
+              label: 'API Reference',
+              to: 'api',
             },
             {
               label: 'Roadmap',
@@ -95,8 +105,12 @@ module.exports = {
           title: 'Legal',
           items: [
             {
-              label: 'GitHub',
-              href: 'https://github.com/stefanwebb/flowtorch',
+              label: 'MIT Open Source License',
+              href: 'https://github.com/stefanwebb/flowtorch/blob/master/LICENSE.txt',
+            },
+            {
+              label: 'Code of Conduct',
+              href: 'https://www.contributor-covenant.org/version/1/4/code-of-conduct/',
             },
           ],
         },

@@ -36,17 +36,37 @@
   vertical-align: middle;
 }*/
 
-.navbar__item.navbar__link[href*="github"] {
+.navbar__item.navbar__link[href*="flowtorch"]:not([href*="releases"]):not([href*="discussions"]) {
   display: flex;
   font-size: 0;
-  padding: 0 12px;
+  padding: 0 8px;
 }
-.navbar__item.navbar__link[href*="github"]:before {
-  content: "";
-  width: 1.45rem;
-  height: 1.45rem;
-  background: url("/img/github-brands.svg");
-  background-repeat: no-repeat;
+.navbar__item.navbar__link[href*="flowtorch"]:not([href*="releases"]):not([href*="discussions"]):before {
+  content: url("/img/github-brands.svg");
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+.navbar__item.navbar__link[href*="releases"] {
+  display: flex;
+  font-size: 0;
+  padding: 0 8px;
+}
+.navbar__item.navbar__link[href*="releases"]:before {
+  content: url("/img/download-solid.svg");
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+.navbar__item.navbar__link[href*="discussions"] {
+  display: flex;
+  font-size: 0;
+  padding: 0 8px;
+}
+.navbar__item.navbar__link[href*="discussions"]:before {
+  content: url("/img/comments-solid.svg");
+  width: 1.3rem;
+  height: 1.3rem;
 }
 
 .navbar__item.navbar__link[href*="users"] {
@@ -190,4 +210,60 @@
   padding-right: 0.5rem;
   fill:white;
   filter: invert(100%);
+}
+
+.footer__link-item[href*="LICENSE.txt"] {
+  display: flex;
+}
+
+.footer__link-item[href*="LICENSE.txt"]:before {
+  content: url("/img/scroll-solid.svg");
+  width: 0.85rem;
+  height: 0.85rem;
+  padding-right: 0.5rem;
+  fill:white;
+  filter: invert(100%);
+}
+
+.footer__link-item[href*="code-of-conduct"] {
+  display: flex;
+}
+
+.footer__link-item[href*="code-of-conduct"]:before {
+  /*content: url("/img/hands-helping-solid.svg");*/
+  content: url("/img/handshake-solid.svg");
+  width: 0.85rem;
+  height: 0.85rem;
+  padding-right: 0.5rem;
+  fill:white;
+  filter: invert(100%);
+}
+
+.button[href*="user"] {
+  display: flex;
+}
+
+.button[href*="user"]:before {
+  content: url("/img/long-arrow-alt-right-solid.svg");
+  width: 0.85rem;
+  height: 0.85rem;
+  padding-right: 0.5rem;
+  fill:white;
+}
+
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext::after {
+  content: " ";
+  position: absolute;
+  bottom: 100%;  /* At the top of the tooltip */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent black transparent;
 }

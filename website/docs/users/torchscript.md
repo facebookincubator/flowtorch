@@ -1,6 +1,6 @@
 ---
 id: torchscript
-title: Working with TorchScript
+title: TorchScript Support
 sidebar_label: TorchScript
 ---
 
