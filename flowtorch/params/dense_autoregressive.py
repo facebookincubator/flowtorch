@@ -319,8 +319,9 @@ class DenseAutoregressive(flowtorch.Params):
                 x.size()[: -len(self.input_shape)]
                 + (self.output_multiplier, self.input_dims)
             )
+            result = h.split([sl.stop - sl.start for sl in self.param_slices], dim=-2)
             result = tuple(
-                h[..., p_slice, :].reshape(h.shape[:-2] + p_shape + self.input_shape)
-                for p_slice, p_shape in zip(self.param_slices, list(self.param_shapes))
+                h_slice.view(h.shape[:-2] + p_shape + self.input_shape)
+                for h_slice, p_shape in zip(result, list(self.param_shapes))
             )
         return result
