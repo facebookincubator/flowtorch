@@ -19,4 +19,4 @@ We believe, although still a nascent field, that normalizing flows are a fundame
 
 >Moreover, it defines a well-designed interface so that researchers can easily contribute their implementations.
 
-For more theoretical background on normalizing flows and information about their applications, see the primer [here](users/normalizing_flows), which also links to recent survey papers.
+For more theoretical background on normalizing flows and information about their applications, see the primer [here](users/univariate), which also links to recent survey papers.
