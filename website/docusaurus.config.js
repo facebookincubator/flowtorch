@@ -1,18 +1,23 @@
 module.exports = {
   title: 'FlowTorch',
-  tagline: 'A PyTorch library for flexible high-dimensional probability distributions.',
+  tagline: 'Easily learn and sample complex probability distributions with PyTorch',
   url: 'https://flowtorch.ai',
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.png',
-  organizationName: 'stefanwebb', // Usually your GitHub org/user name.
-  projectName: 'flowtorch', // Usually your repo name.
+  organizationName: 'stefanwebb',
+  projectName: 'flowtorch',
+  baseUrlIssueBanner: true,
   themeConfig: {
     announcementBar: {
       id: 'supportus',
       content:
         '⭐️ If you like FlowTorch, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/stefanwebb/flowtorch">GitHub</a>! ⭐️',
+    },
+    prism: {
+      theme: require("prism-react-renderer/themes/github"),
+      darkTheme: require("prism-react-renderer/themes/dracula"),
     },
     navbar: {
       title: 'FlowTorch',
@@ -23,19 +28,19 @@ module.exports = {
       items: [
         {
           to: 'users',
-          activeBasePath: 'docs',
+          activeBasePath: 'users',
           label: 'Users',
           position: 'left',
         },
         {
           to: 'dev',
-          activeBasePath: 'docs',
+          activeBasePath: 'dev',
           label: 'Developers',
           position: 'left',
         },
         {
           to: 'api',
-          activeBasePath: 'docs',
+          activeBasePath: 'api',
           label: 'Reference',
           position: 'left',
         },
@@ -124,9 +129,7 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          // Please change this to your repo.
-          editUrl:
-            'https://github.com/stefanwebb/flowtorch/edit/master/website/',
+          editUrl: 'https://github.com/stefanwebb/flowtorch/edit/master/website/',
           routeBasePath: '/',
         },
         blog: false,

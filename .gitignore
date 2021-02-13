@@ -4,6 +4,7 @@ flowtorch/version.py
 .ipynb_checkpoints/
 docs/_build/
 debug/.vscode
+debug/*.svg
 build/
 dist/
 .eggs/

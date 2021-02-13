@@ -1,7 +1,7 @@
 ---
-id: normalizing_flows
-title: Normalizing Flows
-sidebar_label: Normalizing Flows
+id: multivariate
+title: Multivariate Bijections
+sidebar_label: Multivariate Bijections
 ---
 
 :::caution
