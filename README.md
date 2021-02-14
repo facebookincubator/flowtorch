@@ -1,6 +1,6 @@
-<p style="text-align: center;"><div style="text-align:center"><img src="https://github.com/stefanwebb/flowtorch/raw/master/website/static/img/logo.svg" width="200rem" /></div></p>
+<p align="center"><div style="text-align:center"><img src="https://github.com/stefanwebb/flowtorch/raw/master/website/static/img/logo.svg" width="200rem" /></div></p>
 
-<p style="text-align: center;">[![](https://github.com/stefanwebb/flowtorch/workflows/Python%20package/badge.svg)](https://github.com/stefanwebb/flowtorch/actions?query=workflow%3A%22Python+package%22)</p>
+[![](https://github.com/stefanwebb/flowtorch/workflows/Python%20package/badge.svg)](https://github.com/stefanwebb/flowtorch/actions?query=workflow%3A%22Python+package%22)
 
 Copyright (c) FlowTorch Development Team.
 
