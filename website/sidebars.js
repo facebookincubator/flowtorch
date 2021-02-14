@@ -7,7 +7,7 @@ module.exports = {
   },
   devsSidebar: {
     "General": ['dev/why', 'dev/contributing', 'dev/code_of_conduct', 'dev/about'],
-    "Extending the Library": ['dev/overview', 'dev/docs', 'dev/tests', 'dev/bijector', 'dev/param'],
+    "Extending the Library": ['dev/overview', 'dev/ops', 'dev/docs', 'dev/tests', 'dev/bijector', 'dev/param'],
     "Bibliography": ['dev/prior', 'dev/surveys', 'dev/libraries', 'dev/methodology', 'dev/applications'],
   },
   apiSidebar: {

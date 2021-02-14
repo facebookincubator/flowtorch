@@ -15,9 +15,8 @@ class Bijector(object):
     _inv: Optional[Union[weakref.ReferenceType, "Bijector"]]
 
     # Metadata about (the default) bijector
-    event_dim = 0
-    domain = constraints.real_vector
-    codomain = constraints.real_vector
+    domain = constraints.real
+    codomain = constraints.real
     identity_initialization = True
     autoregressive = False
 

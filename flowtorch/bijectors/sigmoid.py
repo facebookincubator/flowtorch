@@ -5,12 +5,15 @@ from typing import Optional
 
 import torch
 import torch.nn.functional as F
+import torch.distribution.constraints as constraints
 
 import flowtorch
 from flowtorch.utils import clipped_sigmoid
 
 
 class Sigmoid(flowtorch.Bijector):
+    codomain = constraints.unit_interval
+
     def _forward(
         self, x: torch.Tensor, params: Optional[flowtorch.ParamsModule] = None
     ) -> torch.Tensor:

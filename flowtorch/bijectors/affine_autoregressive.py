@@ -4,6 +4,7 @@
 from typing import Optional, Tuple
 
 import torch
+import torch.distributions.constraints as constraints
 
 import flowtorch
 import flowtorch.params
@@ -11,7 +12,8 @@ from flowtorch.utils import clamp_preserve_gradients
 
 
 class AffineAutoregressive(flowtorch.Bijector):
-    event_dim = 1
+    domain = constraints.real_vector
+    codomain = constraints.real_vector
     autoregressive = True
     default_param_fn = flowtorch.params.DenseAutoregressive()
 
