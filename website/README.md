@@ -1,4 +1,4 @@
-# Website
+<img src="https://github.com/stefanwebb/flowtorch/raw/master/website/flowtorch-ai.png" width="100%" />
 
 This website is built using [Docusaurus 2](https://v2.docusaurus.io/), a modern static website generator.
 
@@ -26,6 +26,11 @@ This command generates static content into the `build` directory and can be serv
 
 ## Deployment
 
-Core developers can deploy the website as follows
+Core developers can deploy the website as follows. In the base directory:
 
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+```console
+git checkout master
+cd website
+yarn build
+cp 
+```
