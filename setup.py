@@ -49,9 +49,9 @@ setup(
     author="FlowTorch Development Team",
     author_email="info@stefanwebb.me",
     license="MIT",
-    url="https://www.github.com/stefanwebb/flowtorch",
+    url="https://flowtorch.ai/users",
     project_urls={
-        "Documentation": "https://www.github.com/stefanwebb/flowtorch",
+        "Documentation": "https://flowtorch.ai/users",
         "Source": "https://www.github.com/stefanwebb/flowtorch",
     },
     keywords=[
@@ -73,7 +73,7 @@ setup(
     long_description_content_type="text/markdown",
     python_requires=">={}.{}".format(REQUIRED_MAJOR, REQUIRED_MINOR),
     install_requires=[
-        "torch>=1.6.0",
+        "pytorch-nightly>=1.9.0.dev20210213",
     ],
     setup_requires=["setuptools_scm"],
     use_scm_version={
