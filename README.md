@@ -7,7 +7,7 @@ Copyright (c) FlowTorch Development Team.
 This source code is licensed under the MIT license found in the
 [LICENSE.txt](https://github.com/stefanwebb/flowtorch/blob/master/LICENSE.txt) file in the root directory of this source tree.
 
-> :boom: **FlowTorch is currently in pre-release and many of its planned features and documentation are incomplete!** You may wish to wait until the first release.
+> :boom: **FlowTorch is currently in pre-release and many of its planned features and documentation are incomplete!** You may wish to wait until the first release planned for **3/31/2021**.
 
 # Overview
 
