@@ -1,15 +1,13 @@
-<div style="text-align:center"><img src="https://github.com/stefanwebb/flowtorch/raw/master/website/static/img/logo.svg" width="200rem" /></div>
+<p style="text-align: center;"><div style="text-align:center"><img src="https://github.com/stefanwebb/flowtorch/raw/master/website/static/img/logo.svg" width="200rem" /></div></p>
 
-[![](https://github.com/stefanwebb/flowtorch/workflows/Python%20package/badge.svg)](https://github.com/stefanwebb/flowtorch/actions?query=workflow%3A%22Python+package%22)
+<p style="text-align: center;">[![](https://github.com/stefanwebb/flowtorch/workflows/Python%20package/badge.svg)](https://github.com/stefanwebb/flowtorch/actions?query=workflow%3A%22Python+package%22)</p>
 
 Copyright (c) FlowTorch Development Team.
 
 This source code is licensed under the MIT license found in the
 [LICENSE.txt](https://github.com/stefanwebb/flowtorch/blob/master/LICENSE.txt) file in the root directory of this source tree.
 
-| :boom: WARNING                                                                                           |
-|:---------------------------------------------------------------------------------------------------------|
-| FlowTorch is currently in pre-release and many of its planned features and documentation are incomplete! |
+> :boom: **FlowTorch is currently in pre-release and many of its planned features and documentation are incomplete!** You may wish to wait until the first release.
 
 # Overview
 
