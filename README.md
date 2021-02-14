@@ -23,4 +23,12 @@ An easy way to get started is to install from source:
 
 # Further Information
 
-We refer you to the [FlowTorch website](https://flowtorch.ai) for more information about installation, using the library, and becoming a contributor.
+We refer you to the [FlowTorch website](https://flowtorch.ai) for more information about installation, using the library, and becoming a contributor. Here is a handy guide:
+
+* [What are normalizing flows?](https://flowtorch.ai/users)
+* [How do I install FlowTorch?](https://flowtorch.ai/users/installation)
+* [How do I construct and train a distribution?](https://flowtorch.ai/users/start)
+* [How do I contribute new normalizing flow methods?](https://flowtorch.ai/dev)
+* [Where can I report bugs?](https://github.com/stefanwebb/flowtorch/issues)
+* [Where can I ask general questions and make feature requests?](https://github.com/stefanwebb/flowtorch/discussions)
+* [What features are planned for the near future?](https://github.com/stefanwebb/flowtorch/projects)

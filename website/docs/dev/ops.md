@@ -4,12 +4,7 @@ title: Continuous Integration
 sidebar_label: Continuous Integration
 ---
 
-:::caution
+FlowTorch uses continuous integration to ...
 
-This document is under construction!
+(What steps are performed by CI?)
 
-:::
-
-You can extend the library to add your own bijections for ...
-
----
