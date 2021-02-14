@@ -68,8 +68,8 @@ def test_neals_funnel_vi():
         dist.Independent(dist.Normal(torch.zeros(2), torch.ones(2)), 1)
     )
     opt = torch.optim.Adam(params.parameters(), lr=1e-3)
-    num_elbo_mc_samples = 1000
-    for _ in range(300):
+    num_elbo_mc_samples = 100
+    for _ in range(400):
         z0 = tdist.base_dist.rsample(sample_shape=(num_elbo_mc_samples,))
         zk = flow._forward(z0, params)
         ldj = flow._log_abs_det_jacobian(z0, zk, params)
@@ -88,6 +88,25 @@ def test_neals_funnel_vi():
 
     assert scipy.stats.ks_2samp(nf_samples[:, 0], vi_samples[:, 0]).pvalue >= 0.05
     assert scipy.stats.ks_2samp(nf_samples[:, 1], vi_samples[:, 1]).pvalue >= 0.05
+
+
+def test_inv():
+    flow = flowtorch.bijectors.AffineAutoregressive(
+        flowtorch.params.DenseAutoregressive()
+    )
+    tdist, params = flow(
+        dist.Independent(dist.Normal(torch.zeros(2), torch.ones(2)), 1)
+    )
+    inv_flow = flow.inv()
+    inv_tdist, inv_params = inv_flow(
+        dist.Independent(dist.Normal(torch.zeros(2), torch.ones(2)), 1)
+    )
+    x = torch.zeros(1, 2)
+    y = flow.forward(x, params)
+    assert tdist.bijector.log_abs_det_jacobian(
+        x, y, params
+    ) == inv_tdist.bijector.log_abs_det_jacobian(y, x, inv_params)
+    assert flow.inv().inv == flow
 
 
 # class TestClass:

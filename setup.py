@@ -21,7 +21,7 @@ DEV_REQUIRES = TEST_REQUIRES + [
     "sphinx-autodoc-typehints",
     "sphinx_rtd_theme",
     "numpy",
-    "scipy"
+    "scipy",
 ]
 
 

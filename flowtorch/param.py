@@ -6,6 +6,32 @@ import torch
 import torch.nn as nn
 
 
+class ParamsModuleList(torch.nn.Module):
+    params_modules: nn.ModuleList
+
+    def __init__(
+        self,
+        params_modules: Sequence["ParamsModule"],
+    ) -> None:
+        super(ParamsModuleList, self).__init__()
+        self.params_modules = nn.ModuleList(params_modules)
+
+    def forward(self, x: torch.Tensor) -> Optional[Sequence[torch.Tensor]]:
+        return [p.params.forward(x) for p in self.params_modules]
+
+    def __iter__(self):
+        return iter(self.params_modules)
+
+    def __call__(self):
+        return self.params_modules
+
+    def __len__(self):
+        return len(self.params_modules)
+
+    def __reversed__(self):
+        return reversed(self.params_modules)
+
+
 class ParamsModule(torch.nn.Module):
     def __init__(
         self,
