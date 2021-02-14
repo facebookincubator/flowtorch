@@ -43,14 +43,12 @@ class AffineAutoregressive(flowtorch.Bijector):
         self, y: torch.Tensor, params: Optional[flowtorch.ParamsModule]
     ) -> torch.Tensor:
         assert isinstance(params, flowtorch.ParamsModule)
-        x_size = y.size()[:-1]
-        input_dim = y.size(-1)
-        x = [torch.zeros(x_size, device=y.device)] * input_dim
+        x = torch.zeros_like(y)
 
         # NOTE: Inversion is an expensive operation that scales in the
         # dimension of the input
         for idx in params.permutation:  # type: ignore
-            mean, log_scale = params(torch.stack(x, dim=-1))
+            mean, log_scale = params(x.clone())
             inverse_scale = torch.exp(
                 -clamp_preserve_gradients(
                     log_scale[..., idx],
@@ -59,9 +57,9 @@ class AffineAutoregressive(flowtorch.Bijector):
                 )
             )  # * 10
             mean = mean[..., idx]
-            x[idx] = (y[..., idx] - mean) * inverse_scale
+            x[..., idx] = (y[..., idx] - mean) * inverse_scale
 
-        return torch.stack(x, dim=-1)
+        return x
 
     def _log_abs_det_jacobian(
         self, x: torch.Tensor, y: torch.Tensor, params: Optional[flowtorch.ParamsModule]
