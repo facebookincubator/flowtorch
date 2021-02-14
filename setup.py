@@ -73,7 +73,7 @@ setup(
     long_description_content_type="text/markdown",
     python_requires=">={}.{}".format(REQUIRED_MAJOR, REQUIRED_MINOR),
     install_requires=[
-        "pytorch-nightly>=1.9.0.dev20210213",
+        "torch>=1.9.0.dev20210213",
     ],
     setup_requires=["setuptools_scm"],
     use_scm_version={
