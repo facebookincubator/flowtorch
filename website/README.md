@@ -53,7 +53,7 @@ git checkout master
 Or on Windows (**untested!**):
 ```console
 git checkout master
-rmdir -s .website
+rmdir /s .website
 cd website
 yarn build
 xcopy /E /Y /H build/* ../.website
