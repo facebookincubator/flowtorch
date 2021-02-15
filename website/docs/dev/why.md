@@ -5,12 +5,11 @@ sidebar_label: Why Contribute?
 slug: /dev
 ---
 
-:::caution
+## Professional development
+[TODO!]
 
-This document is under construction!
+## Creating meaning
+[TODO!]
 
-:::
-
-You can write content using [GitHub-flavored Markdown syntax](https://github.github.com/gfm/).
-
----
+## Advancing science
+[TODO!]

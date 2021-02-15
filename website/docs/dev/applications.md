@@ -4,8 +4,15 @@ title: Applications
 sidebar_label: Applications
 ---
 
-:::caution
+## Natural Language Processing
+[PCFG paper!]
 
-This document is under construction!
+## Computer Vision
 
-:::
+## Speech and Audio
+
+## Data Compression
+
+## General Applications
+
+[Outlier detection paper!]

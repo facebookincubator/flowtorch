@@ -6,11 +6,11 @@ module.exports = {
     "Advanced Topics": ['users/caching', 'users/initialization', 'users/structure', 'users/torchscript'],
   },
   devsSidebar: {
-    "General": ['dev/why', 'dev/contributing', 'dev/code_of_conduct', 'dev/about'],
+    "General": ['dev/why', 'dev/contributing', 'dev/code_of_conduct', 'dev/releases', 'dev/about'],
     "Extending the Library": ['dev/overview', 'dev/ops', 'dev/docs', 'dev/tests', 'dev/bijector', 'dev/param'],
     "Bibliography": ['dev/prior', 'dev/surveys', 'dev/libraries', 'dev/methodology', 'dev/applications'],
   },
   apiSidebar: {
-    "Python API": ['api/flowtorch', 'api/bijectors', 'api/distributions', 'api/params', 'api/utils'],
+    "Python API": ['api/flowtorch'],
   },
 };

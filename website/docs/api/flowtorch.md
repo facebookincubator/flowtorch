@@ -7,6 +7,6 @@ slug: /api
 
 :::caution
 
-This document is under construction!
+The API reference is under construction! We will integrate Sphinx output to our Docusaurus v2 website in the near future.
 
 :::

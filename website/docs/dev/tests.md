@@ -4,12 +4,4 @@ title: Tests
 sidebar_label: Tests
 ---
 
-:::caution
-
-This document is under construction!
-
-:::
-
-You can extend the library to add your own bijections for ...
-
----
+Unit tests on FlowTorch components are run using PyTest. All tests are contained in the /test folder.

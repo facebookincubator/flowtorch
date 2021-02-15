@@ -44,7 +44,19 @@ jobs:
         mypy flowtorch
     - name: Test with pytest
       run: |
-        pytest tests -W ignore::DeprecationWarning
+        pytest --cov=tests --cov-report=xml -W ignore::DeprecationWarning
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.xml
+        directory: ./
+        flags: unittests
+        env_vars: OS,PYTHON
+        name: codecov-umbrella
+        fail_ci_if_error: true
+        path_to_write_report: ./codecov_report.txt
+        verbose: true
     - name: Sphinx Build
       run: |
         cd docs
