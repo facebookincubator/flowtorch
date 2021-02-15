@@ -53,10 +53,10 @@ git checkout master
 Or on Windows (**untested!**):
 ```console
 git checkout master
-rmdir /s .website
+rmdir /q /s .website
 cd website
 yarn build
-xcopy /E /Y /H build/* ../.website
+move ./build ../.website
 git checkout website
 git rm -r .
 cp -r .website/* .
