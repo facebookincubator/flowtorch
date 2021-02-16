@@ -35,7 +35,7 @@ This command generates static content into the `website/build` directory, which 
 
 Core developers can deploy the website as follows. On Linux/Mac, in the base directory:
 
-> :exclamation: The following commands for Linux/Mac have not yet been tested and debugged.
+> :exclamation: **The following commands for Linux/Mac have not yet been tested and debugged.**
 
 ```console
 git checkout master
@@ -47,7 +47,7 @@ git checkout website
 git rm -r .
 cp -r .website/* .
 git add .
-git commit -a -m "[Commit message]"
+git commit -a -m "Updating website"
 git push
 git checkout master
 ```
@@ -60,10 +60,11 @@ cd website
 yarn build
 move ./build ../.website
 git checkout website
+git clean -f -d
 git rm -r .
-cp -r .website/* .
+xcopy /E /I .website ./
 git add .
-git commit -a -m "[Commit message]"
+git commit -a -m "Updating website"
 git push
 git checkout master
 ```
