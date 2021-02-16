@@ -57,8 +57,10 @@ Or on Windows:
 git checkout master
 rmdir /q /s .website
 cd website
+yarn install
 yarn build
 move ./build ../.website
+cd ..
 git checkout website
 git clean -f -d
 git rm -r .
@@ -67,6 +69,7 @@ git add .
 git commit -a -m "Updating website"
 git push
 git checkout master
+rmdir /q /s .website
 ```
 
 Activity logs for all past deployments to GitHub pages can be viewed [here](https://github.com/stefanwebb/flowtorch/deployments/activity_log?environment=github-pages). For your convenience, there is [a script to deploy the website on Windows](https://github.com/stefanwebb/flowtorch/tree/master/scripts/deploy-website-windows.bat).
