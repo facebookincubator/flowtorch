@@ -10,5 +10,5 @@ Core developers should follow this procedure to release a new version of FlowTor
 2. [Make release note - where to put?]
 2. [Add a tag to release commit and push to PyPI]
 3. [Build wheel]
-4. [Push wheel to PyPI]
+4. [Push wheel to PyPI and CondaForge]
 5. [Make release announcements - where? Slack channel, Facebook, Twitter, Linkedin]
