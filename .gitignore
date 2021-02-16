@@ -8,5 +8,4 @@ debug/*.svg
 build/
 dist/
 .eggs/
-.website/
 coverage.xml
