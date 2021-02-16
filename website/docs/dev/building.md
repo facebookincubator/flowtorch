@@ -6,7 +6,9 @@ sidebar_label: Releases
 
 Core developers should follow this procedure to release a new version of FlowTorch.
 
-> :exclamation: **SW: I am unfamiliar with `setuptools_scm` and am unsure whether we should define a tag every release or use the auto-bump. This doc should be updated when we actually go through the next release process.**
+:::note
+SW: I am unfamiliar with `setuptools_scm` and am unsure whether we should define a tag every release or use the auto-bump. This doc should be updated when we actually go through the next release process.
+:::
 
 1. Add a version tag to release commit, or optionally, allow [`setuptools_scm`](https://github.com/pypa/setuptools_scm) to bump the version automatically according to [these rules](https://github.com/pypa/setuptools_scm/#default-versioning-scheme), and push:
 ```bash
