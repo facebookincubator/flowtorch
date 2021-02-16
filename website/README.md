@@ -55,20 +55,21 @@ git checkout master
 Or on Windows:
 ```console
 git checkout master
-rmdir /q /s ./website/build
+rmdir /q /s website\build
 cd website
 yarn install
 yarn build
 cd ..
 git checkout website
+echo website/ > .gitignore
 git clean -f -d
 git rm -r .
-xcopy /E /I ./website/build ./
+xcopy /E /I website\build ./
 git add .
 git commit -a -m "Updating website"
 git push
 git checkout master
-rmdir /q /s ./website/build
+rmdir /q /s website\build
 ```
 
 Activity logs for all past deployments to GitHub pages can be viewed [here](https://github.com/stefanwebb/flowtorch/deployments/activity_log?environment=github-pages). For your convenience, there is [a script to deploy the website on Windows](https://github.com/stefanwebb/flowtorch/tree/master/deploy-website-windows.bat).
