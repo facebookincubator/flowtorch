@@ -1,17 +1,17 @@
 cd ..
-git checkout master
+call git checkout master
 rmdir /q /s .website
 cd website
-yarn install
-yarn build
+call yarn install
+call yarn build
 move ./build ../.website
 cd ..
-git checkout website
-git clean -f -d
-git rm -r .
+call git checkout website
+call git clean -f -d
+call git rm -r .
 xcopy /E /I .website ./
-git add .
-git commit -a -m "Updating website"
-git push
-git checkout master
+call git add .
+call git commit -a -m "Updating website"
+call git push
+call git checkout master
 rmdir /q /s .website
