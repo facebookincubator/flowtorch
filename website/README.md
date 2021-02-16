@@ -33,7 +33,9 @@ This command generates static content into the `website/build` directory, which 
 
 ## Deployment
 
-Core developers can deploy the website as follows. On Linux/Mac (**untested!**), in the base directory:
+Core developers can deploy the website as follows. On Linux/Mac, in the base directory:
+
+> :exclamation: The following commands for Linux/Mac have not yet been tested and debugged.
 
 ```console
 git checkout master
@@ -50,7 +52,7 @@ git push
 git checkout master
 ```
 
-Or on Windows (**untested!**):
+Or on Windows:
 ```console
 git checkout master
 rmdir /q /s .website
@@ -66,4 +68,4 @@ git push
 git checkout master
 ```
 
-Activity logs for all past deployments to GitHub pages can be viewed [here](https://github.com/stefanwebb/flowtorch/deployments/activity_log?environment=github-pages).
+Activity logs for all past deployments to GitHub pages can be viewed [here](https://github.com/stefanwebb/flowtorch/deployments/activity_log?environment=github-pages). For your convenience, there is [a script to deploy the website on Windows](https://github.com/stefanwebb/flowtorch/tree/master/scripts/deploy-website-windows.bat).
