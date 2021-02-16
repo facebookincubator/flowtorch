@@ -63,8 +63,9 @@ cd ..
 git checkout website
 echo website/ > .gitignore
 git clean -f -d
+del .gitignore
 git rm -r .
-xcopy /E /I website\build ./
+xcopy /E /I website\build .
 git add .
 git commit -a -m "Updating website"
 git push
