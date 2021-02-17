@@ -27,5 +27,5 @@ You can extend the library to add your own bijections for ...
 [Create PR for review! Follow template? Confirm tests pass and PR can be merged. If it cannot be merged, pull the latest changes from the upstream master branch, merge changes, and push: command for this?]
 
 :::info
-If you are having trouble getting the CI tests to pass, you may create a PR anyway in order to get a review and help from the core developers.
+If you are having trouble getting the CI tests to pass, you may create a PR, regardlessly, in order to get a review and help from the core developers.
 :::

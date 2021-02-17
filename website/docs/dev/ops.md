@@ -37,18 +37,18 @@ isort --check flowtorch tests
 ```bash
 flake8 flowtorch tests --count --show-source --statistics
 ```
-
-5. The type hints mypy
+5. FlowTorch makes use of type hints, which we consider mandatory for all contributed code, and static types are checked with [`mypy`](https://github.com/python/mypy);
 ```bash
 mypy flowtorch
 ```
+6. Unit tests
 
-6. pytest + XML coverage report
+pytest + XML coverage report
 ```bash
 pytest --cov=tests --cov-report=xml -W ignore::DeprecationWarning
 ```
 
-7. Upload coverage report to codecov.io with a [GitHub Action](https://github.com/codecov/codecov-action)
+7. The coverage report is uploaded to [Codecov](https://about.codecov.io/) with a [GitHub Action](https://github.com/codecov/codecov-action). This allows us to analyze the results and produce the percentage of code covered badge.
 
 :::note
 Uploading code coverage report to `codecov.io` and viewing results has not yet been tested!

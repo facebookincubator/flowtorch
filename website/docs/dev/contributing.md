@@ -1,15 +1,20 @@
 ---
 id: contributing
-title: Contributing
-sidebar_label: Contributing
+title: Help Wanted!
+sidebar_label: Help Wanted!
 ---
 
-:::caution
+We are looking for independent collaborators to:
+* add new features;
+* discover and fix bugs; and,
+* write tutorials on applications of Normalizing Flow methodology.
 
-This document is under construction!
+The core developers are able to help smooth the process of making a contribution.
 
+:::info
+Please contact us in [the forum](https://github.com/stefanwebb/flowtorch/discussions) if you are interested in becoming a contributor and tag your discussion with ":bulb: Ideas" - the process is outlined [here](overview).
 :::
 
-You can write content using [GitHub-flavored Markdown syntax](https://github.github.com/gfm/).
-
----
+:::note
+Independent contributors will be recognized here when such contributions begin to flow (no pun intended)!
+:::

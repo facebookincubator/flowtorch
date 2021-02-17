@@ -6,8 +6,8 @@ module.exports = {
     "Advanced Topics": ['users/caching', 'users/initialization', 'users/structure', 'users/torchscript'],
   },
   devsSidebar: {
-    "General": ['dev/why', 'dev/contributing', 'dev/code_of_conduct', 'dev/releases', 'dev/about'],
-    "Extending the Library": ['dev/overview', 'dev/ops', 'dev/docs', 'dev/tests', 'dev/bijector', 'dev/param'],
+    "General": ['dev/contributing', 'dev/why', 'dev/code_of_conduct', 'dev/releases', 'dev/about'],
+    "Extending the Library": ['dev/overview', 'dev/ops', 'dev/bijector', 'dev/param', 'dev/docs', 'dev/tests'],
     "Bibliography": ['dev/prior', 'dev/surveys', 'dev/libraries', 'dev/methodology', 'dev/applications'],
   },
   apiSidebar: {
