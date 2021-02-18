@@ -5,7 +5,7 @@ sidebar_label: Help Wanted!
 ---
 
 We are looking for independent collaborators to:
-* add new features;
+* add new bijections (normalizing flow transforms) and conditioning networks;
 * discover and fix bugs; and,
 * write tutorials on applications of Normalizing Flow methodology.
 
