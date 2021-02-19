@@ -1,0 +1,6 @@
+recursive-include flowtorch
+global-exclude *.bat
+prune debug
+prune docs
+prune tests
+prune website
