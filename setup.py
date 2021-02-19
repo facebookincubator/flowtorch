@@ -81,7 +81,7 @@ setup(
         "relative_to": __file__,
         "write_to": os.path.join("flowtorch", "version.py"),
     },
-    packages=find_packages(include=["flowtorch", "flowtorch.*"]),
+    packages=find_packages(include=["flowtorch", "flowtorch.*"], exclude=['debug', 'docs', 'tests', 'website']),
     extras_require={
         "dev": DEV_REQUIRES,
         "test": TEST_REQUIRES,
