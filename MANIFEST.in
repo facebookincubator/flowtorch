@@ -1,6 +1,7 @@
 recursive-include flowtorch
-global-exclude *.bat
+global-exclude *.bat *.yml .gitignore
 prune debug
 prune docs
 prune tests
 prune website
+prune .github
