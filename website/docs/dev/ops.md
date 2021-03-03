@@ -54,7 +54,7 @@ pytest --cov=tests --cov-report=xml -W ignore::DeprecationWarning
 Uploading code coverage report to `codecov.io` and viewing results has not yet been tested!
 :::
 
-8. An API reference is generated automatically from the code's docstrings with [Sphinx](https://www.sphinx-doc.org/en/master/). 
+8. An API reference is generated automatically from the code's docstrings with [Sphinx](https://www.sphinx-doc.org/en/master/).
 ```bash
 cd docs
 sphinx-apidoc -o source ../flowtorch/

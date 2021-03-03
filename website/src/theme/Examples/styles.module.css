@@ -13,10 +13,10 @@
   height: 38rem;
 }
 
-.animation > * { 
-  opacity: 0; 
-  animation-duration: 7s; 
-  animation-iteration-count: infinite; 
+.animation > * {
+  opacity: 0;
+  animation-duration: 7s;
+  animation-iteration-count: infinite;
   animation-timing-function: steps(1);
 }
 
@@ -26,80 +26,80 @@ html[data-theme="dark"] .example_container svg {
   filter: invert(100%);
 }
 
-@keyframes animation-1 { 
-  0% { 
-    opacity: 1; 
-  } 
-  16.66666% { 
-    opacity: 0; 
-  } 
-}  
-
-.animation > :nth-child(1) { 
-  animation-name: animation-1; 
-}  
-
-@keyframes animation-2 { 
-  16.66666% { 
-    opacity: 1; 
-  } 
-  33.33333% { 
-    opacity: 0; 
-  } 
-}  
-
-.animation > :nth-child(2) { 
-  animation-name: animation-2; 
-}  
-
-@keyframes animation-3 { 
-  33.33333% { 
-    opacity: 1; 
-  } 
-  50% { 
-    opacity: 0; 
-  } 
-}  
-
-.animation > :nth-child(3) {  
-  animation-name: animation-3; 
+@keyframes animation-1 {
+  0% {
+    opacity: 1;
+  }
+  16.66666% {
+    opacity: 0;
+  }
 }
 
-@keyframes animation-4 { 
-  50% { 
-    opacity: 1; 
-  } 
-  66.66667% { 
-    opacity: 0; 
-  } 
-}  
-
-.animation > :nth-child(4) {  
-  animation-name: animation-4; 
+.animation > :nth-child(1) {
+  animation-name: animation-1;
 }
 
-@keyframes animation-5 { 
-  66.66667% { 
-    opacity: 1; 
-  } 
-  83.33333% { 
-    opacity: 0; 
-  } 
-}  
-
-.animation > :nth-child(5) {  
-  animation-name: animation-5; 
+@keyframes animation-2 {
+  16.66666% {
+    opacity: 1;
+  }
+  33.33333% {
+    opacity: 0;
+  }
 }
 
-@keyframes animation-6 { 
-  83.33333% { 
-    opacity: 1; 
-  } 
-  100% { 
-    opacity: 1; 
-  } 
-}  
+.animation > :nth-child(2) {
+  animation-name: animation-2;
+}
 
-.animation > :nth-child(6) {  
-  animation-name: animation-6; 
+@keyframes animation-3 {
+  33.33333% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.animation > :nth-child(3) {
+  animation-name: animation-3;
+}
+
+@keyframes animation-4 {
+  50% {
+    opacity: 1;
+  }
+  66.66667% {
+    opacity: 0;
+  }
+}
+
+.animation > :nth-child(4) {
+  animation-name: animation-4;
+}
+
+@keyframes animation-5 {
+  66.66667% {
+    opacity: 1;
+  }
+  83.33333% {
+    opacity: 0;
+  }
+}
+
+.animation > :nth-child(5) {
+  animation-name: animation-5;
+}
+
+@keyframes animation-6 {
+  83.33333% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.animation > :nth-child(6) {
+  animation-name: animation-6;
 }

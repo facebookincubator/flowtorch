@@ -117,7 +117,7 @@ html[data-theme="dark"] .hero__buttons .button--primary:hover {
   display: block;
   margin: 0 calc(-1 * var(--ifm-pre-padding));
   padding: 0 var(--ifm-pre-padding);
-  background-color: rgb(72, 77, 91); 
+  background-color: rgb(72, 77, 91);
 }
 
 html[data-theme="dark"] .docusaurus-highlight-code-line {
@@ -291,7 +291,7 @@ html[data-theme="dark"] .navbar__item.navbar__link[href*="api"]:hover:before {
   height: 1rem;
   margin-top: 0.5rem;
   margin-left: 0.125rem;
-  margin-right: 0.625rem;  
+  margin-right: 0.625rem;
 }
 
 .footer__link-item[href*="users"] {
@@ -325,7 +325,7 @@ html[data-theme="dark"] .navbar__item.navbar__link[href*="api"]:hover:before {
   height: 1rem;
   margin-top: 0.5rem;
   margin-right: 0.6875rem;
-  margin-left: 0.1875rem; 
+  margin-left: 0.1875rem;
 }
 
 .footer__link-item[href*="fork"] {
@@ -358,7 +358,7 @@ html[data-theme="dark"] .navbar__item.navbar__link[href*="api"]:hover:before {
   width: 1.25rem;
   height: 1rem;
   margin-top: 0.5rem;
-  margin-right: 0.5rem;  
+  margin-right: 0.5rem;
 }
 
 .footer__link-item[href*="discussions"] {

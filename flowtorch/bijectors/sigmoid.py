@@ -5,7 +5,7 @@ from typing import Optional
 
 import torch
 import torch.nn.functional as F
-import torch.distribution.constraints as constraints
+import torch.distributions.constraints as constraints
 
 import flowtorch
 from flowtorch.utils import clipped_sigmoid

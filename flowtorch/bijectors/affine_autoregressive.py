@@ -16,6 +16,7 @@ class AffineAutoregressive(flowtorch.Bijector):
     codomain = constraints.real_vector
     autoregressive = True
     default_param_fn = flowtorch.params.DenseAutoregressive()
+    event_dim = 1
 
     def __init__(
         self,

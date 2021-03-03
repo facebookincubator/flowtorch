@@ -1,6 +1,6 @@
 <img src="https://github.com/stefanwebb/flowtorch/raw/master/website/flowtorch-ai.png" width="100%" />
 
-This website is built using [Docusaurus 2](https://v2.docusaurus.io/), a modern static website generator, and hosted using GitHub pages at [https://flowtorch.ai](https://flowtorch.ai). The source for the website is located in [master/website](https://github.com/stefanwebb/flowtorch/tree/master/website) and it is hosted from the root directory of the [website](https://github.com/stefanwebb/flowtorch/tree/website) branch. 
+This website is built using [Docusaurus 2](https://v2.docusaurus.io/), a modern static website generator, and hosted using GitHub pages at [https://flowtorch.ai](https://flowtorch.ai). The source for the website is located in [master/website](https://github.com/stefanwebb/flowtorch/tree/master/website) and it is hosted from the root directory of the [website](https://github.com/stefanwebb/flowtorch/tree/website) branch.
 
 ## Preparation
 1. Install [Node.js](https://nodejs.org/).
