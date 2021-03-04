@@ -153,7 +153,7 @@ class DenseAutoregressive(flowtorch.Params):
         if self.input_dims == 0:
             self.input_dims = 1  # scalars represented by torch.Size([])
         self.output_multiplier = int(
-            sum([max(torch.sum(torch.tensor(s)).item(), 1) for s in param_shapes_])
+            sum(max(torch.sum(torch.tensor(s)).item(), 1) for s in param_shapes_)
         )
         if self.input_dims == 1:
             warnings.warn(
@@ -305,14 +305,10 @@ class DenseAutoregressive(flowtorch.Params):
         if len(self.input_shape) == 0:
             h = h.reshape(x.size()[:-1] + (self.output_multiplier, self.input_dims))
             result = tuple(
-                [
-                    h[..., p_slice, :].reshape(
-                        torch.Size(h.shape[:-2]) + p_shape + torch.Size((1,))
-                    )
-                    for p_slice, p_shape in zip(
-                        self.param_slices, list(self.param_shapes)
-                    )
-                ]
+                h[..., p_slice, :].reshape(
+                    torch.Size(h.shape[:-2]) + p_shape + torch.Size((1,))
+                )
+                for p_slice, p_shape in zip(self.param_slices, list(self.param_shapes))
             )
         else:
             h = h.reshape(
