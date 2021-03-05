@@ -13,18 +13,21 @@ import flowtorch.distributions
 
 class Bijector(object):
     _inv: Optional[Union[weakref.ReferenceType, "Bijector"]]
+    codomain: constraints.Constraint
+    domain: constraints.Constraint
+    identity_initialization: bool
+    autoregressinve: bool
+    event_dim: int
 
-    # Metadata about (the default) bijector
-    domain = constraints.real
-    codomain = constraints.real
-    identity_initialization = True
-    autoregressive = False
-
-    # TODO: Returning inverse of bijection
     def __init__(self, param_fn: "flowtorch.Params") -> None:
         super(Bijector, self).__init__()
         self.param_fn = param_fn
         self._inv = None
+        self.domain = constraints.real
+        self.codomain = constraints.real
+        self.identity_initialization = True
+        self.autoregressive = False
+        self.event_dim = 1
 
     def __call__(
         self, base_dist: torch.distributions.Distribution

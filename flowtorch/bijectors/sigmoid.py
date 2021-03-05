@@ -4,8 +4,8 @@
 from typing import Optional
 
 import torch
-import torch.nn.functional as F
 import torch.distributions.constraints as constraints
+import torch.nn.functional as F
 
 import flowtorch
 from flowtorch.utils import clipped_sigmoid

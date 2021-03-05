@@ -15,16 +15,16 @@ class Compose(flowtorch.Bijector):
 
     def __init__(self, bijectors):
         self.bijectors = bijectors
-        self.event_dim = max([b.event_dim for b in self.bijectors])
+        self.event_dim = max(b.event_dim for b in self.bijectors)
 
         # TODO: Adjust domain accordingly and check domain/codomain compatibility!
         self.domain = constraints.real_vector
         self.codomain = constraints.real_vector
 
         self.identity_initialization = all(
-            [b.identity_initialization for b in self.bijectors]
+            b.identity_initialization for b in self.bijectors
         )
-        self.autoregressive = all([b.autoregressive for b in self.bijectors])
+        self.autoregressive = all(b.autoregressive for b in self.bijectors)
 
     def __call__(self, x):
         """
