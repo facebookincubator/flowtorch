@@ -15,12 +15,18 @@ class Sigmoid(flowtorch.Bijector):
     codomain = constraints.unit_interval
 
     def _forward(
-        self, x: torch.Tensor, params: Optional[flowtorch.ParamsModule] = None
+        self,
+        x: torch.Tensor,
+        params: Optional[flowtorch.ParamsModule] = None,
+        context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return clipped_sigmoid(x)
 
     def _inverse(
-        self, y: torch.Tensor, params: Optional[flowtorch.ParamsModule] = None
+        self,
+        y: torch.Tensor,
+        params: Optional[flowtorch.ParamsModule] = None,
+        context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         finfo = torch.finfo(y.dtype)
         y = y.clamp(min=finfo.tiny, max=1.0 - finfo.eps)
@@ -31,5 +37,6 @@ class Sigmoid(flowtorch.Bijector):
         x: torch.Tensor,
         y: torch.Tensor,
         params: Optional[flowtorch.ParamsModule] = None,
+        context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return -F.softplus(-x) - F.softplus(x)
