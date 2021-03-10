@@ -249,6 +249,13 @@ class DenseAutoregressive(flowtorch.Params):
         return nn.ModuleList(layers), buffers
 
     def _init_weights(self, layers: Sequence[nn.Module]) -> None:
+        """
+        EXPERIMENTAL: initialize weights such that transforming a standard Normal yields
+        a standard Normal.
+
+        NOTE: may have stability issues for reasonable (1e-3) learning rates,
+        see https://github.com/stefanwebb/flowtorch/issues/43
+        """
         input_dim = self.input_dims + self.context_dims
         weight_product = torch.eye(input_dim, input_dim)
 

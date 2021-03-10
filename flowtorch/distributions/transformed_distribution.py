@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 import weakref
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
 import torch
 import torch.distributions as dist
@@ -13,7 +13,8 @@ import flowtorch
 
 
 class TransformedDistribution(dist.Distribution):
-    default_sample_shape = torch.Size()
+    _default_sample_shape = torch.Size()
+    arg_constraints: Dict[str, dist.constraints.Constraint] = {}
 
     def __init__(
         self,
@@ -40,7 +41,7 @@ class TransformedDistribution(dist.Distribution):
 
     def sample(
         self,
-        sample_shape: torch.Size = default_sample_shape,
+        sample_shape: torch.Size = _default_sample_shape,
         context: Optional[torch.Tensor] = None,
     ) -> Tensor:
         """
@@ -58,7 +59,7 @@ class TransformedDistribution(dist.Distribution):
 
     def rsample(
         self,
-        sample_shape: torch.Size = default_sample_shape,
+        sample_shape: torch.Size = _default_sample_shape,
         context: Optional[torch.Tensor] = None,
     ) -> Tensor:
         """
