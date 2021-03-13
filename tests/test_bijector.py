@@ -94,18 +94,16 @@ def test_inv():
     flow = flowtorch.bijectors.AffineAutoregressive(
         flowtorch.params.DenseAutoregressive()
     )
-    tdist, params = flow(
-        dist.Independent(dist.Normal(torch.zeros(2), torch.ones(2)), 1)
-    )
     inv_flow = flow.inv()
-    inv_tdist, inv_params = inv_flow(
-        dist.Independent(dist.Normal(torch.zeros(2), torch.ones(2)), 1)
-    )
+    assert inv_flow.inv == flow
+
+    base_dist = dist.Independent(dist.Normal(torch.zeros(2), torch.ones(2)), 1)
+    tdist, params = flow(base_dist)
+    inv_tdist, inv_params = inv_flow(base_dist)
     x = torch.zeros(1, 2)
     y = flow.forward(x, params, context=torch.empty(0))
     assert tdist.bijector.log_abs_det_jacobian(
         x, y, params, context=torch.empty(0)
-    ) == inv_tdist.bijector.log_abs_det_jacobian(
+    ) == -inv_tdist.bijector.log_abs_det_jacobian(
         y, x, inv_params, context=torch.empty(0)
     )
-    assert flow.inv().inv == flow

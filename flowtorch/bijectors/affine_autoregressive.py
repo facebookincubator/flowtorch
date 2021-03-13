@@ -15,17 +15,18 @@ class AffineAutoregressive(flowtorch.Bijector):
     domain = constraints.real_vector
     codomain = constraints.real_vector
     autoregressive = True
-    default_param_fn = flowtorch.params.DenseAutoregressive()
     event_dim = 1
 
     def __init__(
         self,
-        param_fn: flowtorch.Params = default_param_fn,
+        param_fn: Optional[flowtorch.Params] = None,
         log_scale_min_clip: float = -5.0,
         log_scale_max_clip: float = 3.0,
         sigmoid_bias: float = 2.0,
         context_size: int = 0,
     ) -> None:
+        if not param_fn:
+            param_fn = flowtorch.params.DenseAutoregressive()
         super().__init__(param_fn=param_fn)
         self.log_scale_min_clip = log_scale_min_clip
         self.log_scale_max_clip = log_scale_max_clip
