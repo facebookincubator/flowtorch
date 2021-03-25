@@ -32,7 +32,7 @@ def test_conditional_2gmm():
 
     opt = torch.optim.Adam(params_module.parameters(), lr=5e-3)
 
-    for idx in range(501):
+    for idx in range(101):
         opt.zero_grad()
 
         if idx % 2 == 0:
@@ -43,7 +43,7 @@ def test_conditional_2gmm():
             context = -1 * torch.ones(context_size)
 
         marginal = new_cond_dist.condition(context)
-        y = marginal.rsample((1000,))
+        y = marginal.rsample((100,))
         loss = -target_dist.log_prob(y) + marginal.log_prob(y)
         loss = loss.mean()
 
@@ -55,8 +55,8 @@ def test_conditional_2gmm():
 
     assert (
         new_cond_dist.condition(torch.ones(context_size)).sample((1000,)).mean() - 5.0
-    ).norm().item() < 0.1
+    ).norm().item() < 1.0
     assert (
         new_cond_dist.condition(-1 * torch.ones(context_size)).sample((1000,)).mean()
         + 5.0
-    ).norm().item() < 0.1
+    ).norm().item() < 1.0
