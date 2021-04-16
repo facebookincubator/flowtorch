@@ -20,7 +20,7 @@ class TransformedDistribution(dist.Distribution):
         self,
         base_distribution: dist.Distribution,
         bijector: "flowtorch.Bijector",
-        params: "flowtorch.ParamsModule",
+        params: Optional["flowtorch.ParamsModule"],
         validate_args: Any = None,
     ) -> None:
         self.base_dist = base_distribution

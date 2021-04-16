@@ -23,8 +23,8 @@ class Bijector(object):
         super().__init__()
         self.param_fn = param_fn
         self._inv = None
-        #self.domain = constraints.real
-        #self.codomain = constraints.real
+        # self.domain = constraints.real
+        # self.codomain = constraints.real
         self.identity_initialization = True
         self.autoregressive = False
         self._context_size = context_size
@@ -32,7 +32,8 @@ class Bijector(object):
     def __call__(
         self, base_dist: torch.distributions.Distribution
     ) -> Tuple[
-        flowtorch.distributions.TransformedDistribution, "flowtorch.ParamsModule"
+        flowtorch.distributions.TransformedDistribution,
+        Optional["flowtorch.ParamsModule"],
     ]:
         """
         Returns the distribution formed by passing dist through the bijection
