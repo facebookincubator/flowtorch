@@ -23,8 +23,6 @@ class Bijector(object):
         super().__init__()
         self.param_fn = param_fn
         self._inv = None
-        # self.domain = constraints.real
-        # self.codomain = constraints.real
         self.identity_initialization = True
         self.autoregressive = False
         self._context_size = context_size

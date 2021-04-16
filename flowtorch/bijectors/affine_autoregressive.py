@@ -32,8 +32,6 @@ class AffineAutoregressive(flowtorch.Bijector):
         self.sigmoid_bias = sigmoid_bias
         self._context_size = context_size
 
-        print(self.domain.event_dim, self.domain.event_dim)
-
     def _forward(
         self,
         x: torch.Tensor,
