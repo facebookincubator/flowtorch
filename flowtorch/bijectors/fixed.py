@@ -1,11 +1,9 @@
 # Copyright (c) FlowTorch Development Team. All Rights Reserved
 # SPDX-License-Identifier: MIT
-import weakref
-from typing import Optional, Sequence, Tuple, Union, cast
+from typing import Optional, Sequence
 
 import torch
 import torch.distributions
-from torch.distributions import constraints
 
 import flowtorch
 import flowtorch.distributions

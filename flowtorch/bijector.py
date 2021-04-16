@@ -131,7 +131,6 @@ class Bijector(object):
         Abstract method to return shapes of parameters
         """
         raise NotImplementedError
-        
 
     def inv(self) -> "Bijector":
         if self._inv is not None:

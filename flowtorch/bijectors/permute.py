@@ -6,11 +6,9 @@ from typing import Optional
 import torch
 import torch.distributions.constraints as constraints
 from torch.distributions.utils import lazy_property
-import torch.nn.functional as F
 
 import flowtorch
 import flowtorch.bijectors as bijectors
-from flowtorch.utils import clipped_sigmoid
 
 
 class Permute(bijectors.Fixed, bijectors.VolumePreserving):
@@ -18,7 +16,7 @@ class Permute(bijectors.Fixed, bijectors.VolumePreserving):
     codomain = constraints.real_vector
 
     # TODO: A new abstraction so can defer construction of permutation
-    def __init__(self, permutation=None): 
+    def __init__(self, permutation=None):
         super().__init__(param_fn=None)
 
         self.permutation = permutation
@@ -32,8 +30,8 @@ class Permute(bijectors.Fixed, bijectors.VolumePreserving):
         if self.permutation is None:
             self.permutation = torch.randperm(x.shape[-1])
 
-        return x.index_select(self.dim, self.permutation)
-        
+        return x.index_select(-1, self.permutation)
+
     def _inverse(
         self,
         y: torch.Tensor,
@@ -41,14 +39,14 @@ class Permute(bijectors.Fixed, bijectors.VolumePreserving):
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         if self.permutation is None:
-            self.permutation = torch.randperm(x.shape[-1])
+            self.permutation = torch.randperm(y.shape[-1])
 
-        return y.index_select(self.dim, self.inv_permutation)
+        return y.index_select(-1, self.inv_permutation)
 
     @lazy_property
     def inv_permutation(self):
         result = torch.empty_like(self.permutation, dtype=torch.long)
-        result[self.permutation] = torch.arange(self.permutation.size(0),
-                                                dtype=torch.long,
-                                                device=self.permutation.device)
+        result[self.permutation] = torch.arange(
+            self.permutation.size(0), dtype=torch.long, device=self.permutation.device
+        )
         return result
