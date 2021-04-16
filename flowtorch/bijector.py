@@ -128,11 +128,10 @@ class Bijector(object):
         self, dist: torch.distributions.Distribution
     ) -> Sequence[torch.Size]:
         """
-        Given a base distribution, calculate the parameters for the transformation
-        of that distribution under this bijector. By default, no parameters are
-        set.
+        Abstract method to return shapes of parameters
         """
-        return (torch.Size([]),)
+        raise NotImplementedError
+        
 
     def inv(self) -> "Bijector":
         if self._inv is not None:
