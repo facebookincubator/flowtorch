@@ -13,8 +13,8 @@ import flowtorch.distributions
 
 class Bijector(object):
     _inv: Optional[Union[weakref.ReferenceType, "Bijector"]]
-    codomain: constraints.Constraint
-    domain: constraints.Constraint
+    codomain: constraints.Constraint = constraints.real
+    domain: constraints.Constraint = constraints.real
     identity_initialization: bool
     autoregressinve: bool
     event_dim: int
@@ -23,11 +23,10 @@ class Bijector(object):
         super().__init__()
         self.param_fn = param_fn
         self._inv = None
-        self.domain = constraints.real
-        self.codomain = constraints.real
+        #self.domain = constraints.real
+        #self.codomain = constraints.real
         self.identity_initialization = True
         self.autoregressive = False
-        self.event_dim = 1
         self._context_size = context_size
 
     def __call__(
@@ -162,7 +161,6 @@ class _InverseBijector(Bijector):
         self.param_fn = bijector.param_fn
         self.domain = bijector.codomain
         self.codomain = bijector.domain
-        self.event_dim = bijector.event_dim
         self._context_size = bijector._context_size
 
     @property

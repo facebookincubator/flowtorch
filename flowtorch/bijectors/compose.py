@@ -11,15 +11,13 @@ import flowtorch.param
 
 
 class Compose(flowtorch.Bijector):
-    event_dim = 1
-
     def __init__(self, bijectors, context_size=0):
         self.bijectors = bijectors
-        self.event_dim = max(b.event_dim for b in self.bijectors)
 
         # TODO: Adjust domain accordingly and check domain/codomain compatibility!
-        self.domain = constraints.real_vector
-        self.codomain = constraints.real_vector
+        event_dim = max(b.domain.event_dim for b in self.bijectors)
+        self.domain = constraints.independent(constraints.real, event_dim)
+        self.codomain = constraints.independent(constraints.real, event_dim)
         self._inv = None
 
         self.identity_initialization = all(
@@ -82,7 +80,7 @@ class Compose(flowtorch.Bijector):
         """
         ldj = _sum_rightmost(
             torch.zeros_like(y),
-            self.event_dim,
+            self.domain.event_dim,
         )
         for bijector, param in zip(reversed(self.bijectors), reversed(params)):
             y_inv = bijector.inverse(y, param, context)

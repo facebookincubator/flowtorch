@@ -30,7 +30,7 @@ class TransformedDistribution(dist.Distribution):
         self.bijector = bijector
 
         shape = self.base_dist.batch_shape + self.base_dist.event_shape
-        event_dim = max(len(self.base_dist.event_shape), self.bijector.event_dim)
+        event_dim = max(len(self.base_dist.event_shape), self.bijector.domain.event_dim)
         batch_shape = shape[: len(shape) - event_dim]
         event_shape = shape[len(shape) - event_dim :]
         super().__init__(batch_shape, event_shape, validate_args=validate_args)
@@ -88,7 +88,7 @@ class TransformedDistribution(dist.Distribution):
         x = self.bijector.inverse(y, self.params(), context)
         log_prob = -_sum_rightmost(
             self.bijector.log_abs_det_jacobian(x, y, self.params(), context),
-            event_dim - self.bijector.event_dim,
+            event_dim - self.bijector.domain.event_dim,
         )
         log_prob = log_prob + _sum_rightmost(
             self.base_dist.log_prob(x),

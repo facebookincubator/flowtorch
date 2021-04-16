@@ -10,3 +10,4 @@ dist/
 .eggs/
 coverage.xml
 .mypy_cache/
+.vscode/

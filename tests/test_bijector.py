@@ -21,6 +21,7 @@ class NealsFunnel(dist.Distribution):
     """
 
     support = constraints.real
+    arg_constraints = {}
 
     def __init__(self, validate_args=None):
         d = 2
