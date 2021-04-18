@@ -36,4 +36,4 @@ class Tensor(flowtorch.Params):
         context: torch.Tensor,
         modules: nn.ModuleList,
     ) -> Sequence[torch.Tensor]:
-        return [p for p in modules.parameters]
+        return [p.parameters for p in modules]
