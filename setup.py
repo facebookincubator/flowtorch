@@ -20,6 +20,7 @@ DEV_REQUIRES = TEST_REQUIRES + [
     "sphinx",
     "sphinx-autodoc-typehints",
     "sphinx_rtd_theme",
+    "mypy",
     "numpy",
     "scipy",
 ]
@@ -73,7 +74,7 @@ setup(
     long_description_content_type="text/markdown",
     python_requires=">={}.{}".format(REQUIRED_MAJOR, REQUIRED_MINOR),
     install_requires=[
-        "torch>=1.9.0.dev20210213",
+        "torch>=1.8.1",
     ],
     setup_requires=["setuptools_scm"],
     use_scm_version={

@@ -108,3 +108,19 @@ def test_inv():
     ) == -inv_tdist.bijector.log_abs_det_jacobian(
         y, x, inv_params, context=torch.empty(0)
     )
+
+
+# TODO: Complete on 25/4/2021
+class TestBijectors:
+    def _test_jacobian(self, input_dim, transform):
+        pass
+
+    # TODO: Only run test inverse when not an abstract method (auto-detect this)
+    def _test_inverse(self, shape, transform):
+        pass
+
+    def _test_shape(self, base_shape, transform):
+        pass
+
+    def _test_autodiff(self, input_dim, transform, inverse=False):
+        pass
