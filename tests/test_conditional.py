@@ -9,6 +9,7 @@ import flowtorch.bijectors
 import flowtorch.params
 
 
+# TODO: Move to `test_learning.py`
 def test_conditional_2gmm():
     context_size = 2
 
@@ -30,7 +31,7 @@ def test_conditional_2gmm():
         dist.Normal(torch.zeros(2) - 5, torch.ones(2) * 0.5), 1
     )
 
-    opt = torch.optim.Adam(params_module.parameters(), lr=5e-3)
+    opt = torch.optim.Adam(params_module.parameters(), lr=1e-3)
 
     for idx in range(101):
         opt.zero_grad()

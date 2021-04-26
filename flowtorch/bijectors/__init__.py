@@ -11,6 +11,8 @@ import torch.distributions as dist
 
 from flowtorch import Bijector
 from flowtorch.bijectors.compose import Compose
+from flowtorch.bijectors.fixed import Fixed
+from flowtorch.bijectors.volume_preserving import VolumePreserving
 
 if __name__ == "__main__":
     raise RuntimeError("Cannot run flowtorch.bijectors as a script")
@@ -22,6 +24,8 @@ this_module = sys.modules[__name__]
 # We have to write special units tests for these.
 meta_bijectors = [
     ("Compose", Compose),
+    ("Fixed", Fixed),
+    ("VolumePreserving", VolumePreserving),
 ]
 
 
