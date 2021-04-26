@@ -5,6 +5,8 @@
 # automatically
 from flowtorch.bijectors.affine_autoregressive import AffineAutoregressive
 from flowtorch.bijectors.compose import Compose
+from flowtorch.bijectors.fixed import Fixed
 from flowtorch.bijectors.sigmoid import Sigmoid
+from flowtorch.bijectors.volume_preserving import VolumePreserving
 
-__all__ = ["AffineAutoregressive", "Compose", "Sigmoid"]
+__all__ = ["AffineAutoregressive", "Compose", "Fixed", "Sigmoid", "VolumePreserving"]
