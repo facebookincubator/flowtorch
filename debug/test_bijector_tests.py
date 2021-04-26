@@ -8,8 +8,10 @@ import inspect
 #bees = inspect.getmembers(bijectors, inspect.isclass)
 #print(bees)
 
-print(bijectors.__all__)
+#print(bijectors.__all__)
 
+
+"""
 # Lazily instantiated flow plus base and target distributions
 flow = bijectors.AffineAutoregressive()
 input_dim = min(flow.domain.event_dim, 1) * [5]
@@ -22,3 +24,4 @@ new_dist, params = flow(base_dist)
 
 y = new_dist.sample()
 print(y)
+"""

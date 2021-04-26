@@ -64,7 +64,7 @@ class Bijector(object):
         self,
         x: torch.Tensor,
         params: Optional["flowtorch.ParamsModule"],
-        context: Optional[torch.Tensor],
+        context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         assert context is None or context.shape == (self._context_size,)
         return self._forward(x, params, context)
@@ -84,7 +84,7 @@ class Bijector(object):
         self,
         y: torch.Tensor,
         params: Optional["flowtorch.ParamsModule"],
-        context: Optional[torch.Tensor],
+        context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         assert context is None or context.shape == (self._context_size,)
         return self._inverse(y, params, context)
@@ -93,7 +93,7 @@ class Bijector(object):
         self,
         y: torch.Tensor,
         params: Optional["flowtorch.ParamsModule"],
-        context: Optional[torch.Tensor],
+        context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
         Abstract method to compute inverse transformation.
@@ -105,7 +105,7 @@ class Bijector(object):
         x: torch.Tensor,
         y: torch.Tensor,
         params: Optional["flowtorch.ParamsModule"],
-        context: Optional[torch.Tensor],
+        context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.
@@ -118,7 +118,7 @@ class Bijector(object):
         x: torch.Tensor,
         y: torch.Tensor,
         params: Optional["flowtorch.ParamsModule"],
-        context: Optional[torch.Tensor],
+        context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.
@@ -181,7 +181,7 @@ class _InverseBijector(Bijector):
         self,
         x: torch.Tensor,
         params: Optional["flowtorch.ParamsModule"],
-        context: Optional[torch.Tensor],
+        context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return self._inv.inverse(x, params, context)
 
@@ -189,7 +189,7 @@ class _InverseBijector(Bijector):
         self,
         y: torch.Tensor,
         params: Optional["flowtorch.ParamsModule"],
-        context: Optional[torch.Tensor],
+        context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return self._inv.forward(y, params, context)
 
@@ -198,7 +198,7 @@ class _InverseBijector(Bijector):
         x: torch.Tensor,
         y: torch.Tensor,
         params: Optional["flowtorch.ParamsModule"],
-        context: Optional[torch.Tensor],
+        context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return -self._inv.log_abs_det_jacobian(y, x, params, context)
 
