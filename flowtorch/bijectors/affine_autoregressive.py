@@ -15,7 +15,6 @@ class AffineAutoregressive(flowtorch.Bijector):
     domain = constraints.real_vector
     codomain = constraints.real_vector
     autoregressive = True
-    event_dim = 1
 
     def __init__(
         self,
@@ -31,7 +30,6 @@ class AffineAutoregressive(flowtorch.Bijector):
         self.log_scale_min_clip = log_scale_min_clip
         self.log_scale_max_clip = log_scale_max_clip
         self.sigmoid_bias = sigmoid_bias
-        self.event_dim = 1
         self._context_size = context_size
 
     def _forward(

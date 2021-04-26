@@ -68,7 +68,7 @@ class Params(object):
         input_shape: torch.Size,
         param_shapes: Sequence[torch.Size],
         context_dims: int,
-    ) -> ParamsModule:
+    ) -> Optional[ParamsModule]:
         return ParamsModule(self, *self.build(input_shape, param_shapes, context_dims))
 
     def forward(
