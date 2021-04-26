@@ -1,7 +1,10 @@
 # Copyright (c) FlowTorch Development Team. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
+import random
+
 import numpy as np
+import pytest
 import scipy.misc
 import scipy.stats
 import torch
@@ -13,6 +16,12 @@ from torch.distributions.utils import _standard_normal
 import flowtorch
 import flowtorch.bijectors as bijectors
 import flowtorch.params
+
+# TODO: Move to conftest.py and fixtures
+torch.set_default_dtype(torch.float64)
+torch.manual_seed(0)
+np.random.seed(0)
+random.seed(0)
 
 
 class NealsFunnel(dist.Distribution):
@@ -113,7 +122,11 @@ def test_inv():
 
 
 class TestBijectors:
-    def test_affine_autoregressive_jacobian(self):
+    # TODO: How to select an individual test from command line?
+    @pytest.mark.parametrize(
+        "transform", [bij_name for _, bij_name in bijectors.standard_bijectors]
+    )
+    def test_jacobian(self, transform):
         # Define plan for flow
         flow = bijectors.AffineAutoregressive()
         event_dim = min(flow.domain.event_dim, 1)
@@ -124,7 +137,7 @@ class TestBijectors:
         _, params = flow(base_dist)
 
         # Calculate auto-diff Jacobian
-        x = torch.randn(1, *event_shape)
+        x = torch.randn(*event_shape)
         y = flow.forward(x, params)
         if event_dim == 1:
             analytic_ldt = flow.log_abs_det_jacobian(x, y, params).data
@@ -134,71 +147,59 @@ class TestBijectors:
         # Calculate numerical Jacobian
         # TODO: Better way to get all indices of array/tensor?
         jacobian = torch.zeros(event_shape * 2)
-        idxs = np.nonzero(np.ones(event_shape * 2))
+        idxs = np.nonzero(np.ones(event_shape))
 
-        print('indices', idxs)
+        # Have to permute elements for MADE
+        count_vars = len(idxs[0])
+        if hasattr(params, "permutation"):
+            inv_permutation = np.zeros(count_vars, dtype=np.int)
+            inv_permutation[params.permutation] = np.arange(count_vars)
 
         # TODO: Vectorize numerical calculation of Jacobian with PyTorch
         # TODO: Break this out into flowtorch.numerical.derivatives.jacobian
         epsilon = 1e-4
-        for idx in idxs:
-            for jdx in idxs:
-                epsilon_vector = torch.zeros(event_shape)
-                epsilon_vector[idx] = epsilon
-                # TODO: Use scipy.misc.derivative or another library's function?
-                delta = (flow.forward(x + 0.5 * epsilon_vector, params) - flow.forward(x - 0.5 * epsilon_vector, params)) / epsilon
-                print(idx, jdx, jacobian.shape)
-                jacobian[idx + jdx] = float(delta[jdx].data.sum())
-                
+        for var_idx in range(count_vars):
+            idx = [dim_idx[var_idx] for dim_idx in idxs]
+            epsilon_vector = torch.zeros(event_shape)
+            epsilon_vector[(*idx,)] = epsilon
+            # TODO: Use scipy.misc.derivative or another library's function?
+            delta = (
+                flow.forward(x + 0.5 * epsilon_vector, params)
+                - flow.forward(x - 0.5 * epsilon_vector, params)
+            ) / epsilon
 
-        print('analytic ldt', analytic_ldt)
-        print('numerical ldt', jacobian)
+            for var_jdx in range(count_vars):
+                jdx = [dim_jdx[var_jdx] for dim_jdx in idxs]
 
+                # Have to account for permutation potentially introduced by MADE network
+                # TODO: Make this more general with structure abstraction
+                if hasattr(params, "permutation"):
+                    jacobian[
+                        (inv_permutation[idx[0]], inv_permutation[jdx[0]])
+                    ] = float(delta[(Ellipsis, *jdx)].data.sum())
+                else:
+                    jacobian[(*idx, *jdx)] = float(delta[(Ellipsis, *jdx)].data.sum())
 
-    def _test_jacobian(self, input_dim, transform):
-        """jacobian = torch.zeros(input_dim, input_dim)
-
-        def nonzero(x):
-            return torch.sign(torch.abs(x))
-
-        x = torch.randn(1, input_dim)
-        y = transform(x)
-        if transform.event_dim == 1:
-            analytic_ldt = transform.log_abs_det_jacobian(x, y).data
-        else:
-            analytic_ldt = transform.log_abs_det_jacobian(x, y).sum(-1).data
-
-        for j in range(input_dim):
-            for k in range(input_dim):
-                epsilon_vector = torch.zeros(1, input_dim)
-                epsilon_vector[0, j] = self.epsilon
-                delta = (transform(x + 0.5 * epsilon_vector) - transform(x - 0.5 * epsilon_vector)) / self.epsilon
-                jacobian[j, k] = float(delta[0, k].data.sum())
-
-        # Apply permutation for autoregressive flows with a network
-        if hasattr(transform, 'arn') and 'get_permutation' in dir(transform.arn):
-            permutation = transform.arn.get_permutation()
-            permuted_jacobian = jacobian.clone()
-            for j in range(input_dim):
-                for k in range(input_dim):
-                    permuted_jacobian[j, k] = jacobian[permutation[j], permutation[k]]
-            jacobian = permuted_jacobian
-
-        # For autoregressive flow, Jacobian is sum of diagonal, otherwise need full determinate
-        if hasattr(transform, 'autoregressive') and transform.autoregressive:
+        # For autoregressive flow, Jacobian is sum of diagonal, otherwise need full
+        # determinate
+        if hasattr(params, "permutation"):
             numeric_ldt = torch.sum(torch.log(torch.diag(jacobian)))
         else:
             numeric_ldt = torch.log(torch.abs(jacobian.det()))
 
         ldt_discrepancy = (analytic_ldt - numeric_ldt).abs()
-        assert ldt_discrepancy < self.epsilon
+        assert ldt_discrepancy < epsilon
 
-        # Test that lower triangular with unit diagonal for autoregressive flows
-        if hasattr(transform, 'autoregressive'):
+        # Test that lower triangular with non-zero diagonal for autoregressive flows
+        if hasattr(params, "permutation"):
+
+            def nonzero(x):
+                return torch.sign(torch.abs(x))
+
             diag_sum = torch.sum(torch.diag(nonzero(jacobian)))
             lower_sum = torch.sum(torch.tril(nonzero(jacobian), diagonal=-1))
-            assert diag_sum == float(input_dim)
-            assert lower_sum == float(0.0)"""
+            assert diag_sum == float(count_vars)
+            assert lower_sum == float(0.0)
 
     # TODO: Only run test inverse when not an abstract method (auto-detect this)
     def _test_inverse(self, shape, transform):
@@ -210,5 +211,6 @@ class TestBijectors:
     def _test_autodiff(self, input_dim, transform, inverse=False):
         pass
 
-tb = TestBijectors()
-tb.test_affine_autoregressive_jacobian()
+
+# tb = TestBijectors()
+# tb.test_affine_autoregressive_jacobian()
