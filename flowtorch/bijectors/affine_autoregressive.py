@@ -36,7 +36,7 @@ class AffineAutoregressive(flowtorch.Bijector):
         self,
         x: torch.Tensor,
         params: Optional[flowtorch.ParamsModule],
-        context: torch.Tensor,
+        context: Optional[torch.Tensor],
     ) -> torch.Tensor:
         assert isinstance(params, flowtorch.ParamsModule)
         mean, log_scale = params(x, context=context)
@@ -51,7 +51,7 @@ class AffineAutoregressive(flowtorch.Bijector):
         self,
         y: torch.Tensor,
         params: Optional[flowtorch.ParamsModule],
-        context: torch.Tensor,
+        context: Optional[torch.Tensor],
     ) -> torch.Tensor:
         assert isinstance(params, flowtorch.ParamsModule)
         x = torch.zeros_like(y)
@@ -77,7 +77,7 @@ class AffineAutoregressive(flowtorch.Bijector):
         x: torch.Tensor,
         y: torch.Tensor,
         params: Optional[flowtorch.ParamsModule],
-        context: torch.Tensor,
+        context: Optional[torch.Tensor],
     ) -> torch.Tensor:
         assert isinstance(params, flowtorch.ParamsModule)
         # Note: params will take care of caching "mean, log_scale, perm = params(x)"
