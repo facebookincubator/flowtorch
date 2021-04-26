@@ -40,7 +40,7 @@ jobs:
         isort --check flowtorch tests
     - name: Lint with flake8
       run: |
-        flake8 flowtorch tests --count --show-source --statistics
+        flake8 . --count --show-source --statistics
     - name: Check types with mypy
       run: |
         mypy flowtorch
