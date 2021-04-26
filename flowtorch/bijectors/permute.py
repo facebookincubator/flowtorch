@@ -8,10 +8,10 @@ import torch.distributions.constraints as constraints
 from torch.distributions.utils import lazy_property
 
 import flowtorch
-import flowtorch.bijectors as bijectors
+from flowtorch.bijectors import Fixed, VolumePreserving
 
 
-class Permute(bijectors.Fixed, bijectors.VolumePreserving):
+class Permute(Fixed, VolumePreserving):
     domain = constraints.real_vector
     codomain = constraints.real_vector
 
