@@ -111,25 +111,25 @@ def test_inv():
 
     base_dist = dist.Independent(dist.Normal(torch.zeros(2), torch.ones(2)), 1)
     tdist, params = flow(base_dist)
-    inv_tdist, inv_params = inv_flow(base_dist)
+    inv_tdist, _ = inv_flow(base_dist)
     x = torch.zeros(1, 2)
     y = flow.forward(x, params, context=torch.empty(0))
     assert tdist.bijector.log_abs_det_jacobian(
         x, y, params, context=torch.empty(0)
-    ) == -inv_tdist.bijector.log_abs_det_jacobian(
-        y, x, inv_params, context=torch.empty(0)
-    )
+    ) == -inv_tdist.bijector.log_abs_det_jacobian(y, x, params, context=torch.empty(0))
 
 
 class TestBijectors:
     # TODO: How to select an individual test from command line?
     @pytest.mark.parametrize(
-        "transform", [bij_name for _, bij_name in bijectors.standard_bijectors]
+        "cls", [bij_name for _, bij_name in bijectors.standard_bijectors]
     )
-    def test_jacobian(self, transform):
+    def test_jacobian(self, cls, epsilon=1e-4):
+        # TODO: The following pattern to produce the standard bijector should
+        # be factored out
         # Define plan for flow
-        flow = bijectors.AffineAutoregressive()
-        event_dim = min(flow.domain.event_dim, 1)
+        flow = cls()
+        event_dim = max(flow.domain.event_dim, 1)
         event_shape = event_dim * [4]
         base_dist = dist.Normal(torch.zeros(event_shape), torch.ones(event_shape))
 
@@ -139,7 +139,7 @@ class TestBijectors:
         # Calculate auto-diff Jacobian
         x = torch.randn(*event_shape)
         y = flow.forward(x, params)
-        if event_dim == 1:
+        if flow.domain.event_dim == 1:
             analytic_ldt = flow.log_abs_det_jacobian(x, y, params).data
         else:
             analytic_ldt = flow.log_abs_det_jacobian(x, y, params).sum(-1).data
@@ -157,7 +157,6 @@ class TestBijectors:
 
         # TODO: Vectorize numerical calculation of Jacobian with PyTorch
         # TODO: Break this out into flowtorch.numerical.derivatives.jacobian
-        epsilon = 1e-4
         for var_idx in range(count_vars):
             idx = [dim_idx[var_idx] for dim_idx in idxs]
             epsilon_vector = torch.zeros(event_shape)
@@ -201,13 +200,37 @@ class TestBijectors:
             assert diag_sum == float(count_vars)
             assert lower_sum == float(0.0)
 
-    # TODO: Only run test inverse when not an abstract method (auto-detect this)
-    def _test_inverse(self, shape, transform):
-        pass
+    @pytest.mark.parametrize(
+        "cls", [bij_name for _, bij_name in bijectors.invertible_bijectors]
+    )
+    def test_inverse(self, cls, epsilon=1e-6):
+        # TODO: The following pattern to produce the standard bijector should
+        # be factored out
+        # Define plan for flow
+        flow = cls()
+        event_dim = max(flow.domain.event_dim, 1)
+        event_shape = event_dim * [4]
+        base_dist = dist.Normal(torch.zeros(event_shape), torch.ones(event_shape))
 
+        # Instantiate transformed distribution and parameters
+        _, params = flow(base_dist)
+
+        # Test g^{-1}(g(x)) = x
+        x_true = base_dist.sample(torch.Size([10]))
+        y = flow._forward(x_true, params)
+        x_calculated = flow._inverse(y, params)
+        assert (x_true - x_calculated).abs().max().item() < epsilon
+
+        # Test that Jacobian after inverse op is same as after forward
+        J_1 = flow.log_abs_det_jacobian(x_true, y, params)
+        J_2 = flow.log_abs_det_jacobian(x_calculated, y, params)
+        assert (J_1 - J_2).abs().max().item() < epsilon
+
+    # TODO
     def _test_shape(self, base_shape, transform):
         pass
 
+    # TODO: This tests whether can take autodiff gradient without exception
     def _test_autodiff(self, input_dim, transform, inverse=False):
         pass
 

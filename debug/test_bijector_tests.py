@@ -9,7 +9,8 @@ import inspect
 #print(bees)
 
 #print(bijectors.__all__)
-
+print(bijectors.standard_bijectors)
+print(bijectors.invertible_bijectors)
 
 """
 # Lazily instantiated flow plus base and target distributions

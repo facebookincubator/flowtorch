@@ -6,6 +6,9 @@ import inspect
 import pkgutil
 import sys
 
+import torch
+import torch.distributions as dist
+
 from flowtorch import Bijector
 from flowtorch.bijectors.compose import Compose
 
@@ -65,7 +68,26 @@ for importer, modname, _ in pkgutil.walk_packages(
 for cls_name, cls in standard_bijectors:
     globals()[cls_name] = cls
 
+# Determine invertible bijectors
+invertible_bijectors = []
+for bij_name, cls in standard_bijectors:
+    # TODO: Use factored out version of the following
+    # Define plan for flow
+    bij = cls()
+    event_dim = max(bij.domain.event_dim, 1)
+    event_shape = event_dim * [4]
+    base_dist = dist.Normal(torch.zeros(event_shape), torch.ones(event_shape))
+    _, params = bij(base_dist)
 
-__all__ = ["standard_bijectors", "meta_bijectors"] + [
+    try:
+        y = torch.randn(*bij.forward_shape(event_shape))
+        bij.inverse(y, params)
+    except NotImplementedError:
+        pass
+    else:
+        invertible_bijectors.append((bij_name, cls))
+
+
+__all__ = ["standard_bijectors", "meta_bijectors", "invertible_bijectors"] + [
     cls for cls, _ in meta_bijectors + standard_bijectors
 ]

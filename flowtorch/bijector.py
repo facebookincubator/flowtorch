@@ -151,6 +151,20 @@ class Bijector(object):
     def __repr__(self) -> str:
         return self.__class__.__name__ + "()"
 
+    def forward_shape(self, shape):
+        """
+        Infers the shape of the forward computation, given the input shape.
+        Defaults to preserving shape.
+        """
+        return shape
+
+    def inverse_shape(self, shape):
+        """
+        Infers the shapes of the inverse computation, given the output shape.
+        Defaults to preserving shape.
+        """
+        return shape
+
 
 class _InverseBijector(Bijector):
     _inv: Bijector
@@ -206,3 +220,9 @@ class _InverseBijector(Bijector):
         self, dist: torch.distributions.Distribution
     ) -> Sequence[torch.Size]:
         return self._inv.param_shapes(dist)
+
+    def forward_shape(self, shape):
+        return self._inv.inverse_shape(shape)
+
+    def inverse_shape(self, shape):
+        return self._inv.forward_shape(shape)
