@@ -30,7 +30,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install flake8 black isort pytest mypy
         pip install numpy
-        pip install --pre torch -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
+        pip install torch==1.8.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
         pip install -e .[dev]
     - name: Check formatting with black
       run: |
