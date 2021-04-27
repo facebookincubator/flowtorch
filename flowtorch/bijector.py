@@ -19,7 +19,9 @@ class Bijector(object):
     autoregressinve: bool
     event_dim: int
 
-    def __init__(self, param_fn: "flowtorch.Params", context_size: int = 0) -> None:
+    def __init__(
+        self, param_fn: Optional["flowtorch.Params"], context_size: int = 0
+    ) -> None:
         super().__init__()
         self.param_fn = param_fn
         self._inv = None
@@ -43,9 +45,12 @@ class Bijector(object):
             # well Possibly do this in simplex.Bijector.__init__ and call from
             # simple.bijectors.*.__init__
             input_shape = base_dist.batch_shape + base_dist.event_shape
-            params = self.param_fn(
-                input_shape, self.param_shapes(base_dist), self._context_size
-            )  # <= this is where hypernets etc. are instantiated
+            if self.param_fn is not None:
+                params = self.param_fn(
+                    input_shape, self.param_shapes(base_dist), self._context_size
+                )  # <= this is where hypernets etc. are instantiated
+            else:
+                params = None
             new_dist = flowtorch.distributions.TransformedDistribution(
                 base_dist, self, params
             )
