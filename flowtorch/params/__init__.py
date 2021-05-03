@@ -25,8 +25,10 @@ Parameters should take care of caching when necessary.
 
 from flowtorch.params.dense_autoregressive import DenseAutoregressive
 from flowtorch.params.empty import Empty
+from flowtorch.params.tensor import Tensor
 
 __all__ = [
     "DenseAutoregressive",
     "Empty",
+    "Tensor",
 ]
