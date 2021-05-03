@@ -34,10 +34,10 @@ jobs:
         pip install -e .[dev]
     - name: Check formatting with black
       run: |
-        black --check flowtorch tests
+        black --check flowtorch tests scripts
     - name: Check imports with isort
       run: |
-        isort --check flowtorch tests
+        isort --check flowtorch tests scripts
     - name: Lint with flake8
       run: |
         flake8 . --count --show-source --statistics
