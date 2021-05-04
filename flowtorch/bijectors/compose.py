@@ -15,7 +15,9 @@ class Compose(flowtorch.Bijector):
         self.bijectors = bijectors
 
         # TODO: Adjust domain accordingly and check domain/codomain compatibility!
-        event_dim = max(b.domain.event_dim for b in self.bijectors)
+        event_dim = (
+            1 if len(self.bijectors) == 0 else self.bijectors[0].domain.event_dim
+        )
         self.domain = constraints.independent(constraints.real, event_dim)
         self.codomain = constraints.independent(constraints.real, event_dim)
         self._inv = None
