@@ -3,6 +3,7 @@
 
 import argparse
 import os
+import sys
 from enum import Enum
 
 copyright_header = """Copyright (c) Facebook, Inc. and its affiliates. \
@@ -164,3 +165,4 @@ if __name__ == "__main__":
                     f.write(filestring)
 
     print_results(count_changed, args)
+    sys.exit(count_changed)
