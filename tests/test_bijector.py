@@ -1,6 +1,5 @@
-# Copyright (c) FlowTorch Development Team. All Rights Reserved
+# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
-
 
 import torch
 import torch.distributions as dist
