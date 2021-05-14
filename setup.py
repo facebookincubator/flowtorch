@@ -51,7 +51,7 @@ setup(
     url="https://flowtorch.ai/users",
     project_urls={
         "Documentation": "https://flowtorch.ai/users",
-        "Source": "https://www.github.com/stefanwebb/flowtorch",
+        "Source": "https://www.github.com/facebookincubator/flowtorch",
     },
     keywords=[
         "Deep Learning",

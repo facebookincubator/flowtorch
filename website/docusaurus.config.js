@@ -6,14 +6,14 @@ module.exports = {
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.png',
-  organizationName: 'stefanwebb',
+  organizationName: 'facebookincubator',
   projectName: 'flowtorch',
   baseUrlIssueBanner: true,
   themeConfig: {
     announcementBar: {
       id: 'supportus',
       content:
-        '⭐️ If you like FlowTorch, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/stefanwebb/flowtorch">GitHub</a>! ⭐️',
+        '⭐️ If you like FlowTorch, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/facebookincubator/flowtorch">GitHub</a>! ⭐️',
     },
     prism: {
       theme: require("prism-react-renderer/themes/github"),
@@ -45,17 +45,17 @@ module.exports = {
           position: 'left',
         },
         {
-          href: 'https://github.com/stefanwebb/flowtorch/discussions',
+          href: 'https://github.com/facebookincubator/flowtorch/discussions',
           label: 'Discussions',
           position: 'right',
         },
         {
-          href: 'https://github.com/stefanwebb/flowtorch/releases',
+          href: 'https://github.com/facebookincubator/flowtorch/releases',
           label: 'Releases',
           position: 'right',
         },
         {
-          href: 'https://github.com/stefanwebb/flowtorch',
+          href: 'https://github.com/facebookincubator/flowtorch',
           label: 'GitHub',
           position: 'right',
         },
@@ -81,7 +81,7 @@ module.exports = {
             },
             {
               label: 'Roadmap',
-              href: 'https://github.com/stefanwebb/flowtorch/projects',
+              href: 'https://github.com/facebookincubator/flowtorch/projects',
             },
           ],
         },
@@ -90,19 +90,19 @@ module.exports = {
           items: [
             {
               label: 'Raise an issue',
-              href: 'https://github.com/stefanwebb/flowtorch/issues/new/choose',
+              href: 'https://github.com/facebookincubator/flowtorch/issues/new/choose',
             },
             {
               label: 'Ask for help',
-              href: 'https://github.com/stefanwebb/flowtorch/discussions/new',
+              href: 'https://github.com/facebookincubator/flowtorch/discussions/new',
             },
             {
               label: 'Give us feedback',
-              href: 'https://github.com/stefanwebb/flowtorch/discussions/categories/feedback',
+              href: 'https://github.com/facebookincubator/flowtorch/discussions/categories/feedback',
             },
             {
               label: 'Fork the repo',
-              href: 'https://github.com/stefanwebb/flowtorch/fork',
+              href: 'https://github.com/facebookincubator/flowtorch/fork',
             },
           ],
         },
@@ -111,7 +111,7 @@ module.exports = {
           items: [
             {
               label: 'MIT Open Source License',
-              href: 'https://github.com/stefanwebb/flowtorch/blob/master/LICENSE.txt',
+              href: 'https://github.com/facebookincubator/flowtorch/blob/master/LICENSE.txt',
             },
             {
               label: 'Code of Conduct',
@@ -129,7 +129,7 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/stefanwebb/flowtorch/edit/master/website/',
+          editUrl: 'https://github.com/facebookincubator/flowtorch/edit/master/website/',
           routeBasePath: '/',
         },
         blog: false,
