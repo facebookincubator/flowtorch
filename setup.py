@@ -10,18 +10,17 @@ REQUIRED_MAJOR = 3
 REQUIRED_MINOR = 6
 
 
-TEST_REQUIRES = ["pytest", "pytest-cov"]
+TEST_REQUIRES = ["pytest", "pytest-cov", "scipy"]
 DEV_REQUIRES = TEST_REQUIRES + [
     "black",
     "flake8",
     "flake8-bugbear",
     "isort",
+    "mypy",
     "recommonmark",
     "sphinx",
     "sphinx-autodoc-typehints",
     "sphinx_rtd_theme",
-    "numpy",
-    "scipy",
 ]
 
 

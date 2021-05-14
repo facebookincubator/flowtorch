@@ -80,7 +80,7 @@ def walk_source(paths):
                 ):
                     source_files.add(full_name)
 
-    return sorted(list(source_files))
+    return sorted(source_files)
 
 
 def print_results(count_changed, args):
@@ -100,7 +100,7 @@ def print_results(count_changed, args):
 
 if __name__ == "__main__":
     # Parse command line arguments
-    # Example usage: python scripts/copyright-headers.py --check flowtorch tests scripts
+    # Example usage: python scripts/copyright_headers.py --check flowtorch tests scripts
     parser = argparse.ArgumentParser(
         description="Checks and adds the Facebook Incubator copyright header"
     )
