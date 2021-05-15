@@ -12,7 +12,7 @@ We are looking for independent collaborators to:
 The core developers are able to help smooth the process of making a contribution.
 
 :::info
-Please contact us in [the forum](https://github.com/stefanwebb/flowtorch/discussions) if you are interested in becoming a contributor and tag your discussion with ":bulb: Ideas" - the process is outlined [here](overview).
+Please contact us in [the forum](https://github.com/facebookincubator/flowtorch/discussions) if you are interested in becoming a contributor and tag your discussion with ":bulb: Ideas" - the process is outlined [here](overview).
 :::
 
 :::note

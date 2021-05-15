@@ -14,7 +14,7 @@ function Hero() {
     <header id="hero" className={clsx("hero", styles.banner)}>
       <div className="container">
           <div className="row">
-            
+
           <h1 className="hero__subtitle">
             <img className="hero__img" src="img/logo.svg" />
             Easily <span className="hero__primary">learn</span> and <span className="hero__primary">sample</span> complex <span className="hero__secondary">probability distributions</span> with PyTorch
@@ -43,15 +43,15 @@ function Hero() {
               >
                 Contribute
               </Link>
-              
+
                 <iframe
                   className="hero__github_button"
-                  src="https://ghbtns.com/github-btn.html?user=stefanwebb&amp;repo=flowtorch&amp;type=star&amp;count=true&amp;size=large"
+                  src="https://ghbtns.com/github-btn.html?user=facebookincubator&amp;repo=flowtorch&amp;type=star&amp;count=true&amp;size=large"
                   width={160}
                   height={30}
                   title="GitHub Stars"
                 />
-              
+
             </div>
           </div>
         </div>
