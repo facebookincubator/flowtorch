@@ -117,6 +117,14 @@ module.exports = {
               label: 'Code of Conduct',
               href: 'https://www.contributor-covenant.org/version/1/4/code-of-conduct/',
             },
+            {
+              label: 'Terms of Use',
+              href: 'https://opensource.facebook.com/legal/terms',
+            },
+            {
+              label: 'Privacy Policy',
+              href: 'https://opensource.facebook.com/legal/privacy',
+            },
           ],
         },
       ],
