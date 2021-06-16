@@ -3,12 +3,16 @@
     <style>
       .cls-1 {
         fill: #6eccda;
+        stroke: #231f20;
         stroke-width: 5px;
       }
 
       .cls-1, .cls-2 {
-        stroke: #231f20;
         stroke-miterlimit: 10;
+      }
+
+      .cls-2 {
+        stroke: #fff;
       }
     </style>
   </defs>
