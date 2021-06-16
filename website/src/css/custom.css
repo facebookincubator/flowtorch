@@ -429,6 +429,32 @@ html[data-theme="dark"] .navbar__item.navbar__link[href*="api"]:hover:before {
   /*margin-left: 0.1875rem;*/
 }
 
+.footer__link-item[href*="legal/terms"]:before {
+  mask: url("/img/scroll-solid.svg");
+  mask-size: cover;
+  display: inline-block;
+  content: '';
+  background-color: white;
+  width: 1.25rem;
+  height: 1rem;
+  margin-top: 0.5rem;
+  margin-right: 0.5rem;
+  /*margin-left: 0.1875rem;*/
+}
+
+.footer__link-item[href*="legal/privacy"]:before {
+  mask: url("/img/handshake-solid.svg");
+  mask-size: cover;
+  display: inline-block;
+  content: '';
+  background-color: white;
+  width: 1.25rem;
+  height: 1rem;
+  margin-top: 0.5rem;
+  margin-right: 0.5rem;
+  /*margin-left: 0.1875rem;*/
+}
+
 .button[href*="user"] {
   display: flex;
 }
