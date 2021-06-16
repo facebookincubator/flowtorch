@@ -117,13 +117,18 @@ module.exports = {
               label: 'Code of Conduct',
               href: 'https://www.contributor-covenant.org/version/1/4/code-of-conduct/',
             },
+	    // Please do not remove the privacy and terms, it's a legal requirement.
             {
-              label: 'Terms of Use',
-              href: 'https://opensource.facebook.com/legal/terms',
+              label: 'Privacy',
+              href: 'https://opensource.facebook.com/legal/privacy/',
+              target: '_blank',
+              rel: 'noreferrer noopener',
             },
             {
-              label: 'Privacy Policy',
-              href: 'https://opensource.facebook.com/legal/privacy',
+              label: 'Terms',
+              href: 'https://opensource.facebook.com/legal/terms/',
+              target: '_blank',
+              rel: 'noreferrer noopener',
             },
           ],
         },
