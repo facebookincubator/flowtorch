@@ -1,4 +1,4 @@
-# Copyright (c) FlowTorch Development Team. All Rights Reserved
+# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
 import random
@@ -23,45 +23,13 @@ np.random.seed(0)
 random.seed(0)
 
 
+# TODO: Move inside test class
 def test_bijector_constructor():
     param_fn = flowtorch.params.DenseAutoregressive()
     b = flowtorch.bijectors.AffineAutoregressive(param_fn=param_fn)
     assert b is not None
 
-
-# TODO: Move to `test_learning.py`
-def test_neals_funnel_vi():
-    torch.manual_seed(42)
-    nf = NealsFunnel()
-    flow = flowtorch.bijectors.AffineAutoregressive(
-        flowtorch.params.DenseAutoregressive()
-    )
-    tdist, params = flow(
-        dist.Independent(dist.Normal(torch.zeros(2), torch.ones(2)), 1)
-    )
-    opt = torch.optim.Adam(params.parameters(), lr=1e-3)
-    num_elbo_mc_samples = 100
-    for _ in range(150):
-        z0 = tdist.base_dist.rsample(sample_shape=(num_elbo_mc_samples,))
-        zk = flow._forward(z0, params, context=torch.empty(0))
-        ldj = flow._log_abs_det_jacobian(z0, zk, params, context=torch.empty(0))
-
-        neg_elbo = -nf.log_prob(zk).sum()
-        neg_elbo += tdist.base_dist.log_prob(z0).sum() - ldj.sum()
-        neg_elbo /= num_elbo_mc_samples
-
-        if not torch.isnan(neg_elbo):
-            neg_elbo.backward()
-            opt.step()
-            opt.zero_grad()
-
-    nf_samples = NealsFunnel().sample((20,)).squeeze().numpy()
-    vi_samples = tdist.sample((20,)).detach().numpy()
-
-    assert scipy.stats.ks_2samp(nf_samples[:, 0], vi_samples[:, 0]).pvalue >= 0.05
-    assert scipy.stats.ks_2samp(nf_samples[:, 1], vi_samples[:, 1]).pvalue >= 0.05
-
-
+# TODO: Move inside test class
 def test_inv():
     flow = flowtorch.bijectors.AffineAutoregressive(
         flowtorch.params.DenseAutoregressive()

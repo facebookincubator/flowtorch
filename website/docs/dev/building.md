@@ -15,7 +15,7 @@ SW: I am unfamiliar with `setuptools_scm` and am unsure whether we should define
 git tag <version>
 git push
 ```
-2. Make release notes and add to [GitHub releases](https://github.com/stefanwebb/flowtorch/releases).
+2. Make release notes and add to [GitHub releases](https://github.com/facebookincubator/flowtorch/releases).
 3. Build the wheel and test that the package description will render correctly on PyPI:
 ```bash
 python setup.py sdist bdist_wheel
@@ -26,7 +26,7 @@ twine check dist/*
 twine upload dist/*
 ```
 5. Make release announcements on:
-    *  [PyTorch Slack](pytorch.slack.com) channels `#normalizing_flows`, `#pyro`, and `#announcements`
+    *  [PyTorch Slack](https://pytorch.slack.com) channels `#normalizing_flows`, `#pyro`, and `#announcements`
     * Personal account on Facebook
     * Personal account on Twitter
     * Personal account on LinkedIn
