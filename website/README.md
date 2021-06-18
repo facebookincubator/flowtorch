@@ -8,11 +8,10 @@ This website is built using [Docusaurus 2](https://v2.docusaurus.io/), a modern 
 ```console
 npm install --global yarn
 ```
-3. Install [Docusaurus 2](https://v2.docusaurus.io/docs/installation).
 4. Navigate to [master/website](https://github.com/facebookincubator/flowtorch/tree/master/website) and install the dependencies:
 ```console
 cd website
-yarn
+yarn install
 ```
 
 ## Local Development
