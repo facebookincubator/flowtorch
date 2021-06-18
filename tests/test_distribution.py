@@ -12,6 +12,7 @@ import flowtorch.bijectors
 import flowtorch.params
 
 
+# TODO: Move to flowtorch.distributions
 class NealsFunnel(dist.Distribution):
     """
     Neal's funnel.

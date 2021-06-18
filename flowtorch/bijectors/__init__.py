@@ -1,27 +1,27 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
-import importlib
 import inspect
-import pkgutil
-import sys
 
 import torch
 import torch.distributions as dist
 
 from flowtorch import Bijector
+
+# TODO: Autogenerate this from script!
 from flowtorch.bijectors.affine_autoregressive import AffineAutoregressive
 from flowtorch.bijectors.affine_fixed import AffineFixed
 from flowtorch.bijectors.compose import Compose
 from flowtorch.bijectors.elu import ELU
 from flowtorch.bijectors.exp import Exp
 from flowtorch.bijectors.fixed import Fixed
+from flowtorch.bijectors.leaky_relu import LeakyReLU
+from flowtorch.bijectors.permute import Permute
+from flowtorch.bijectors.power import Power
+from flowtorch.bijectors.sigmoid import Sigmoid
+from flowtorch.bijectors.softplus import Softplus
+from flowtorch.bijectors.tanh import Tanh
 from flowtorch.bijectors.volume_preserving import VolumePreserving
-
-if __name__ == "__main__":
-    raise RuntimeError("Cannot run flowtorch.bijectors as a script")
-
-this_module = sys.modules[__name__]
 
 # "Meta bijectors" are classes that descend from flowtorch.Bijector but either
 # are not used directly by the user, or are used to operate on other bijectors.
@@ -47,34 +47,19 @@ def standard_bijector(cls):
     )
 
 
-# Programatically import all standard bijectors
-# This way, don't have to modify __init__.py when a new bijector is implemented!
-# Is a list of (<class name>, <class ref>) tuples for all standard bijectors
-standard_bijectors = []
-# The following line uncovered a bug that hasn't been fixed in mypy:
-# https://github.com/python/mypy/issues/1422
-for importer, modname, _ in pkgutil.walk_packages(
-    path=this_module.__path__,  # type: ignore  # mypy issue #1422
-    prefix=this_module.__name__ + ".",
-    onerror=lambda x: None,
-):
-    # Conditions required for mypy
-    if importer is not None:
-        if isinstance(importer, importlib.abc.MetaPathFinder):
-            finder = importer.find_module(modname, None)
-        elif isinstance(importer, importlib.abc.PathEntryFinder):
-            finder = importer.find_module(modname)
-    else:
-        finder = None
-
-    if finder is not None:
-        module = finder.load_module(modname)
-    if module is not None:
-        this_bijectors = inspect.getmembers(module, standard_bijector)
-        standard_bijectors.extend(this_bijectors)
-
-for cls_name, cls in standard_bijectors:
-    globals()[cls_name] = cls
+# TODO: Autogenerate this from script!
+standard_bijectors = [
+    ("AffineAutoregressive", AffineAutoregressive),
+    ("AffineFixed", AffineFixed),
+    ("ELU", ELU),
+    ("Exp", Exp),
+    ("LeakyReLU", LeakyReLU),
+    ("Permute", Permute),
+    ("Power", Power),
+    ("Sigmoid", Sigmoid),
+    ("Softplus", Softplus),
+    ("Tanh", Tanh),
+]
 
 # Determine invertible bijectors
 invertible_bijectors = []

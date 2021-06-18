@@ -5,9 +5,6 @@ import random
 
 import numpy as np
 import pytest
-import scipy.misc
-import scipy.stats
-
 import torch
 import torch.distributions as dist
 import torch.optim
@@ -28,6 +25,7 @@ def test_bijector_constructor():
     param_fn = flowtorch.params.DenseAutoregressive()
     b = flowtorch.bijectors.AffineAutoregressive(param_fn=param_fn)
     assert b is not None
+
 
 # TODO: Move inside test class
 def test_inv():
@@ -71,6 +69,8 @@ class TestBijectors:
 
         # Calculate auto-diff Jacobian
         x = torch.randn(*event_shape)
+        x = torch.distributions.transform_to(flow.domain)(x)
+        print("x", x)
         y = flow.forward(x, params)
         if flow.domain.event_dim == 1:
             analytic_ldt = flow.log_abs_det_jacobian(x, y, params).data
@@ -150,6 +150,8 @@ class TestBijectors:
 
         # Test g^{-1}(g(x)) = x
         x_true = base_dist.sample(torch.Size([10]))
+        x_true = torch.distributions.transform_to(flow.domain)(x_true)
+
         y = flow._forward(x_true, params)
         x_calculated = flow._inverse(y, params)
         assert (x_true - x_calculated).abs().max().item() < epsilon
