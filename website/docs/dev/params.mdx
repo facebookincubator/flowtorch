@@ -8,7 +8,7 @@ sidebar_label: Params Interface
 A class satisfying the "Params interface" contains the following elements.
 
 ### Parent class
-A bijector must inherit from [`flowtorch.Params`](https://github.com/stefanwebb/flowtorch/blob/master/flowtorch/param.py). This class defines important methods that are common to all parameter objects, such as `.__call__` for instantiating a [`flowtorch.ParamsModule`](https://github.com/stefanwebb/flowtorch/blob/master/flowtorch/param.py) given shape information.
+A bijector must inherit from [`flowtorch.Params`](https://github.com/facebookincubator/flowtorch/blob/master/flowtorch/param.py). This class defines important methods that are common to all parameter objects, such as `.__call__` for instantiating a [`flowtorch.ParamsModule`](https://github.com/facebookincubator/flowtorch/blob/master/flowtorch/param.py) given shape information.
 
 ### Metadata
 The following property is the only one currently used:
@@ -19,7 +19,7 @@ In the near future, the `autoregressive` property is likely to be removed, and a
 :::
 
 :::info
-Further metadata fields may be defined in the future. However, developers are not permitted to define their own without adding a default value to [`flowtorch.Params`](https://github.com/stefanwebb/flowtorch/blob/master/flowtorch/param.py).
+Further metadata fields may be defined in the future. However, developers are not permitted to define their own without adding a default value to [`flowtorch.Params`](https://github.com/facebookincubator/flowtorch/blob/master/flowtorch/param.py).
 :::
 
 ### Class Methods

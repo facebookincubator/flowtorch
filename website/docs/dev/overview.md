@@ -9,7 +9,7 @@ sidebar_label: Overview
 ## How to Make a Contribution
 1.  New features begin with a discussion between users, independent contributors (that's you!), and the core development team. If you would like to see a new feature or are interested in contributing it yourself, please start a new thread on the forum, tagging it with "new feature."
 
-2. After this discussion has taken place and the details of new feature has been decided upon, the next step is to fork the [flowtorch repo](https://github.com/stefanwebb/flowtorch) using the "Fork" button in the upper right corner.
+2. After this discussion has taken place and the details of new feature has been decided upon, the next step is to fork the [flowtorch repo](https://github.com/facebookincubator/flowtorch) using the "Fork" button in the upper right corner.
 
 3. Next, clone your forked repository locally and create a feature branch:
 
@@ -27,7 +27,7 @@ git checkout -b <your feature name>
 
 7. Assuming it passes these tests, commit the changes to your local repo and push to your remote fork.
 
-8. Finally, create a [pull request](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests) (PR) to merge your forked feature branch into the [main master branch](https://github.com/stefanwebb/flowtorch). Give an informative name to your PR and include in the description of your PR the details of which features are added. Ensure your feature branch contains the latest commits from the master branch so as to avoid merge conflicts.
+8. Finally, create a [pull request](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests) (PR) to merge your forked feature branch into the [main master branch](https://github.com/facebookincubator/flowtorch). Give an informative name to your PR and include in the description of your PR the details of which features are added. Ensure your feature branch contains the latest commits from the master branch so as to avoid merge conflicts.
 
 9. The core developers will review your PR and most likely suggest changes to the code. After edits have been made, pushing to the feature branch of your forked remote will update the existing PR that you have opened.
 

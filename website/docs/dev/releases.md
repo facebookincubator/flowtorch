@@ -4,7 +4,7 @@ title: Releases
 sidebar_label: Releases
 ---
 
-A list of FlowTorch releases is to be found [here](https://github.com/stefanwebb/flowtorch/releases). In this section, we detail the process of making a release.
+A list of FlowTorch releases is to be found [here](https://github.com/facebookincubator/flowtorch/releases). In this section, we detail the process of making a release.
 
 ## Versioning Scheme
 First, let us describe the versioning scheme we use. It is a simple system with versions of the form *&#60;major&#62;.&#60;minor&#62;[.dev&#60;build&#62;]*. Some examples are:
@@ -22,7 +22,7 @@ Core developers should follow this procedure to release a new version of FlowTor
 git tag <version>
 git push
 ```
-2. Make release notes and add to [GitHub releases](https://github.com/stefanwebb/flowtorch/releases).
+2. Make release notes and add to [GitHub releases](https://github.com/facebookincubator/flowtorch/releases).
 3. Build the wheel and test that the package description will render correctly on PyPI:
 ```bash
 python setup.py sdist bdist_wheel

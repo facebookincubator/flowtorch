@@ -27,6 +27,7 @@
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
     "react-icons": "^4.2.0",
+    "rehype-katex": "^5.0.0",
     "remark-math": "^4.0.0"
   },
   "browserslist": {

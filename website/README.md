@@ -38,4 +38,4 @@ Core developers can deploy the website as follows:
 GIT_USER=<Your GitHub username> USE_SSH=true yarn deploy
 ```
 
-Activity logs for all past deployments to GitHub pages can be viewed [here](https://github.com/facebookincubator/flowtorch/deployments/activity_log?environment=github-pages). For your convenience, there is [a script to deploy the website on Windows](https://github.com/facebookincubator/flowtorch/tree/master/deploy-website-windows.bat).
+Activity logs for all past deployments to GitHub pages can be viewed [here](https://github.com/facebookincubator/flowtorch/deployments/activity_log?environment=github-pages).
