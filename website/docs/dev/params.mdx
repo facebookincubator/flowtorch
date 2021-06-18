@@ -1,0 +1,45 @@
+---
+id: params
+title: Params Interface
+sidebar_label: Params Interface
+---
+
+## The Interface
+A class satisfying the "Params interface" contains the following elements.
+
+### Parent class
+A bijector must inherit from [`flowtorch.Params`](https://github.com/stefanwebb/flowtorch/blob/master/flowtorch/param.py). This class defines important methods that are common to all parameter objects, such as `.__call__` for instantiating a [`flowtorch.ParamsModule`](https://github.com/stefanwebb/flowtorch/blob/master/flowtorch/param.py) given shape information.
+
+### Metadata
+The following property is the only one currently used:
+* `autoregressive`: a parameter object operating on vectors is autoregressive if the output $x_i$ is not a function of any $x_j$ with $j>i$ (with a straightforward generalization to higher-dimensional objects). This property is used by the testing framework.
+
+:::info
+In the near future, the `autoregressive` property is likely to be removed, and a [structured representation](/users/structure) API used instead.
+:::
+
+:::info
+Further metadata fields may be defined in the future. However, developers are not permitted to define their own without adding a default value to [`flowtorch.Params`](https://github.com/stefanwebb/flowtorch/blob/master/flowtorch/param.py).
+:::
+
+### Class Methods
+Class methods define the initization of the lazy parameter object, how to instantiate the parameter object - that is, create any parameter vectors and neural networks, given shape information - and how to calculate the value of the parameters given a value from the distribution and possibly a context variable that is conditioned upon.
+
+#### `.__init__(self, *, **kwargs)`
+This optional method initializes a lazy parameter object, taking an arbitrary number of keyword arguments specific to the class. It must call the parent initializer as `super().__init__()`. Typically, the initializer is used to store settings and sometimes modify metadata. 
+
+*`__init__` must have sensible default values for all its arguments so that one can instantiate a params object with, for example, `p = Params()`.* This design allows both easy creation and testing of params.
+
+#### `._build(self, input_shape: torch.Size, param_shapes: Sequence[torch.Size], context_dims: int) -> Tuple[nn.ModuleList, Dict[str, Any]]`
+This method builds any necessary `nn.Parameters` or `nn.Module`s as well as buffer objects, given the shape of an input, `input_shape`, the output shapes, `param_shapes`, and the number of dimensions, `context_dims`, of an optional context variable. It returns a tuple consisting of an `nn.ModuleList` for the learnable parameters and an optional `Dict[str, Any]` mapping strings to buffer objects.
+
+Buffer objects differ from learnable parameters in that they do not partake in gradient descent updates, but share with parameters that they are serialized when the object is saved and loaded to disk. Buffers are typically used to store tensors that are convenient to calculate and cache during the construction of the object, such as masking matrices.
+
+The `._build` method is called by `Params.__call__` during the process of instantiating a non-lazy `flowtorch.ParamsModule` using the lazy `flowtorch.Params` and specified shapes. `._build` should operate on any arbitrary input and parameter shapes.
+
+#### `._forward(self, x: torch.Tensor, context: torch.Tensor, modules: nn.ModuleList) -> Sequence[torch.Tensor]`
+This method evaluates the parameters, $\theta=f(x;z,\{\alpha_i\})$, which in general are a function of the input, $x$, context variable, $z$, and a list of modules, $\{\alpha_i\}$. Note that this may not always be the case, for instance, when the parameters are `nn.Parameter` tensors that do not depend on $x$, or when the `Params` object is a placeholder for no parameters.
+
+:::note
+Certain `Params` are incompatible with certain `Bijector`s. For example, an autoregressive bijector requires an autoregressive params. We are currently deciding on a solution to enforce/check this and will likely release with v2 of the library.
+:::

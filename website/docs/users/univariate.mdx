@@ -1,0 +1,255 @@
+---
+id: univariate
+title: Univariate Bijections
+sidebar_label: Univariate Bijections
+---
+## Background
+[Normalizing Flows](/dev/bibliography#surveys) are a family of methods for constructing flexible distributions. As mentioned in [the introduction](/users), Normalizing Flows can be seen as a modern take on the [change of variables method for random distributions](https://en.wikipedia.org/wiki/Probability_density_function#Function_of_random_variables_and_change_of_variables_in_the_probability_density_function), and this is most apparent for univariate bijections. Thus, in this first section we restrict our attention to representing univariate distributions with bijections.
+
+The basic idea is that a simple source of noise, for example a variable with a standard normal distribution, $X\sim\mathcal{N}(0,1)$, is passed through a bijective (i.e. invertible) function, $g(\cdot)$ to produce a more complex transformed variable $Y=g(X)$. For such a random variable, we typically want to perform two operations: sampling and scoring. Sampling $Y$ is trivial. First, we sample $X=x$, then calculate $y=g(x)$. Scoring $Y$, or rather, evaluating the log-density $\log(p_Y(y))$, is more involved. How does the density of $Y$ relate to the density of $X$? We can use the substitution rule of integral calculus to answer this. Suppose we want to evaluate the expectation of some function of $X$. Then,
+
+$$
+\begin{aligned}
+\mathbb{E}_{p_X(\cdot)}\left[f(X)\right] &= \int_{\text{supp}(X)}f(x)p_X(x)dx\\
+     &= \int_{\text{supp}(Y)}f(g^{-1}(y))p_X(g^{-1}(y))\left|\frac{dx}{dy}\right|dy \\
+     &= \mathbb{E}_{p_Y(\cdot)}\left[f(g^{-1}(Y))\right],
+\end{aligned}
+$$
+
+where $\text{supp}(X)$ denotes the support of $X$, which in this case is $(-\infty,\infty)$. Crucially, we used the fact that $g$ is bijective to apply the substitution rule in going from the first to the second line. Equating the last two lines we get,
+
+$$
+\begin{aligned}
+     \log(p_Y(y)) &= \log(p_X(g^{-1}(y)))+\log\left(\left|\frac{dx}{dy}\right|\right)\\
+     &= \log(p_X(g^{-1}(y)))-\log\left(\left|\frac{dy}{dx}\right|\right).
+\end{aligned}
+$$
+
+Inituitively, this equation says that the density of $Y$ is equal to the density at the corresponding point in $X$ plus a term that corrects for the warp in volume around an infinitesimally small length around $Y$ caused by the transformation.
+
+If $g$ is cleverly constructed (and we will see several examples shortly), we can produce distributions that are more complex than standard normal noise and yet have easy sampling and computationally tractable scoring. Moreover, we can compose such bijective transformations to produce even more complex distributions. By an inductive argument, if we have $L$ transforms $g_{(0)}, g_{(1)},\ldots,g_{(L-1)}$, then the log-density of the transformed variable $Y=(g_{(0)}\circ g_{(1)}\circ\cdots\circ g_{(L-1)})(X)$ is
+
+$$
+\begin{aligned}
+     \log(p_Y(y)) &= \log\left(p_X\left(\left(g_{(L-1)}^{-1}\circ\cdots\circ g_{(0)}^{-1}\right)\left(y\right)\right)\right)+\sum^{L-1}_{l=0}\log\left(\left|\frac{dg^{-1}_{(l)}(y_{(l)})}{dy'}\right|\right),
+\end{aligned}
+$$
+
+where we've defined $y_{(0)}=x$, $y_{(L-1)}=y$ for convenience of notation. In the [following section](/users/multivariate), we will see how to generalize this method to multivariate $X$.
+
+## Fixed Univariate `Bijector`s
+:::caution
+The examples in this section makes use of `Bijector` classes that are not yet available - they will be added in the `v0.3` release. The concepts are still relevant.
+:::
+[FlowTorch](https://flowtorch.ai) contains classes for representing *fixed* univariate bijective transformations. These are particularly useful for restricting the range of transformed distributions, for example to lie on the unit hypercube. (In the following sections, we will explore how to represent learnable bijectors.)
+
+Let us begin by showing how to represent and manipulate a simple transformed distribution,
+
+$$
+\begin{aligned}
+ X &\sim \mathcal{N}(0,1)\\
+ Y &= \text{exp}(X).
+\end{aligned}
+$$
+
+You may have recognized that this is by definition, $Y\sim\text{LogNormal}(0,1)$.
+
+We begin by importing the relevant libraries:
+
+```python
+import torch
+import torch.distributions as dist
+import flowtorch
+import flowtorch.bijectors as bijectors
+import matplotlib.pyplot as plt
+import seaborn as sns
+```
+A variety of bijective transformations live in the `flowtorch.bijectors` module, and the classes to define transformed distributions live in `flowtorch.distributions`. We first create the base distribution of $X$ and the class encapsulating the transform $\text{exp}(\cdot)$:
+```python
+dist_x = dist.Normal(torch.zeros(2), torch.ones(2))
+flow = bijectors.Exp()
+```
+The class `bijectors.Exp` derives from `flowtorch.Bijector` and defines the forward, inverse, and log-absolute-derivative operations for this transform,
+
+$$
+\begin{aligned}
+     g(x) &= \text{exp(x)}\\
+     g^{-1}(y) &= \log(y)\\
+     \log\left(\left|\frac{dg}{dx}\right|\right) &= y.
+\end{aligned}
+$$
+
+In general, a `Bijector` class defines these three operations, from which it is sufficient to perform sampling and scoring. *We should think of a `Bijector` as a plan to construct a normalizing flow rather than the normalizing flow itself* - it requires being instantiated with a concrete base distribution supplying the relevant shape information,
+```python
+dist_y, _ = flow(dist_x)
+```
+This statement returns the object `dist_y` of type `flowtorch.distributions.TransformedDistribution` representing an object that has an interface compatible with `torch.distributions.Distribution`. For the moment, we ignore the second argument returned. We are able to sample and score from `dist_y` object using its methods `.sample`, `.rsample`, and `.log_prob`.
+
+Now, plotting samples from both the base and transformed distributions to verify that we that have produced the log-normal distribution:
+```python
+plt.subplot(1, 2, 1)
+plt.hist(dist_x.sample([1000]).numpy(), bins=50)
+plt.title('Standard Normal')
+plt.subplot(1, 2, 2)
+plt.hist(dist_y.sample([1000]).numpy(), bins=50)
+plt.title('Standard Log-Normal')
+plt.show()
+```
+<p align="center">
+<img src="/img/normalizing_flows_i_9_0.png" />
+</p>
+Our example uses a single transform. However, we can compose transforms to produce more expressive distributions. For instance, if we apply an affine transformation we can produce the general log-normal distribution,
+
+$$
+\begin{aligned}
+ X &\sim \mathcal{N}(0,1)\\
+ Y &= \text{exp}(\mu+\sigma X).
+\end{aligned}
+$$
+
+or rather, $Y\sim\text{LogNormal}(\mu,\sigma^2)$. In FlowTorch this is accomplished, e.g. for $\mu=3, \sigma=0.5$, as follows:
+```python
+dist_x = dist.Normal(torch.zeros(1), torch.ones(1))
+flow = bijectors.Compose([
+     bijectors.Affine(loc=3, scale=0.5),
+     bijectors.Exp()])
+dist_y, _ = flow(dist_x)
+
+plt.subplot(1, 2, 1)
+plt.hist(dist_x.sample([1000]).numpy(), bins=50)
+plt.title('Standard Normal')
+plt.subplot(1, 2, 2)
+plt.hist(dist_y.sample([1000]).numpy(), bins=50)
+plt.title('Log-Normal')
+plt.show()
+```
+<p align="center">
+<img src="/img/normalizing_flows_i_11_0.png" />
+</p>
+
+The class `bijectors.Compose` combines multiple `Bijector`s with [function composition](https://en.wikipedia.org/wiki/Function_composition) to produce a single *plan* for a Normalizing Flow, which is then intiated in the regular way. There are other ways to combine multiple flows - see [here](/users/composing). For the forward operation, transformations are applied in the order of the list. In this case, first `Affine` is applied to the base distribution and then `Exp`.
+
+## Learnable Univariate `Bijector`s
+Having introduced the interface for bijections and transformed distributions, we now show how to represent *learnable* transforms and use them for density estimation. Our dataset in this section and the next will comprise samples along two concentric circles. Examining the joint and marginal distributions:
+```python
+import numpy as np
+from sklearn import datasets
+from sklearn.preprocessing import StandardScaler
+
+n_samples = 1000
+X, y = datasets.make_circles(n_samples=n_samples, factor=0.5, noise=0.05)
+X = StandardScaler().fit_transform(X)
+
+plt.title(r'Samples from $p(x_1,x_2)$')
+plt.xlabel(r'$x_1$')
+plt.ylabel(r'$x_2$')
+plt.scatter(X[:,0], X[:,1], alpha=0.5)
+plt.show()
+```
+
+<p align="center">
+<img src="/img/normalizing_flows_i_14_0.png" />
+</p>
+
+```python
+plt.subplot(1, 2, 1)
+sns.distplot(X[:,0], hist=False, kde=True, 
+             bins=None,
+             hist_kws={'edgecolor':'black'},
+             kde_kws={'linewidth': 2})
+plt.title(r'$p(x_1)$')
+plt.subplot(1, 2, 2)
+sns.distplot(X[:,1], hist=False, kde=True, 
+             bins=None,
+             hist_kws={'edgecolor':'black'},
+             kde_kws={'linewidth': 2})
+plt.title(r'$p(x_2)$')
+plt.show()
+```
+
+<p align="center">
+<img src="/img/normalizing_flows_i_14_1.png" />
+</p>
+
+We will learn the marginals of the above distribution using a learnable transform, `bijectors.Spline`, defined on a two-dimensional input:
+
+```python
+dist_x = dist.Normal(torch.zeros(2), torch.ones(2))
+flow = bijectors.Spline()
+dist_y, params = flow(dist_x)
+```
+
+The main difference between this section and the previous is that we make use of the second argument, `params`, returned from instantiating the flow. `params` is a `torch.nn.Module` that when called with a value for `x` returns a tuple of parameters for the `Bijector`.
+
+`bijectors.Spline` passes each dimension of its input through a separate monotonically increasing function known as a spline. From a high-level, a spline is a complex parametrizable curve for which we can define specific points known as knots that it passes through and the derivatives at the knots. The knots and their derivatives are parameters that can be learnt, e.g., through stochastic gradient descent on a maximum likelihood objective, as we now demonstrate:
+
+```python
+optimizer = torch.optim.Adam(params.parameters(), lr=1e-2)
+for step in range(steps):
+    optimizer.zero_grad()
+    loss = -dist_y.log_prob(X).mean()
+    loss.backward()
+    optimizer.step()
+
+    if step % 200 == 0:
+        print('step: {}, loss: {}'.format(step, loss.item()))
+```
+
+```
+step: 0, loss: 2.682476758956909
+step: 200, loss: 1.278384804725647
+step: 400, loss: 1.2647961378097534
+step: 600, loss: 1.2601449489593506
+step: 800, loss: 1.2561875581741333
+step: 1000, loss: 1.2545257806777954
+```
+
+Plotting samples drawn from the transformed distribution after learning:
+```python
+X_flow = flow_dist.sample(torch.Size([1000,])).detach().numpy()
+plt.title(r'Joint Distribution')
+plt.xlabel(r'$x_1$')
+plt.ylabel(r'$x_2$')
+plt.scatter(X[:,0], X[:,1], label='data', alpha=0.5)
+plt.scatter(X_flow[:,0], X_flow[:,1], color='firebrick', label='flow', alpha=0.5)
+plt.legend()
+plt.show()
+```
+
+<p align="center">
+<img src="/img/normalizing_flows_i_20_0.png" />
+</p>
+
+```python
+plt.subplot(1, 2, 1)
+sns.distplot(X[:,0], hist=False, kde=True,
+             bins=None,
+             hist_kws={'edgecolor':'black'},
+             kde_kws={'linewidth': 2},
+             label='data')
+sns.distplot(X_flow[:,0], hist=False, kde=True,
+             bins=None, color='firebrick',
+             hist_kws={'edgecolor':'black'},
+             kde_kws={'linewidth': 2},
+             label='flow')
+plt.title(r'$p(x_1)$')
+plt.subplot(1, 2, 2)
+sns.distplot(X[:,1], hist=False, kde=True,
+             bins=None,
+             hist_kws={'edgecolor':'black'},
+             kde_kws={'linewidth': 2},
+             label='data')
+sns.distplot(X_flow[:,1], hist=False, kde=True,
+             bins=None, color='firebrick',
+             hist_kws={'edgecolor':'black'},
+             kde_kws={'linewidth': 2},
+             label='flow')
+plt.title(r'$p(x_2)$')
+plt.show()
+```
+
+<p align="center">
+<img src="/img/normalizing_flows_i_20_1.png" />
+</p>
+
+As we can see, we have learnt close approximations to the marginal distributions, $p(x_1),p(x_2)$. It would have been challenging to fit the irregularly shaped marginals with standard methods, for example, a mixture of normal distributions. As expected, since there is a dependency between the two dimensions, we do not learn a good representation of the joint, $p(x_1,x_2)$. In the next section, we explain how to learn multivariate distributions whose dimensions are not independent.

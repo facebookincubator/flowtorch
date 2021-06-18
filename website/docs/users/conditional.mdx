@@ -1,0 +1,29 @@
+---
+id: conditional
+title: Conditional Bijections
+sidebar_label: Conditional Bijections
+---
+
+## Background
+
+In many cases, we wish to represent conditional rather than joint distributions. For instance, in performing variational inference, the variational family is a class of conditional distributions,
+
+$$
+\begin{aligned}
+\{q_\psi(\mathbf{z}\mid\mathbf{x})\mid\theta\in\Theta\},
+\end{aligned}
+$$
+
+where $\mathbf{z}$ is the latent variable and $\mathbf{x}$ the observed one, that hopefully contains a member close to the true posterior of the model, $p(\mathbf{z}\mid\mathbf{x})$. In other cases, we may wish to learn to generate an object $\mathbf{x}$ conditioned on some context $\mathbf{c}$ using $p_\theta(\mathbf{x}\mid\mathbf{c})$ and observations $\{(\mathbf{x}_n,\mathbf{c}_n)\}^N_{n=1}$. For instance, $\mathbf{x}$ may be a spoken sentence and $\mathbf{c}$ a number of speech features.
+
+The theory of Normalizing Flows is easily generalized to conditional distributions. We denote the variable to condition on by $C=\mathbf{c}\in\mathbb{R}^M$. A simple multivariate source of noise, for example a standard i.i.d. normal distribution, $X\sim\mathcal{N}(\mathbf{0},I_{D\times D})$, is passed through a vector-valued bijection that also conditions on C, $g:\mathbb{R}^D\times\mathbb{R}^M\rightarrow\mathbb{R}^D$, to produce the more complex transformed variable $Y=g(X;C=\mathbf{c})$. In practice, this is usually accomplished by making the parameters for a known normalizing flow bijection $g$ the output of a hypernet neural network that inputs $\mathbf{c}$.
+
+Sampling of conditional transforms simply involves evaluating $Y=g(X; C=\mathbf{c})$. Conditioning the bijections on $\mathbf{c}$, the same formula holds for scoring as for the joint multivariate case.
+
+## Conditioning Transformed Distributions
+:::caution
+The examples in this section makes use of `Bijector` classes that are not yet available - they will be added in the `v0.3` release. The concepts are still relevant.
+:::
+[`Bijector`s have no notion of conditionality!]
+
+## Next Steps

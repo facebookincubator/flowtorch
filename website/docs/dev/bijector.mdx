@@ -1,0 +1,69 @@
+---
+id: bijector
+title: Bijector Interface
+sidebar_label: Bijector Interface
+---
+
+## The Interface
+A class satisfying the "Bijector interface" contains the following elements.
+
+### Parent class
+A bijector must inherit from [`flowtorch.Bijector`](https://github.com/stefanwebb/flowtorch/blob/master/flowtorch/bijector.py). This class defines important methods that are common to all bijectors such as `.inv` for defining an equivalent bijector swapping the forward and inverse operations. In the future, this parent class will be responsible for implementing [caching](/users/caching).
+
+### Domain and Codomain
+`self.domain` and `self.codomain` are values of type `torch.distributions.constraint` and specify the range of valid inputs and outputs that a bijector acts upon, as well as the dimensionality of both. FlowTorch does not validate the values of the inputs or outputs using this information - it is mainly intended to be useful for users as documentation.
+
+However, the `.event_dim` property of both `self.domain` and `self.codomain` is important as it specifies whether a bijector operates over scalars (`event_dim=0`), vectors (`event_dim=1`), matrices (`event_dim=2`), etc., and this determines the shapes of a transformed distribution using the bijector.
+
+`self.domain` and `self.codomain` are typically *class properties*, although they can be *instance properties* where that makes sense, for example when a bijector operates on a different sized input depending on parameters passed to `__init__`.
+
+### Other Metadata
+Further metadata about a bijector is defined in these properties:
+* `autoregressive`: a bijector operating on vectors is autoregressive if $x_i$ is independent of $x_j$ for all $j>i$. Note that the order of autoregression may not be the same order as the PyTorch tensor since the bijector or its conditioning network may apply a permutation. We can generalize this in a straightforward way for bijectors operating on matrices, tensors, and higher-dimensional objects. This property is used by the testing framework.
+* `near_identity_initialization`: whether a bijector is initialized to an "almost-identity" operation. In this context, a bijector is defined as being "almost-identity" if $y=f(x)$ does not diverge too much from a standard (multivariate) normal distribution when $x$ has a standard normal distribution.
+* `volume_preserving`: a bijector is volume preserving, also known as *homomorphic*, if the volume of $\{f(x)\mid x \in A\}$ is the same as the volume of $A$ for all $A\subseteq\text{domain}(f)$. This is true of many bijections used in normalizing flows (examples to follow when we've moved across all the bijections from Pyro).
+
+Again, this metadata can be represented by *class properties* and *instance properties* depending on the context. For instance, a bijector may not be volume preserving by default and have a special volume preserving version that is enabled by a flag passed to `__init__`.
+
+:::info
+Further metadata fields may be defined in the future. However, developers are not permitted to define their own without adding a default value to [`flowtorch.Bijector`](https://github.com/stefanwebb/flowtorch/blob/master/flowtorch/bijector.py).
+:::
+
+### Class Methods
+Class methods define initialization of the bijector, the forward ($y=f(x)$) and inverse ($x=f^{-1}(y)$) operators, the log absolute determinant Jacobian ($\log(|\det(dy/dx)|)$), and methods that define the shapes of $f$, $f^{-1}$, and its parameters. All methods are optional save for `._forward` and `._inverse` - the defaults for the others are the same as those of the identity operation (see [`flowtorch.Bijector`](https://github.com/stefanwebb/flowtorch/blob/master/flowtorch/bijector.py)).
+
+#### `.__init__(self, param_fn: flowtorch.Params, *, **kwargs)`
+This optional method initializes a bijector, taking a `flowtorch.Params` object and an arbitrary number of keyword arguments specific to the bijector. It must call the parent initializer, passing the value of `param_fn`, that is, `super().__init__(param_fn=param_fn)`. Typically, the initializer is used to store parameters of the bijector and sometimes modify its metadata. 
+
+*`__init__` must have sensible default values for all its arguments so that one can instantiate a bijector with, for example, `b = MyBijector()`.* This design allows both easy creation and testing of bijectors.
+
+#### `._forward(self, x: torch.Tensor, params: Optional[flowtorch.ParamsModule])`
+#### `._inverse(self, y: torch.Tensor, params: Optional[flowtorch.ParamsModule])`
+These methods defines the forward, $y=f_\theta(x)$, and inverse, $x=f^{-1}_\theta(y)$, operations of a bijector, respectively.
+
+By convention, when a bijector has either a forward or inverse operation that does not have an explicit formula or that is intractable, the forward operation will be defined by the tractable operation and the inverse will be left undefined (and you can obtain the inverted bijector with `.inv`). [Caching](/users/caching) is useful in these circumstances to apply the intractable operation to inputs that have previously been used with the bijector.
+
+#### `._log_abs_det_jacobian(self, x: torch.Tensor, y: torch.Tensor, params: Optional[flowtorch.ParamsModule])`
+This methods defines the log absolute determinant Jacobian, $\log(|\det(dy/dx)|)$, that determines how the functional form of the bijector warps an infinitesimally small volume of space. Since it may be easier to calculate this using one of either $x$ or $y$, both are given as arguments - it is up to the caller to ensure that $y=f(x)$.
+
+If this method is undefined, it will default to a tensor of zeros, that is, the quantity in question for a volume preserving bijector.
+
+#### `.forward_shape(self, event_shape)`
+#### `.inverse_shape(self, event_shape)`
+`.forward_shape` defines the event shape of $y=f(x)$ given the event shape of $x$. Similarly, `.inverse_shape` defines the event shape of $x=f^{-1}(y)$ given the event shape of $y$. These methods provide additional flexibility for defining bijectors, although in most cases will be left undefined in the derived class so that the default of the identity function is used. One example of where these methods differ from the identity is in [flowtorch.Reshape](/users/composing).
+
+:::info
+It must be the case that `len(event_shape) == self.domain.event_dim` for `.forward_shape` and `len(event_shape) == self.codomain.event_dim` for `.inverse_shape`. Likewise, the outputs of these two methods must match the corresponding `event_dim`.
+:::
+
+#### `.params_shape(self, event_shape)`
+This method defines the shapes of the parameters for a given event shape. It returns a tuple of shapes of type `torch.Size()`. For instance, if there are two separate scalar parameters for each event dimension, we could implement this method as:
+
+```python
+  def params_shape(self, event_shape:torch.Size) -> Tuple[torch.Size]:
+    return (event_shape, event_shape)
+```
+
+:::note
+Yet to be decided: what do we want as the convention when a `Bijector` does not use any parameters? Should it return `None` or a single `torch.Size()`?
+:::
