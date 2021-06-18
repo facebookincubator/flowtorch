@@ -8,7 +8,8 @@ import torch.distributions.constraints as constraints
 from torch.distributions.utils import lazy_property
 
 import flowtorch
-from flowtorch.bijectors import Fixed, VolumePreserving
+from flowtorch.bijectors.fixed import Fixed
+from flowtorch.bijectors.volume_preserving import VolumePreserving
 
 
 class Permute(Fixed, VolumePreserving):
