@@ -8,7 +8,7 @@ import torch.distributions.constraints as constraints
 import torch.nn.functional as F
 
 import flowtorch
-from flowtorch.utils import clipped_sigmoid
+from flowtorch.ops import clipped_sigmoid
 
 
 class Sigmoid(flowtorch.Bijector):

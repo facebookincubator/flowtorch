@@ -8,7 +8,7 @@ import torch.distributions.constraints as constraints
 import torch.nn.functional as F
 
 import flowtorch
-import flowtorch.utils as utils
+from flowtorch.ops import eps
 
 
 class ELU(flowtorch.Bijector):
@@ -31,7 +31,7 @@ class ELU(flowtorch.Bijector):
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return torch.max(y, torch.zeros_like(y)) + torch.min(
-            torch.log1p(y + utils.eps), torch.zeros_like(y)
+            torch.log1p(y + eps), torch.zeros_like(y)
         )
 
     def _log_abs_det_jacobian(
