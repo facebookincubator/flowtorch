@@ -10,6 +10,7 @@ from flowtorch.bijectors.elu import ELU
 from flowtorch.bijectors.exp import Exp
 from flowtorch.bijectors.fixed import Fixed
 from flowtorch.bijectors.leaky_relu import LeakyReLU
+from flowtorch.bijectors.permute import Permute
 from flowtorch.bijectors.power import Power
 from flowtorch.bijectors.sigmoid import Sigmoid
 from flowtorch.bijectors.softplus import Softplus
@@ -24,6 +25,7 @@ __all__ = [
     "Exp",
     "Fixed",
     "LeakyReLU",
+    "Permute",
     "Power",
     "Softplus",
     "Sigmoid",
