@@ -1,0 +1,27 @@
+---
+id: introduction
+title: Introduction
+sidebar_label: Introduction
+slug: /users
+---
+
+## What is a Normalizing Flow?
+Normalizing Flows are a family a methods for representing and learning high-dimensional probability distributions. They have found [state-of-the-art applications](/dev/bibliography#applications) in modeling complex distributions over images, [speech](/dev/bibliography#kim2020wavenode), [syntactic structure](/dev/bibliography#jin2019unsupervised), and molecules, to name a few. *Simply put, a Normalizing Flow is a composition of learnable functions that inputs samples from a simple random distribution, typically Gaussian noise, and outputs samples from a more complex target distribution.* Here is an illustration ([taken with permission from here](https://github.com/janosh/awesome-normalizing-flows)):
+
+<p align="center">
+<img src="/img/normalizing-flow.svg" />
+</p>
+
+A simple source of noise, $z_0$, is passed through a number of invertible functions, $f_1,f_2,\ldots,f_k$ to produce a more complex random variable, $z_k$. The invertible functions are constructed in a clever way so that we can easily sample from $z_k$ and calculate its density function, $p_k(\cdot)$. The field of Normalizing Flows can be seen as a modern take on the [change of variables method for random distributions](https://en.wikipedia.org/wiki/Probability_density_function#Function_of_random_variables_and_change_of_variables_in_the_probability_density_function), where the transformations are *high-dimensional*, often employing *neural networks*, and are designed for *effective stochastic optimization*.
+
+We believe, although still a nascent field, that Normalizing Flows are a fundamental component of the modern Bayesian statistics and probabilistic computing toolkit, and we will likely see many more exciting applications in the near future.
+
+## What is FlowTorch?
+[FlowTorch](https://flowtorch.ai) is a library that provides PyTorch components for constructing Normalizing Flows using the latest research in the field. It builds on an earlier sub-library of code from [Pyro](https://github.com/pyro-ppl/pyro/tree/dev/pyro/distributions/transforms) developed by the author since 2018. The main goals behind creating a new library for Normalizing Flows are to:
+* define an elegant interface for Normalizing Flow methodology, building on our experience with Pyro, so that practitioners can easily utilize these methods and researchers can easily contribute their own implementations;
+* develop robust unit tests and other code quality practices to guarantee production quality code;
+* promote the methods in applied settings by fostering a community of Normalizing Flow practioners and linking them with researchers;
+* accelerate research in Normalizing Flows by providing standard implementations, benchmarking, and a comprehensive literature survey.
+
+## Where to From Here?
+We recommend reading the next two sections to [install FlowTorch](/users/installation) and [train your first Normalizing Flow](/users/start).  For more theoretical background on Normalizing Flows and information about their applications, see the primer [here](/users/univariate) and the list of survey papers [here](/dev/bibliography#surveys).

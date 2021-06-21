@@ -1,3 +1,6 @@
+const math = require('remark-math');
+const katex = require('rehype-katex');
+
 module.exports = {
   title: 'FlowTorch',
   tagline: 'Easily learn and sample complex probability distributions with PyTorch',
@@ -8,6 +11,15 @@ module.exports = {
   favicon: 'img/favicon.png',
   organizationName: 'facebookincubator',
   projectName: 'flowtorch',
+  stylesheets: [
+    {
+      href: 'https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css',
+      type: 'text/css',
+      integrity:
+        'sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X',
+      crossorigin: 'anonymous',
+    },
+  ],
   baseUrlIssueBanner: true,
   themeConfig: {
     announcementBar: {
@@ -133,7 +145,7 @@ module.exports = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} FlowTorch Development Team.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Facebook, Inc. and its affiliates. All Rights Reserved.`,
     },
   },
   presets: [
@@ -144,6 +156,8 @@ module.exports = {
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl: 'https://github.com/facebookincubator/flowtorch/edit/master/website/',
           routeBasePath: '/',
+          remarkPlugins: [math],
+          rehypePlugins: [katex],
         },
         blog: false,
         theme: {
