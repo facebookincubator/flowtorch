@@ -32,26 +32,28 @@ class Compose(flowtorch.Bijector):
         self.autoregressive = all(b.autoregressive for b in self.bijectors)
         self._context_size = context_size
 
-    def __call__(self, x):
+    def __call__(self, base_dist: torch.distributions.Distribution):
         """
         Returns the distribution formed by passing dist through the bijection
         """
         # If the input is a distribution then return transformed distribution
-        if isinstance(x, torch.distributions.Distribution):
+        if isinstance(base_dist, torch.distributions.Distribution):
             # Create transformed distribution
             # TODO: Check that if bijector is autoregressive then parameters
             # are as well Possibly do this in simplex.Bijector.__init__ and
             # call from simple.bijectors.*.__init__
-            input_shape = x.batch_shape + x.event_shape
+            input_shape = base_dist.batch_shape + base_dist.event_shape
             params = self.param_fn(
-                input_shape, self.param_shapes(x), self._context_size
+                input_shape, self.param_shapes(base_dist), self._context_size
             )  # <= this is where hypernets etc. are instantiated
-            new_dist = flowtorch.distributions.TransformedDistribution(x, self, params)
+            new_dist = flowtorch.distributions.TransformedDistribution(
+                base_dist, self, params
+            )
             return new_dist, params
 
         # TODO: Handle other types of inputs such as tensors
         else:
-            raise TypeError(f"Bijector called with invalid type: {type(x)}")
+            raise TypeError(f"Bijector called with invalid type: {type(base_dist)}")
 
     def param_fn(self, input_shape, param_shapes, context_size):
         return flowtorch.param.ParamsModuleList(
@@ -94,7 +96,7 @@ class Compose(flowtorch.Bijector):
             y = y_inv
         return ldj
 
-    def param_shapes(self, dist):
+    def param_shapes(self, dist: torch.distributions.Distribution):
         """
         Given a base distribution, calculate the parameters for the transformation
         of that distribution under this bijector. By default, no parameters are
