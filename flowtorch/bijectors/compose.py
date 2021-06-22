@@ -1,7 +1,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
-from typing import Sequence, Type
+from typing import Sequence
 
 import torch
 import torch.distributions
@@ -13,9 +13,7 @@ import flowtorch.param
 
 
 class Compose(flowtorch.Bijector):
-    def __init__(
-        self, bijectors: Sequence[Type[flowtorch.Bijector]], context_size: int = 0
-    ):
+    def __init__(self, bijectors: Sequence[flowtorch.Bijector], context_size: int = 0):
         self.bijectors = bijectors
 
         # TODO: Adjust domain accordingly and check domain/codomain compatibility!
@@ -105,6 +103,6 @@ class Compose(flowtorch.Bijector):
         p_shapes = []
 
         for b in self.bijectors:
-            p_shapes.append(b.param_shapes(dist=None))  # TODO: fix None
+            p_shapes.append(b.param_shapes(dist=dist))  # TODO: fix dist
 
         return p_shapes
