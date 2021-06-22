@@ -8,15 +8,16 @@ import torch.distributions.constraints as constraints
 from torch.distributions.utils import lazy_property
 
 import flowtorch
-import flowtorch.bijectors as bijectors
+from flowtorch.bijectors.fixed import Fixed
+from flowtorch.bijectors.volume_preserving import VolumePreserving
 
 
-class Permute(bijectors.Fixed, bijectors.VolumePreserving):
+class Permute(Fixed, VolumePreserving):
     domain = constraints.real_vector
     codomain = constraints.real_vector
 
     # TODO: A new abstraction so can defer construction of permutation
-    def __init__(self, permutation=None):
+    def __init__(self, permutation: Optional[torch.Tensor] = None):
         super().__init__(param_fn=None)
 
         self.permutation = permutation

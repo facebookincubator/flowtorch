@@ -17,7 +17,11 @@ class AffineFixed(flowtorch.Bijector):
     """
 
     # TODO: Handle non-scalar loc and scale with correct broadcasting semantics
-    def __init__(self, loc, scale) -> None:
+    def __init__(
+        self,
+        loc: float,
+        scale: float,
+    ) -> None:
         super().__init__(param_fn=None)
         self.loc = loc
         self.scale = scale
