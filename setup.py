@@ -16,11 +16,7 @@ DEV_REQUIRES = TEST_REQUIRES + [
     "flake8",
     "flake8-bugbear",
     "isort",
-    "mypy",
-    "recommonmark",
-    "sphinx",
-    "sphinx-autodoc-typehints",
-    "sphinx_rtd_theme",
+    "mypy",    
 ]
 
 
@@ -82,7 +78,7 @@ setup(
     },
     packages=find_packages(
         include=["flowtorch", "flowtorch.*"],
-        exclude=["debug", "docs", "tests", "website"],
+        exclude=["debug", "tests", "website"],
     ),
     extras_require={
         "dev": DEV_REQUIRES,
