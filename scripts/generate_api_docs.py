@@ -12,122 +12,39 @@ Sphinx output with Docusaurus.
 
 """
 
-import importlib
 import os
-from inspect import isclass, isfunction
 
 import flowtorch
-
-# We don't want to include, e.g. both flowtorch.bijectors.Affine and
-# flowtorch.bijectors.affine.Affine. Hence, we specify a list of modules
-# to explicitly include in the API docs (and don't recurse on them).
-# TODO: Include flowtorch.ops and flowtorch.numerical
-include_modules = [
-    "flowtorch",
-    "flowtorch.bijectors",
-    "flowtorch.distributions",
-    "flowtorch.experimental.params",
-    "flowtorch.params",
-    "flowtorch.utils",
-]
-
-
-def ispublic(name):
-    return not name.startswith("_")
-
+from flowtorch.docs import (
+    documentable_modules,
+    generate_markdown,
+    module_hierarchy,
+    name_entity_mapping,
+)
 
 if __name__ == "__main__":
-    # Make list of modules to search and their hierarchy
-    # TODO: Ordered dictionary in alphabetical order
-    module_hierarchy = {}
-    for module in include_modules:
-        submodules = module.split(".")
-        this_dict = module_hierarchy.setdefault(submodules[0], {})
-
-        for idx in range(1, len(submodules)):
-            submodule = ".".join(submodules[0 : (idx + 1)])
-            this_dict.setdefault(submodule, {})
-            this_dict = this_dict[submodule]
-
-    # Make a list of classes and functions to document from each module
-    modules = {}
-
-    def dfs(dict):
-        for key, val in dict.items():
-            modules[key] = importlib.import_module(key)
-            dfs(val)
-
-    dfs(module_hierarchy)
-
-    # Build mapping from module to list of APIable entities inside
-    module_items = {
-        m.__name__: list(
-            sorted(
-                [
-                    n
-                    for n in dir(m)
-                    if ispublic(n)
-                    and (isclass(getattr(m, n)) or isfunction(getattr(m, n)))
-                ]
-            )
-        )
-        for m in modules.values()
-    }
-
-    # Build list of APIable entities relevant info to build markdown
-    # Add overview for entire API
-    item = {
-        "id": "overview",
-        "sidebar_label": "Overview",
-        "slug": "/api",
-        "ref": None,
-        "filename": "../website/docs/api/overview.mdx",
-    }
-    api_items = [item]
-
-    for m in modules.values():
-        # Add main page for a module
-        item = {
-            "id": m.__name__,
-            "sidebar_label": "Overview",
-            "slug": f"/api/{m.__name__}",
-            "ref": m,
-            "filename": f"../website/docs/api/{m.__name__}.mdx",
-        }
-        api_items.append(item)
-
-        # Add pages for items inside module
-        api_items.extend(
-            [
-                {
-                    "id": f"{m.__name__}.{n}",
-                    "sidebar_label": n,
-                    "slug": f"/api/{m.__name__}.{n}",
-                    "ref": getattr(m, n),
-                    "filename": f"../website/docs/api/{m.__name__}.{n}.mdx",
-                }
-                for n in dir(m)
-                if ispublic(n) and (isclass(getattr(m, n)) or isfunction(getattr(m, n)))
-            ]
-        )
-
     # Build sidebar JSON based on module hierarchy and save to 'website/api.sidebar.js'
-    all_sidebar_items = ["api/overview"]
+    all_sidebar_items = []
+
+    documentable_module_names = {m.__name__: v for m, v in documentable_modules.items()}
 
     def module_sidebar(mod_name, items):
         return f"{{\n  type: 'category',\n  label: '{mod_name}',\n  \
 collapsed: {'false' if mod_name in module_hierarchy.keys() else 'true'},\
   items: [{', '.join(items)}],\n}}"
 
-    def dfs2(dict):
+    def dfs(dict):
         sidebar_items = []
         for key, val in dict.items():
-            items = [f'"api/{key}"'] + [
-                f'"api/{key}.{item}"' for item in module_items[key]
-            ]
+            items = (
+                [f'"api/{key}"']
+                + [f'"api/{key}.{item[0]}"' for item in documentable_module_names[key]]
+                if len(documentable_module_names[key]) > 0
+                else []
+            )
 
             if val != {}:
-                items.extend(dfs2(val))
+                items.extend(dfs(val))
 
             sidebar_items.append(module_sidebar(key, items))
 
@@ -138,20 +55,14 @@ collapsed: {'false' if mod_name in module_hierarchy.keys() else 'true'},\
         os.path.join(flowtorch.__path__[0], "../website/api.sidebar.js"), "w"
     ) as file:
         print("module.exports = [\n'api/overview',", file=file)
-        print(",".join(dfs2(module_hierarchy)), file=file)
+        print(",".join(dfs(module_hierarchy)), file=file)
         print("];", file=file)
 
-    # TODO: Unit test for API items that are indistinguishable by case
+    # Generate markdown files for documentable entities
+    name_entity_mapping = name_entity_mapping.copy()
+    name_entity_mapping[""] = None
+    for name, entity in name_entity_mapping.items():
+        filename, markdown = generate_markdown(name, entity)
 
-    # Save stubs
-    # TODO: Method that inputs an object, extracts signature/docstring,
-    # and formats as markdown
-    # TODO: Method that build index markdown for overview files
-    for item in api_items:
-        header = f"""---
-id: {item['id']}
-sidebar_label: {item['sidebar_label']}
-slug: {item['slug']}
----"""
-        with open(os.path.join(flowtorch.__path__[0], item["filename"]), "w") as file:
-            print(header, file=file)
+        with open(os.path.join(flowtorch.__path__[0], filename), "w") as file:
+            print(markdown, file=file)

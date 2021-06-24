@@ -4,8 +4,13 @@
 import importlib
 from collections import OrderedDict
 from functools import lru_cache
-from inspect import isclass, isfunction
+from inspect import isclass, isfunction, ismodule
 from typing import Any, Dict, Sequence
+
+# We don't want to include, e.g. both flowtorch.bijectors.Affine and
+# flowtorch.bijectors.affine.Affine. Hence, we specify a list of modules
+# to explicitly include in the API docs (and don't recurse on them).
+# TODO: Include flowtorch.ops and flowtorch.numerical
 
 include_modules = [
     "flowtorch",
@@ -95,12 +100,49 @@ def _module_hierarchy():
     return results
 
 
+def generate_markdown(name, entity):
+    """
+    TODO: Method that inputs an object, extracts signature/docstring,
+    and formats as markdown
+    TODO: Method that build index markdown for overview files
+    The overview for the entire API is a special case
+    """
+
+    if name == "":
+        header = """---
+id: overview
+sidebar_label: "Overview"
+slug: "/api"
+---"""
+        filename = "../website/docs/api/overview.mdx"
+        return filename, header
+
+    # Regular modules/functions
+    item = {
+        "id": name,
+        "sidebar_label": "Overview" if ismodule(entity) else name.split(".")[-1],
+        "slug": f"/api/{name}",
+        "ref": entity,
+        "filename": f"../website/docs/api/{name}.mdx",
+    }
+
+    header = f"""---
+id: {item['id']}
+sidebar_label: {item['sidebar_label']}
+slug: {item['slug']}
+---"""
+
+    markdown = header
+    return item["filename"], markdown
+
+
 module_hierarchy = _module_hierarchy()
 documentable_modules = _documentable_modules()
 sorted_entity_names, name_entity_mapping = _documentable_entities()
 
 __all__ = [
     "documentable_modules",
+    "generate_markdown",
     "module_hierarchy",
     "name_entity_mapping",
     "sorted_entity_names",
