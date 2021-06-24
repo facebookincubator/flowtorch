@@ -6,11 +6,11 @@ import torch.distributions
 from torch.distributions import constraints
 from torch.distributions.utils import _sum_rightmost
 
-import flowtorch
-import flowtorch.param
+import flowtorch.params
+from flowtorch.bijectors.base import Bijector
 
 
-class Compose(flowtorch.Bijector):
+class Compose(Bijector):
     def __init__(self, bijectors, context_size=0):
         self.bijectors = bijectors
 
@@ -50,7 +50,7 @@ class Compose(flowtorch.Bijector):
             raise TypeError(f"Bijector called with invalid type: {type(x)}")
 
     def param_fn(self, input_shape, param_shapes, context_size):
-        return flowtorch.param.ParamsModuleList(
+        return flowtorch.params.ParamsModuleList(
             [
                 b.param_fn(input_shape, pshape, context_size)
                 for b, pshape in zip(self.bijectors, param_shapes)

@@ -6,10 +6,11 @@ from typing import Optional
 import torch
 import torch.distributions.constraints as constraints
 
-import flowtorch
+import flowtorch.params
+from flowtorch.bijectors.base import Bijector
 
 
-class Exp(flowtorch.Bijector):
+class Exp(Bijector):
     r"""
     Elementwise bijector via the mapping :math:`y = \exp(x)`.
     """
@@ -18,7 +19,7 @@ class Exp(flowtorch.Bijector):
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional[flowtorch.ParamsModule] = None,
+        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return x.exp()
@@ -26,7 +27,7 @@ class Exp(flowtorch.Bijector):
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional[flowtorch.ParamsModule] = None,
+        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return y.log()
@@ -35,7 +36,7 @@ class Exp(flowtorch.Bijector):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[flowtorch.ParamsModule] = None,
+        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return x

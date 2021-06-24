@@ -7,11 +7,12 @@ import torch
 import torch.distributions.constraints as constraints
 import torch.nn.functional as F
 
-import flowtorch
+import flowtorch.params
 import flowtorch.utils as utils
+from flowtorch.bijectors.base import Bijector
 
 
-class ELU(flowtorch.Bijector):
+class ELU(Bijector):
     codomain = constraints.greater_than(-1.0)
 
     # TODO: Setting the alpha value of ELU as __init__ argument
@@ -19,7 +20,7 @@ class ELU(flowtorch.Bijector):
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional[flowtorch.ParamsModule] = None,
+        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return F.elu(x)
@@ -27,7 +28,7 @@ class ELU(flowtorch.Bijector):
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional[flowtorch.ParamsModule] = None,
+        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return torch.max(y, torch.zeros_like(y)) + torch.min(
@@ -38,7 +39,7 @@ class ELU(flowtorch.Bijector):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[flowtorch.ParamsModule] = None,
+        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return -F.relu(-x)

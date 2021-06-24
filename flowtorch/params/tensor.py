@@ -6,7 +6,7 @@ from typing import Any, Dict, Sequence, Tuple
 import torch
 import torch.nn as nn
 
-import flowtorch
+from flowtorch.params.base import Params
 
 
 class ParameterModule(nn.Module):
@@ -18,7 +18,7 @@ class ParameterModule(nn.Module):
         self.parameters = nn.Parameter(torch.randn(shape) * 0.001)
 
 
-class Tensor(flowtorch.Params):
+class Tensor(Params):
 
     # TODO: Initialization strategies and constraints!
     def _build(

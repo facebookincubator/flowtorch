@@ -5,6 +5,7 @@
 # automatically
 from flowtorch.bijectors.affine_autoregressive import AffineAutoregressive
 from flowtorch.bijectors.affine_fixed import AffineFixed
+from flowtorch.bijectors.base import Bijector
 from flowtorch.bijectors.compose import Compose
 from flowtorch.bijectors.elu import ELU
 from flowtorch.bijectors.exp import Exp
@@ -19,6 +20,7 @@ from flowtorch.bijectors.volume_preserving import VolumePreserving
 __all__ = [
     "AffineAutoregressive",
     "AffineFixed",
+    "Bijector",
     "Compose",
     "ELU",
     "Exp",

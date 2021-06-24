@@ -5,15 +5,16 @@ from typing import Optional, Sequence
 import torch
 import torch.distributions
 
-import flowtorch
 import flowtorch.distributions
+import flowtorch.params
+from flowtorch.bijectors.base import Bijector
 
 
-class Fixed(flowtorch.Bijector):
+class Fixed(Bijector):
     def forward(
         self,
         x: torch.Tensor,
-        params: Optional["flowtorch.ParamsModule"],
+        params: Optional["flowtorch.params.ParamsModule"],
         context: torch.Tensor,
     ) -> torch.Tensor:
         assert context.shape == (self._context_size,)
@@ -23,7 +24,7 @@ class Fixed(flowtorch.Bijector):
     def inverse(
         self,
         y: torch.Tensor,
-        params: Optional["flowtorch.ParamsModule"],
+        params: Optional["flowtorch.params.ParamsModule"],
         context: torch.Tensor,
     ) -> torch.Tensor:
         assert context.shape == (self._context_size,)
@@ -34,7 +35,7 @@ class Fixed(flowtorch.Bijector):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional["flowtorch.ParamsModule"],
+        params: Optional["flowtorch.params.ParamsModule"],
         context: torch.Tensor,
     ) -> torch.Tensor:
         """

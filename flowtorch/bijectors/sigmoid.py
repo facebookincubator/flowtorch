@@ -7,17 +7,18 @@ import torch
 import torch.distributions.constraints as constraints
 import torch.nn.functional as F
 
-import flowtorch
+import flowtorch.params
+from flowtorch.bijectors.base import Bijector
 from flowtorch.utils import clipped_sigmoid
 
 
-class Sigmoid(flowtorch.Bijector):
+class Sigmoid(Bijector):
     codomain = constraints.unit_interval
 
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional[flowtorch.ParamsModule] = None,
+        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return clipped_sigmoid(x)
@@ -25,7 +26,7 @@ class Sigmoid(flowtorch.Bijector):
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional[flowtorch.ParamsModule] = None,
+        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         finfo = torch.finfo(y.dtype)
@@ -36,7 +37,7 @@ class Sigmoid(flowtorch.Bijector):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[flowtorch.ParamsModule] = None,
+        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return -F.softplus(-x) - F.softplus(x)

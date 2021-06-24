@@ -7,11 +7,12 @@ import torch
 import torch.distributions.constraints as constraints
 from torch.distributions.utils import lazy_property
 
-import flowtorch
-import flowtorch.bijectors as bijectors
+import flowtorch.params
+from flowtorch.bijectors.fixed import Fixed
+from flowtorch.bijectors.volume_preserving import VolumePreserving
 
 
-class Permute(bijectors.Fixed, bijectors.VolumePreserving):
+class Permute(Fixed, VolumePreserving):
     domain = constraints.real_vector
     codomain = constraints.real_vector
 
@@ -24,7 +25,7 @@ class Permute(bijectors.Fixed, bijectors.VolumePreserving):
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional[flowtorch.ParamsModule] = None,
+        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         if self.permutation is None:
@@ -35,7 +36,7 @@ class Permute(bijectors.Fixed, bijectors.VolumePreserving):
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional[flowtorch.ParamsModule] = None,
+        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         if self.permutation is None:

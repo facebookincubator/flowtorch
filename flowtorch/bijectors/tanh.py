@@ -8,10 +8,11 @@ import torch
 import torch.distributions.constraints as constraints
 import torch.nn.functional as F
 
-import flowtorch
+import flowtorch.params
+from flowtorch.bijectors.base import Bijector
 
 
-class Tanh(flowtorch.Bijector):
+class Tanh(Bijector):
     r"""
     Transform via the mapping :math:`y = \tanh(x)`.
     """
@@ -20,7 +21,7 @@ class Tanh(flowtorch.Bijector):
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional[flowtorch.ParamsModule] = None,
+        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return x.tanh()
@@ -28,7 +29,7 @@ class Tanh(flowtorch.Bijector):
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional[flowtorch.ParamsModule] = None,
+        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return torch.atanh(y)
@@ -37,7 +38,7 @@ class Tanh(flowtorch.Bijector):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[flowtorch.ParamsModule] = None,
+        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return 2.0 * (math.log(2.0) - x - F.softplus(-2.0 * x))
