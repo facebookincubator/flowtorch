@@ -5,11 +5,10 @@ from typing import Optional, Sequence
 
 import torch
 
-import flowtorch
-from flowtorch.param import ParamsModule
+from flowtorch.params.base import Params, ParamsModule
 
 
-class Empty(flowtorch.Params):
+class Empty(Params):
     def __call__(
         self,
         input_shape: torch.Size,

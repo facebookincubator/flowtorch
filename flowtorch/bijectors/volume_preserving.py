@@ -5,16 +5,17 @@ from typing import Optional
 import torch
 import torch.distributions
 
-import flowtorch
 import flowtorch.distributions
+import flowtorch.params
+from flowtorch.bijectors.base import Bijector
 
 
-class VolumePreserving(flowtorch.Bijector):
+class VolumePreserving(Bijector):
     def _log_abs_det_jacobian(
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[flowtorch.ParamsModule] = None,
+        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         # TODO: Confirm that this should involve `x`/`self.domain` and not

@@ -2,14 +2,17 @@
 # SPDX-License-Identifier: MIT
 
 import weakref
-from typing import Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 import torch
 import torch.distributions as dist
 from torch import Tensor
 from torch.distributions.utils import _sum_rightmost
 
-import flowtorch
+from flowtorch.params.base import ParamsModule
+
+if TYPE_CHECKING:
+    from flowtorch.bijectors.base import Bijector
 
 
 class TransformedDistribution(dist.Distribution):
@@ -19,8 +22,8 @@ class TransformedDistribution(dist.Distribution):
     def __init__(
         self,
         base_distribution: dist.Distribution,
-        bijector: "flowtorch.Bijector",
-        params: Optional["flowtorch.ParamsModule"],
+        bijector: "Bijector",
+        params: Optional[ParamsModule],
         validate_args: Any = None,
     ) -> None:
         self.base_dist = base_distribution

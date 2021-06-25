@@ -6,10 +6,11 @@ from typing import Optional
 
 import torch
 
-import flowtorch
+import flowtorch.params
+from flowtorch.bijectors.base import Bijector
 
 
-class AffineFixed(flowtorch.Bijector):
+class AffineFixed(Bijector):
     r"""
     Elementwise bijector via the affine mapping :math:`\mathbf{y} = \mu +
     \sigma \otimes \mathbf{x}` where $\mu$ and $\sigma$ are fixed rather than
@@ -25,7 +26,7 @@ class AffineFixed(flowtorch.Bijector):
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional[flowtorch.ParamsModule] = None,
+        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return self.loc + self.scale * x
@@ -33,7 +34,7 @@ class AffineFixed(flowtorch.Bijector):
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional[flowtorch.ParamsModule] = None,
+        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return (y - self.loc) / self.scale
@@ -42,7 +43,7 @@ class AffineFixed(flowtorch.Bijector):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[flowtorch.ParamsModule] = None,
+        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return torch.full_like(x, math.log(abs(self.scale)))

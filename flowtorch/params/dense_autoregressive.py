@@ -8,7 +8,7 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-import flowtorch
+from flowtorch.params.base import Params
 
 
 def sample_mask_indices(
@@ -122,7 +122,7 @@ class MaskedLinear(nn.Linear):
 
 
 # TODO: API for a conditional version of this?
-class DenseAutoregressive(flowtorch.Params):
+class DenseAutoregressive(Params):
     autoregressive = True
 
     def __init__(
