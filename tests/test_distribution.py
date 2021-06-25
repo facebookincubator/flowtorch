@@ -1,15 +1,14 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
+import flowtorch.bijectors
+import flowtorch.params
 import scipy.stats
 import torch
 import torch.distributions as dist
 import torch.optim
 from torch.distributions import constraints
 from torch.distributions.utils import _standard_normal
-
-import flowtorch.bijectors
-import flowtorch.params
 
 
 class NealsFunnel(dist.Distribution):

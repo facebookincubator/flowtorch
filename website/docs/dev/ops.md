@@ -16,7 +16,7 @@ The definition of the steps performed in the build workflow is found [here](http
 1. The version of Python (3.6, 3.7, or 3.8) is installed along with the developer dependencies of FlowTorch;
 ```bash
 python -m pip install --upgrade pip
-python -m pip install flake8 black isort pytest mypy
+python -m pip install flake8 black usort pytest mypy
 pip install numpy
 pip install --pre torch torchvision torchaudio -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
 pip install -e .[dev]
@@ -29,9 +29,9 @@ Currently, FlowTorch requires the nightly build of PyTorch since it depends on f
 ```bash
 black --check flowtorch tests
 ```
-3. Likewise, the order and formatting of Python `import` statements in the same folders is checked to ensure it follows a standard using [`isort`](https://pycqa.github.io/isort/);
+3. Likewise, the order and formatting of Python `import` statements in the same folders is checked to ensure it follows a standard using [`usort`](https://usort.readthedocs.io/en/stable/);
 ```bash
-isort --check flowtorch tests
+usort flowtorch tests
 ```
 4. A [static code analysis](https://en.wikipedia.org/wiki/Static_program_analysis), or rather, linting, is performed by [`flake8`](https://flake8.pycqa.org/en/latest/) to find potential bugs;
 ```bash
@@ -93,12 +93,12 @@ Currently, the Sphinx output is not integrated with the [Docusaurus v2 website](
 Having ensured the tests and docs are correct, run the following commands to standardize your code's formatting:
 ```bash
 black flowtorch tests
-isort flowtorch tests
+usort flowtorch tests
 ```
 Now, run these commands in check mode to ensure there are no errors:
 ```bash
 black --check flowtorch tests
-isort --check flowtorch tests
+usort --check flowtorch tests
 ```
 It is possible you may need to fix some errors by hand.
 

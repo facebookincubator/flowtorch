@@ -33,9 +33,9 @@ jobs:
     - name: Check formatting with black
       run: |
         black --check flowtorch tests scripts
-    - name: Check imports with isort
+    - name: Check imports with usort
       run: |
-        isort --check flowtorch tests scripts
+        usort check flowtorch tests scripts
     - name: Lint with flake8
       run: |
         flake8 . --count --show-source --statistics

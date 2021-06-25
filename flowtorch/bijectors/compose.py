@@ -1,13 +1,12 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
+import flowtorch.params
 import torch
 import torch.distributions
+from flowtorch.bijectors.base import Bijector
 from torch.distributions import constraints
 from torch.distributions.utils import _sum_rightmost
-
-import flowtorch.params
-from flowtorch.bijectors.base import Bijector
 
 
 class Compose(Bijector):

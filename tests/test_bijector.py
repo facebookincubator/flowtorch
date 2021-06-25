@@ -1,13 +1,12 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
-import torch
-import torch.distributions as dist
-import torch.optim
-
 import flowtorch
 import flowtorch.bijectors
 import flowtorch.params
+import torch
+import torch.distributions as dist
+import torch.optim
 
 
 def test_bijector_constructor():

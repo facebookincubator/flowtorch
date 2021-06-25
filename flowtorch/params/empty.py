@@ -4,7 +4,6 @@
 from typing import Optional, Sequence
 
 import torch
-
 from flowtorch.params.base import Params, ParamsModule
 
 

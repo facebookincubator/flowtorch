@@ -3,13 +3,12 @@
 
 from typing import Optional
 
+import flowtorch.params
 import torch
 import torch.distributions.constraints as constraints
-from torch.distributions.utils import lazy_property
-
-import flowtorch.params
 from flowtorch.bijectors.fixed import Fixed
 from flowtorch.bijectors.volume_preserving import VolumePreserving
+from torch.distributions.utils import lazy_property
 
 
 class Permute(Fixed, VolumePreserving):

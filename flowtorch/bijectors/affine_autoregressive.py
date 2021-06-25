@@ -3,10 +3,9 @@
 
 from typing import Optional, Tuple
 
+import flowtorch.params
 import torch
 import torch.distributions.constraints as constraints
-
-import flowtorch.params
 from flowtorch.bijectors.base import Bijector
 from flowtorch.utils import clamp_preserve_gradients
 
