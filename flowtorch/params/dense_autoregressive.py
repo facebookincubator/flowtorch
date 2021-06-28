@@ -6,9 +6,8 @@ from typing import Any, Dict, Optional, Sequence, Tuple
 
 import torch
 import torch.nn as nn
-from torch.nn import functional as F
-
 from flowtorch.params.base import Params
+from torch.nn import functional as F
 
 
 def sample_mask_indices(

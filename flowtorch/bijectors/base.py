@@ -3,12 +3,11 @@
 import weakref
 from typing import Optional, Sequence, Tuple, Union, cast
 
+import flowtorch.distributions
+import flowtorch.params
 import torch
 import torch.distributions
 from torch.distributions import constraints
-
-import flowtorch.distributions
-import flowtorch.params
 
 
 class Bijector(object):

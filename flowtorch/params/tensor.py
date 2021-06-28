@@ -5,7 +5,6 @@ from typing import Any, Dict, Sequence, Tuple
 
 import torch
 import torch.nn as nn
-
 from flowtorch.params.base import Params
 
 

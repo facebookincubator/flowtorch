@@ -6,10 +6,9 @@ from typing import TYPE_CHECKING, Any, Dict, Optional
 
 import torch
 import torch.distributions as dist
+from flowtorch.params.base import ParamsModule
 from torch import Tensor
 from torch.distributions.utils import _sum_rightmost
-
-from flowtorch.params.base import ParamsModule
 
 if TYPE_CHECKING:
     from flowtorch.bijectors.base import Bijector

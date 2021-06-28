@@ -3,10 +3,9 @@
 
 from typing import Any, Dict, Sequence, Tuple
 
+import flowtorch.params as params
 import torch
 import torch.nn as nn
-
-import flowtorch.params as params
 
 
 class DenseAutoregressive(params.DenseAutoregressive):

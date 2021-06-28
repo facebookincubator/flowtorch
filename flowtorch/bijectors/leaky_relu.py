@@ -4,10 +4,9 @@
 import math
 from typing import Optional
 
+import flowtorch.params
 import torch
 import torch.nn.functional as F
-
-import flowtorch.params
 from flowtorch.bijectors.base import Bijector
 
 
