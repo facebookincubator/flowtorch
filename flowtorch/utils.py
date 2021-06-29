@@ -8,9 +8,8 @@ import pkgutil
 from functools import partial
 from typing import Sequence, Tuple
 
-import torch
-
 import flowtorch
+import torch
 
 
 def isderivedclass(cls, base_cls):
