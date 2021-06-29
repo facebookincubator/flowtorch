@@ -26,7 +26,7 @@ module.exports = [
 }, {
   type: 'category',
   label: 'flowtorch.utils',
-  collapsed: true,  items: ["api/flowtorch.utils", "api/flowtorch.utils.InterfaceError", "api/flowtorch.utils.clamp_preserve_gradients", "api/flowtorch.utils.clipped_sigmoid"],
+  collapsed: true,  items: ["api/flowtorch.utils", "api/flowtorch.utils.InterfaceError", "api/flowtorch.ops.clamp_preserve_gradients", "api/flowtorch.ops.clipped_sigmoid"],
 }],
 }
 ];
