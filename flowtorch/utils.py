@@ -9,21 +9,20 @@ from functools import partial
 from typing import Sequence, Tuple
 
 import flowtorch
-import torch
+from flowtorch.bijectors.base import Bijector
+from flowtorch.params.base import Params
 
 
 def isderivedclass(cls, base_cls):
     return inspect.isclass(cls) and issubclass(cls, base_cls)
 
 
-def list_bijectors() -> Sequence[Tuple[str, flowtorch.Bijector]]:
-    return _walk_packages(
-        "bijectors", partial(isderivedclass, base_cls=flowtorch.Bijector)
-    )
+def list_bijectors() -> Sequence[Tuple[str, Bijector]]:
+    return _walk_packages("bijectors", partial(isderivedclass, base_cls=Bijector))
 
 
-def list_params() -> Sequence[Tuple[str, flowtorch.Params]]:
-    return _walk_packages("params", partial(isderivedclass, base_cls=flowtorch.Params))
+def list_params() -> Sequence[Tuple[str, Params]]:
+    return _walk_packages("params", partial(isderivedclass, base_cls=Params))
 
 
 def _walk_packages(modname, filter):
@@ -63,14 +62,3 @@ eps = 1e-8
 
 class InterfaceError(Exception):
     pass
-
-
-def clamp_preserve_gradients(x: torch.Tensor, min: float, max: float) -> torch.Tensor:
-    # This helper function clamps gradients but still passes through the
-    # gradient in clamped regions
-    return x + (x.clamp(min, max) - x).detach()
-
-
-def clipped_sigmoid(x: torch.Tensor) -> torch.Tensor:
-    finfo = torch.finfo(x.dtype)
-    return torch.clamp(torch.sigmoid(x), min=finfo.tiny, max=1.0 - finfo.eps)

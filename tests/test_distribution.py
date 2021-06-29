@@ -61,8 +61,8 @@ def test_neals_funnel_vi():
         dist.Independent(dist.Normal(torch.zeros(2), torch.ones(2)), 1)
     )
     opt = torch.optim.Adam(params.parameters(), lr=1e-3)
-    num_elbo_mc_samples = 100
-    for _ in range(400):
+    num_elbo_mc_samples = 10
+    for _ in range(100):
         z0 = tdist.base_dist.rsample(sample_shape=(num_elbo_mc_samples,))
         zk = flow._forward(z0, params, context=torch.empty(0))
         ldj = flow._log_abs_det_jacobian(z0, zk, params, context=torch.empty(0))
@@ -106,7 +106,7 @@ def test_conditional_2gmm():
 
     opt = torch.optim.Adam(params_module.parameters(), lr=1e-3)
 
-    for idx in range(101):
+    for idx in range(100):
         opt.zero_grad()
 
         if idx % 2 == 0:
@@ -117,7 +117,7 @@ def test_conditional_2gmm():
             context = -1 * torch.ones(context_size)
 
         marginal = new_cond_dist.condition(context)
-        y = marginal.rsample((100,))
+        y = marginal.rsample((50,))
         loss = -target_dist.log_prob(y) + marginal.log_prob(y)
         loss = loss.mean()
 

@@ -7,7 +7,7 @@ import flowtorch.params
 import torch
 import torch.distributions.constraints as constraints
 from flowtorch.bijectors.base import Bijector
-from flowtorch.utils import clamp_preserve_gradients
+from flowtorch.ops import clamp_preserve_gradients
 
 
 class AffineAutoregressive(Bijector):
