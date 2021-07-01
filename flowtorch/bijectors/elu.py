@@ -4,11 +4,11 @@
 from typing import Optional
 
 import flowtorch.params
-import flowtorch.utils as utils
 import torch
 import torch.distributions.constraints as constraints
 import torch.nn.functional as F
 from flowtorch.bijectors.base import Bijector
+from flowtorch.ops import eps
 
 
 class ELU(Bijector):
@@ -31,7 +31,7 @@ class ELU(Bijector):
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return torch.max(y, torch.zeros_like(y)) + torch.min(
-            torch.log1p(y + utils.eps), torch.zeros_like(y)
+            torch.log1p(y + eps), torch.zeros_like(y)
         )
 
     def _log_abs_det_jacobian(

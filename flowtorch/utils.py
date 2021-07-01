@@ -57,8 +57,5 @@ def _walk_packages(modname, filter):
     return classes
 
 
-eps = 1e-8
-
-
 class InterfaceError(Exception):
     pass
