@@ -215,13 +215,13 @@ class DenseAutoregressive(Params):
                 hidden_dims[0],
                 self.masks[0],
             ),
-            torch.nn.PReLU(num_parameters=hidden_dims[0], init=1.0),
+            torch.nn.ReLU(),
         ]
         for i in range(1, len(hidden_dims)):
             layers.extend(
                 [
                     MaskedLinear(hidden_dims[i - 1], hidden_dims[i], self.masks[i]),
-                    torch.nn.PReLU(num_parameters=hidden_dims[i], init=1.0),
+                    torch.nn.ReLU(),
                 ]
             )
         layers.append(
@@ -247,13 +247,16 @@ class DenseAutoregressive(Params):
     def _forward(
         self,
         x: torch.Tensor,
-        context: torch.Tensor,
+        context: Optional[torch.Tensor],
         modules: nn.ModuleList,
     ) -> Sequence[torch.Tensor]:
         # TODO: Flatten x. This will fail when len(input_shape) > 0
         # TODO: Get this working again when using skip_layers!
         # NOTE: this assumes x is a 2-tensor (batch_size, event_size)
-        h = torch.cat([context.expand((x.shape[0], -1)), x], dim=-1)
+        if context is not None:
+            h = torch.cat([context.expand((x.shape[0], -1)), x], dim=-1)
+        else:
+            h = x
 
         for idx in range(len(modules) // 2):
             h = modules[2 * idx + 1](modules[2 * idx](h))

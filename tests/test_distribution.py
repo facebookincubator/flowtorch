@@ -11,6 +11,7 @@ from torch.distributions import constraints
 from torch.distributions.utils import _standard_normal
 
 
+# TODO: Move to flowtorch.distributions
 class NealsFunnel(dist.Distribution):
     """
     Neal's funnel.

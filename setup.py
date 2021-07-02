@@ -10,7 +10,7 @@ REQUIRED_MAJOR = 3
 REQUIRED_MINOR = 6
 
 
-TEST_REQUIRES = ["pytest", "pytest-cov", "scipy"]
+TEST_REQUIRES = ["numpy", "pytest", "pytest-cov", "scipy"]
 DEV_REQUIRES = TEST_REQUIRES + [
     "black",
     "flake8",

@@ -1,7 +1,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
-from typing import Any, Dict, Sequence, Tuple
+from typing import Any, Dict, Optional, Sequence, Tuple
 
 import torch
 import torch.nn as nn
@@ -32,7 +32,7 @@ class Tensor(Params):
     def _forward(
         self,
         x: torch.Tensor,
-        context: torch.Tensor,
+        context: Optional[torch.Tensor],
         modules: nn.ModuleList,
     ) -> Sequence[torch.Tensor]:
         return [p.parameters for p in modules]

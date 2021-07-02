@@ -19,7 +19,9 @@ class Bijector(object):
     event_dim: int
 
     def __init__(
-        self, param_fn: Optional["flowtorch.params.Params"], context_size: int = 0
+        self,
+        param_fn: Optional["flowtorch.params.Params"] = None,
+        context_size: int = 0,
     ) -> None:
         super().__init__()
         self.param_fn = param_fn
@@ -63,16 +65,16 @@ class Bijector(object):
         self,
         x: torch.Tensor,
         params: Optional["flowtorch.params.ParamsModule"],
-        context: torch.Tensor,
+        context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        assert context.shape == (self._context_size,)
+        assert context is None or context.shape == (self._context_size,)
         return self._forward(x, params, context)
 
     def _forward(
         self,
         x: torch.Tensor,
         params: Optional["flowtorch.params.ParamsModule"],
-        context: torch.Tensor,
+        context: Optional[torch.Tensor],
     ) -> torch.Tensor:
         """
         Abstract method to compute forward transformation.
@@ -83,16 +85,16 @@ class Bijector(object):
         self,
         y: torch.Tensor,
         params: Optional["flowtorch.params.ParamsModule"],
-        context: torch.Tensor,
+        context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        assert context.shape == (self._context_size,)
+        assert context is None or context.shape == (self._context_size,)
         return self._inverse(y, params, context)
 
     def _inverse(
         self,
         y: torch.Tensor,
         params: Optional["flowtorch.params.ParamsModule"],
-        context: torch.Tensor,
+        context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
         Abstract method to compute inverse transformation.
@@ -104,7 +106,7 @@ class Bijector(object):
         x: torch.Tensor,
         y: torch.Tensor,
         params: Optional["flowtorch.params.ParamsModule"],
-        context: torch.Tensor,
+        context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.
@@ -117,7 +119,7 @@ class Bijector(object):
         x: torch.Tensor,
         y: torch.Tensor,
         params: Optional["flowtorch.params.ParamsModule"],
-        context: torch.Tensor,
+        context: Optional[torch.Tensor],
     ) -> torch.Tensor:
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.
@@ -147,6 +149,20 @@ class Bijector(object):
 
     def __repr__(self) -> str:
         return self.__class__.__name__ + "()"
+
+    def forward_shape(self, shape):
+        """
+        Infers the shape of the forward computation, given the input shape.
+        Defaults to preserving shape.
+        """
+        return shape
+
+    def inverse_shape(self, shape):
+        """
+        Infers the shapes of the inverse computation, given the output shape.
+        Defaults to preserving shape.
+        """
+        return shape
 
 
 class _InverseBijector(Bijector):
@@ -178,7 +194,7 @@ class _InverseBijector(Bijector):
         self,
         x: torch.Tensor,
         params: Optional["flowtorch.params.ParamsModule"],
-        context: torch.Tensor,
+        context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return self._inv.inverse(x, params, context)
 
@@ -186,7 +202,7 @@ class _InverseBijector(Bijector):
         self,
         y: torch.Tensor,
         params: Optional["flowtorch.params.ParamsModule"],
-        context: torch.Tensor,
+        context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return self._inv.forward(y, params, context)
 
@@ -195,7 +211,7 @@ class _InverseBijector(Bijector):
         x: torch.Tensor,
         y: torch.Tensor,
         params: Optional["flowtorch.params.ParamsModule"],
-        context: torch.Tensor,
+        context: Optional[torch.Tensor],
     ) -> torch.Tensor:
         return -self._inv.log_abs_det_jacobian(y, x, params, context)
 
@@ -203,3 +219,9 @@ class _InverseBijector(Bijector):
         self, dist: torch.distributions.Distribution
     ) -> Sequence[torch.Size]:
         return self._inv.param_shapes(dist)
+
+    def forward_shape(self, shape):
+        return self._inv.inverse_shape(shape)
+
+    def inverse_shape(self, shape):
+        return self._inv.forward_shape(shape)
