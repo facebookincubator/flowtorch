@@ -74,7 +74,7 @@ class Bijector(object):
         self,
         x: torch.Tensor,
         params: Optional["flowtorch.params.ParamsModule"],
-        context: Optional[torch.Tensor],
+        context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
         Abstract method to compute forward transformation.
@@ -119,7 +119,7 @@ class Bijector(object):
         x: torch.Tensor,
         y: torch.Tensor,
         params: Optional["flowtorch.params.ParamsModule"],
-        context: Optional[torch.Tensor],
+        context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.
@@ -211,7 +211,7 @@ class _InverseBijector(Bijector):
         x: torch.Tensor,
         y: torch.Tensor,
         params: Optional["flowtorch.params.ParamsModule"],
-        context: Optional[torch.Tensor],
+        context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return -self._inv.log_abs_det_jacobian(y, x, params, context)
 
