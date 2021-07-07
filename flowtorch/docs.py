@@ -39,22 +39,20 @@ def _documentable_modules() -> Dict[Any, Sequence[Any]]:
     def dfs(dict):
         for key, val in dict.items():
             module = importlib.import_module(key)
-            entities = list(
-                [
-                    (n, getattr(module, n))
-                    for n in sorted(
-                        [
-                            n
-                            for n in dir(module)
-                            if ispublic(n)
-                            and (
-                                isclass(getattr(module, n))
-                                or isfunction(getattr(module, n))
-                            )
-                        ]
-                    )
-                ]
-            )
+            entities = [
+                (n, getattr(module, n))
+                for n in sorted(
+                    [
+                        n
+                        for n in dir(module)
+                        if ispublic(n)
+                        and (
+                            isclass(getattr(module, n))
+                            or isfunction(getattr(module, n))
+                        )
+                    ]
+                )
+            ]
             results[module] = entities
 
             dfs(val)
@@ -80,7 +78,7 @@ def _documentable_entities():
             qualified_name = f"{module.__name__}.{name}"
             name_entity_mapping[qualified_name] = entity
 
-    sorted_entity_names = list(sorted(name_entity_mapping.keys()))
+    sorted_entity_names = sorted(name_entity_mapping.keys())
     return sorted_entity_names, name_entity_mapping
 
 

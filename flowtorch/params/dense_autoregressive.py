@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 import warnings
-from typing import Any, Dict, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, Optional, Sequence, Tuple
 
 import torch
 import torch.nn as nn
@@ -120,14 +120,13 @@ class MaskedLinear(nn.Linear):
         return F.linear(_input, masked_weight, self.bias)
 
 
-# TODO: API for a conditional version of this?
 class DenseAutoregressive(Params):
     autoregressive = True
 
     def __init__(
         self,
         hidden_dims: Sequence[int] = (256, 256),
-        nonlinearity: nn.Module = nn.ReLU(),  # noqa: B008
+        nonlinearity: Callable[[], nn.Module] = nn.ReLU,
         permutation: Optional[torch.LongTensor] = None,
         skip_connections: bool = False,
     ) -> None:
@@ -215,13 +214,13 @@ class DenseAutoregressive(Params):
                 hidden_dims[0],
                 self.masks[0],
             ),
-            torch.nn.ReLU(),
+            self.nonlinearity(),
         ]
         for i in range(1, len(hidden_dims)):
             layers.extend(
                 [
                     MaskedLinear(hidden_dims[i - 1], hidden_dims[i], self.masks[i]),
-                    torch.nn.ReLU(),
+                    self.nonlinearity(),
                 ]
             )
         layers.append(

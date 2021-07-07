@@ -84,7 +84,7 @@ class TestBijectors:
         # Have to permute elements for MADE
         count_vars = len(idxs[0])
         if hasattr(params, "permutation"):
-            inv_permutation = np.zeros(count_vars, dtype=np.int)
+            inv_permutation = np.zeros(count_vars, dtype=int)
             inv_permutation[params.permutation] = np.arange(count_vars)
 
         # TODO: Vectorize numerical calculation of Jacobian with PyTorch
