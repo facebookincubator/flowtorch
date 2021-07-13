@@ -3,13 +3,13 @@
 
 from typing import Optional
 
+import flowtorch.params
 import torch
 import torch.distributions.constraints as constraints
+from flowtorch.bijectors.base import Bijector
 
-import flowtorch
 
-
-class Power(flowtorch.Bijector):
+class Power(Bijector):
     r"""
     Elementwise bijector via the mapping :math:`y = x^{\text{exponent}}`.
     """
@@ -27,7 +27,7 @@ class Power(flowtorch.Bijector):
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional[flowtorch.ParamsModule] = None,
+        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return x.pow(self.exponent)
@@ -35,7 +35,7 @@ class Power(flowtorch.Bijector):
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional[flowtorch.ParamsModule] = None,
+        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return y.pow(1 / self.exponent)
@@ -44,7 +44,7 @@ class Power(flowtorch.Bijector):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[flowtorch.ParamsModule] = None,
+        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return (self.exponent * y / x).abs().log()

@@ -2,13 +2,12 @@
 # SPDX-License-Identifier: MIT
 
 import warnings
-from typing import Any, Dict, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, Optional, Sequence, Tuple
 
 import torch
 import torch.nn as nn
+from flowtorch.params.base import Params
 from torch.nn import functional as F
-
-import flowtorch
 
 
 def sample_mask_indices(
@@ -121,14 +120,13 @@ class MaskedLinear(nn.Linear):
         return F.linear(_input, masked_weight, self.bias)
 
 
-# TODO: API for a conditional version of this?
-class DenseAutoregressive(flowtorch.Params):
+class DenseAutoregressive(Params):
     autoregressive = True
 
     def __init__(
         self,
         hidden_dims: Sequence[int] = (256, 256),
-        nonlinearity: nn.Module = nn.ReLU(),  # noqa: B008
+        nonlinearity: Callable[[], nn.Module] = nn.ReLU,
         permutation: Optional[torch.LongTensor] = None,
         skip_connections: bool = False,
     ) -> None:
@@ -216,13 +214,13 @@ class DenseAutoregressive(flowtorch.Params):
                 hidden_dims[0],
                 self.masks[0],
             ),
-            torch.nn.PReLU(num_parameters=hidden_dims[0], init=1.0),
+            self.nonlinearity(),
         ]
         for i in range(1, len(hidden_dims)):
             layers.extend(
                 [
                     MaskedLinear(hidden_dims[i - 1], hidden_dims[i], self.masks[i]),
-                    torch.nn.PReLU(num_parameters=hidden_dims[i], init=1.0),
+                    self.nonlinearity(),
                 ]
             )
         layers.append(
@@ -248,13 +246,16 @@ class DenseAutoregressive(flowtorch.Params):
     def _forward(
         self,
         x: torch.Tensor,
-        context: torch.Tensor,
+        context: Optional[torch.Tensor],
         modules: nn.ModuleList,
     ) -> Sequence[torch.Tensor]:
         # TODO: Flatten x. This will fail when len(input_shape) > 0
         # TODO: Get this working again when using skip_layers!
         # NOTE: this assumes x is a 2-tensor (batch_size, event_size)
-        h = torch.cat([context.expand((x.shape[0], -1)), x], dim=-1)
+        if context is not None:
+            h = torch.cat([context.expand((x.shape[0], -1)), x], dim=-1)
+        else:
+            h = x
 
         for idx in range(len(modules) // 2):
             h = modules[2 * idx + 1](modules[2 * idx](h))

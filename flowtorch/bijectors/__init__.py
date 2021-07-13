@@ -9,6 +9,7 @@ from flowtorch import Bijector
 # TODO: Autogenerate this from script!
 from flowtorch.bijectors.affine_autoregressive import AffineAutoregressive
 from flowtorch.bijectors.affine_fixed import AffineFixed
+from flowtorch.bijectors.base import Bijector
 from flowtorch.bijectors.compose import Compose
 from flowtorch.bijectors.elu import ELU
 from flowtorch.bijectors.exp import Exp
@@ -25,6 +26,7 @@ from flowtorch.bijectors.volume_preserving import VolumePreserving
 # are not used directly by the user, or are used to operate on other bijectors.
 # We have to write special units tests for these.
 meta_bijectors: List[Tuple[str, Type[Bijector]]] = [
+    ("Bijector", Bijector),
     ("Compose", Compose),
     ("Fixed", Fixed),
     ("VolumePreserving", VolumePreserving),
@@ -59,6 +61,26 @@ standard_bijectors: List[Tuple[str, Type[Bijector]]] = [
     ("Tanh", Tanh),
 ]
 
-__all__ = ["standard_bijectors", "meta_bijectors"] + [
+# Determine invertible bijectors
+invertible_bijectors = []
+for bij_name, cls in standard_bijectors:
+    # TODO: Use factored out version of the following
+    # Define plan for flow
+    bij = cls()
+    event_dim = max(bij.domain.event_dim, 1)
+    event_shape = event_dim * [4]
+    base_dist = dist.Normal(torch.zeros(event_shape), torch.ones(event_shape))
+    _, params = bij(base_dist)
+
+    try:
+        y = torch.randn(*bij.forward_shape(event_shape))
+        bij.inverse(y, params)
+    except NotImplementedError:
+        pass
+    else:
+        invertible_bijectors.append((bij_name, cls))
+
+
+__all__ = ["standard_bijectors", "meta_bijectors", "invertible_bijectors"] + [
     cls for cls, _ in meta_bijectors + standard_bijectors
 ]

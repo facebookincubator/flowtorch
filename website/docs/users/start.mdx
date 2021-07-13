@@ -87,7 +87,7 @@ We can visualize samples from the base and target:
 <img src="/img/bivariate-normal-frame-0.svg" />
 </p>
 
-A Normalizing Flow is created in two steps. First, we create a "plan" for the flow as a `flowtorch.Bijector` object,
+A Normalizing Flow is created in two steps. First, we create a "plan" for the flow as a `flowtorch.bijectors.Bijector` object,
 ```python
 # Lazily instantiated flow
 flow = bijectors.AffineAutoregressive()
@@ -108,7 +108,7 @@ for idx in range(501):
     loss = -new_dist.log_prob(y).mean()
     if idx % 100 == 0:
         print('epoch', idx, 'loss', loss)
-        
+
     loss.backward()
     opt.step()
 ```

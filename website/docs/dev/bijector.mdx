@@ -8,7 +8,7 @@ sidebar_label: Bijector Interface
 A class satisfying the "Bijector interface" contains the following elements.
 
 ### Parent class
-A bijector must inherit from [`flowtorch.Bijector`](https://github.com/facebookincubator/flowtorch/blob/master/flowtorch/bijector.py). This class defines important methods that are common to all bijectors such as `.inv` for defining an equivalent bijector swapping the forward and inverse operations. In the future, this parent class will be responsible for implementing [caching](/users/caching).
+A bijector must inherit from [`flowtorch.bijectors.Bijector`](https://github.com/facebookincubator/flowtorch/blob/master/flowtorch/bijectors/base.py). This class defines important methods that are common to all bijectors such as `.inv` for defining an equivalent bijector swapping the forward and inverse operations. In the future, this parent class will be responsible for implementing [caching](/users/caching).
 
 ### Domain and Codomain
 `self.domain` and `self.codomain` are values of type `torch.distributions.constraint` and specify the range of valid inputs and outputs that a bijector acts upon, as well as the dimensionality of both. FlowTorch does not validate the values of the inputs or outputs using this information - it is mainly intended to be useful for users as documentation.
@@ -26,24 +26,24 @@ Further metadata about a bijector is defined in these properties:
 Again, this metadata can be represented by *class properties* and *instance properties* depending on the context. For instance, a bijector may not be volume preserving by default and have a special volume preserving version that is enabled by a flag passed to `__init__`.
 
 :::info
-Further metadata fields may be defined in the future. However, developers are not permitted to define their own without adding a default value to [`flowtorch.Bijector`](https://github.com/facebookincubator/flowtorch/blob/master/flowtorch/bijector.py).
+Further metadata fields may be defined in the future. However, developers are not permitted to define their own without adding a default value to [`flowtorch.bijectors.Bijector`](https://github.com/facebookincubator/flowtorch/blob/master/flowtorch/bijectors/base.py).
 :::
 
 ### Class Methods
-Class methods define initialization of the bijector, the forward ($y=f(x)$) and inverse ($x=f^{-1}(y)$) operators, the log absolute determinant Jacobian ($\log(|\det(dy/dx)|)$), and methods that define the shapes of $f$, $f^{-1}$, and its parameters. All methods are optional save for `._forward` and `._inverse` - the defaults for the others are the same as those of the identity operation (see [`flowtorch.Bijector`](https://github.com/facebookincubator/flowtorch/blob/master/flowtorch/bijector.py)).
+Class methods define initialization of the bijector, the forward ($y=f(x)$) and inverse ($x=f^{-1}(y)$) operators, the log absolute determinant Jacobian ($\log(|\det(dy/dx)|)$), and methods that define the shapes of $f$, $f^{-1}$, and its parameters. All methods are optional save for `._forward` and `._inverse` - the defaults for the others are the same as those of the identity operation (see [`flowtorch.bijectors.Bijector`](https://github.com/facebookincubator/flowtorch/blob/master/flowtorch/bijectors/base.py)).
 
-#### `.__init__(self, param_fn: flowtorch.Params, *, **kwargs)`
-This optional method initializes a bijector, taking a `flowtorch.Params` object and an arbitrary number of keyword arguments specific to the bijector. It must call the parent initializer, passing the value of `param_fn`, that is, `super().__init__(param_fn=param_fn)`. Typically, the initializer is used to store parameters of the bijector and sometimes modify its metadata. 
+#### `.__init__(self, param_fn: flowtorch.params.Params, *, **kwargs)`
+This optional method initializes a bijector, taking a `flowtorch.params.Params` object and an arbitrary number of keyword arguments specific to the bijector. It must call the parent initializer, passing the value of `param_fn`, that is, `super().__init__(param_fn=param_fn)`. Typically, the initializer is used to store parameters of the bijector and sometimes modify its metadata.
 
 *`__init__` must have sensible default values for all its arguments so that one can instantiate a bijector with, for example, `b = MyBijector()`.* This design allows both easy creation and testing of bijectors.
 
-#### `._forward(self, x: torch.Tensor, params: Optional[flowtorch.ParamsModule])`
-#### `._inverse(self, y: torch.Tensor, params: Optional[flowtorch.ParamsModule])`
+#### `._forward(self, x: torch.Tensor, params: Optional[flowtorch.params.ParamsModule])`
+#### `._inverse(self, y: torch.Tensor, params: Optional[flowtorch.params.ParamsModule])`
 These methods defines the forward, $y=f_\theta(x)$, and inverse, $x=f^{-1}_\theta(y)$, operations of a bijector, respectively.
 
 By convention, when a bijector has either a forward or inverse operation that does not have an explicit formula or that is intractable, the forward operation will be defined by the tractable operation and the inverse will be left undefined (and you can obtain the inverted bijector with `.inv`). [Caching](/users/caching) is useful in these circumstances to apply the intractable operation to inputs that have previously been used with the bijector.
 
-#### `._log_abs_det_jacobian(self, x: torch.Tensor, y: torch.Tensor, params: Optional[flowtorch.ParamsModule])`
+#### `._log_abs_det_jacobian(self, x: torch.Tensor, y: torch.Tensor, params: Optional[flowtorch.params.ParamsModule])`
 This methods defines the log absolute determinant Jacobian, $\log(|\det(dy/dx)|)$, that determines how the functional form of the bijector warps an infinitesimally small volume of space. Since it may be easier to calculate this using one of either $x$ or $y$, both are given as arguments - it is up to the caller to ensure that $y=f(x)$.
 
 If this method is undefined, it will default to a tensor of zeros, that is, the quantity in question for a volume preserving bijector.

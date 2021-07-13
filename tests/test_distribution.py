@@ -1,6 +1,8 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
+import flowtorch.bijectors
+import flowtorch.params
 import scipy.stats
 import torch
 import torch.distributions as dist
@@ -8,10 +10,8 @@ import torch.optim
 from torch.distributions import constraints
 from torch.distributions.utils import _standard_normal
 
-import flowtorch.bijectors
-import flowtorch.params
 
-
+# TODO: Move to flowtorch.distributions
 class NealsFunnel(dist.Distribution):
     """
     Neal's funnel.
@@ -61,12 +61,12 @@ def test_neals_funnel_vi():
     tdist, params = flow(
         dist.Independent(dist.Normal(torch.zeros(2), torch.ones(2)), 1)
     )
-    opt = torch.optim.Adam(params.parameters(), lr=1e-3)
-    num_elbo_mc_samples = 100
-    for _ in range(400):
+    opt = torch.optim.Adam(params.parameters(), lr=2e-3)
+    num_elbo_mc_samples = 200
+    for _ in range(100):
         z0 = tdist.base_dist.rsample(sample_shape=(num_elbo_mc_samples,))
-        zk = flow._forward(z0, params, context=torch.empty(0))
-        ldj = flow._log_abs_det_jacobian(z0, zk, params, context=torch.empty(0))
+        zk = flow._forward(z0, params)
+        ldj = flow._log_abs_det_jacobian(z0, zk, params)
 
         neg_elbo = -nf.log_prob(zk).sum()
         neg_elbo += tdist.base_dist.log_prob(z0).sum() - ldj.sum()
@@ -107,7 +107,7 @@ def test_conditional_2gmm():
 
     opt = torch.optim.Adam(params_module.parameters(), lr=1e-3)
 
-    for idx in range(101):
+    for idx in range(100):
         opt.zero_grad()
 
         if idx % 2 == 0:
@@ -118,7 +118,7 @@ def test_conditional_2gmm():
             context = -1 * torch.ones(context_size)
 
         marginal = new_cond_dist.condition(context)
-        y = marginal.rsample((100,))
+        y = marginal.rsample((50,))
         loss = -target_dist.log_prob(y) + marginal.log_prob(y)
         loss = loss.mean()
 

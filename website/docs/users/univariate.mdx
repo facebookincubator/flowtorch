@@ -69,7 +69,7 @@ A variety of bijective transformations live in the `flowtorch.bijectors` module,
 dist_x = dist.Normal(torch.zeros(2), torch.ones(2))
 flow = bijectors.Exp()
 ```
-The class `bijectors.Exp` derives from `flowtorch.Bijector` and defines the forward, inverse, and log-absolute-derivative operations for this transform,
+The class `bijectors.Exp` derives from `flowtorch.bijectors.Bijector` and defines the forward, inverse, and log-absolute-derivative operations for this transform,
 
 $$
 \begin{aligned}
@@ -153,13 +153,13 @@ plt.show()
 
 ```python
 plt.subplot(1, 2, 1)
-sns.distplot(X[:,0], hist=False, kde=True, 
+sns.distplot(X[:,0], hist=False, kde=True,
              bins=None,
              hist_kws={'edgecolor':'black'},
              kde_kws={'linewidth': 2})
 plt.title(r'$p(x_1)$')
 plt.subplot(1, 2, 2)
-sns.distplot(X[:,1], hist=False, kde=True, 
+sns.distplot(X[:,1], hist=False, kde=True,
              bins=None,
              hist_kws={'edgecolor':'black'},
              kde_kws={'linewidth': 2})

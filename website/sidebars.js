@@ -1,3 +1,5 @@
+var apiSideBar = require('./api.sidebar.js');
+
 module.exports = {
   usersSidebar: {
     "Getting Started": ['users/introduction', 'users/installation', 'users/start'],
@@ -10,7 +12,5 @@ module.exports = {
     "Extending the Library": ['dev/overview', 'dev/ops', 'dev/bijector', 'dev/params', 'dev/docs', 'dev/tests'],
     "Resources": ['dev/bibliography'],
   },
-  apiSidebar: {
-    "flowtorch": ['api/overview', 'api/flowtorch.bijectors'],
-  },
+  apiSidebar: apiSideBar,
 };

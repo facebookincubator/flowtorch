@@ -1,19 +1,16 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
-from typing import Sequence
-
+import flowtorch.params
 import torch
 import torch.distributions
+from flowtorch.bijectors.base import Bijector
 from torch.distributions import constraints
 from torch.distributions.utils import _sum_rightmost
 
-import flowtorch
-import flowtorch.param
 
-
-class Compose(flowtorch.Bijector):
-    def __init__(self, bijectors: Sequence[flowtorch.Bijector], context_size: int = 0):
+class Compose(Bijector):
+    def __init__(self, bijectors, context_size=0):
         self.bijectors = bijectors
 
         # TODO: Adjust domain accordingly and check domain/codomain compatibility!
@@ -54,7 +51,7 @@ class Compose(flowtorch.Bijector):
             raise TypeError(f"Bijector called with invalid type: {type(base_dist)}")
 
     def param_fn(self, input_shape, param_shapes, context_size):
-        return flowtorch.param.ParamsModuleList(
+        return flowtorch.params.ParamsModuleList(
             [
                 b.param_fn(input_shape, pshape, context_size)
                 for b, pshape in zip(self.bijectors, param_shapes)

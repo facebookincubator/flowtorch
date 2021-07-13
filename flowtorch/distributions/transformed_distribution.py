@@ -2,14 +2,16 @@
 # SPDX-License-Identifier: MIT
 
 import weakref
-from typing import Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 import torch
 import torch.distributions as dist
+from flowtorch.params.base import ParamsModule
 from torch import Tensor
 from torch.distributions.utils import _sum_rightmost
 
-import flowtorch
+if TYPE_CHECKING:
+    from flowtorch.bijectors.base import Bijector
 
 
 class TransformedDistribution(dist.Distribution):
@@ -19,14 +21,20 @@ class TransformedDistribution(dist.Distribution):
     def __init__(
         self,
         base_distribution: dist.Distribution,
-        bijector: "flowtorch.Bijector",
-        params: Optional["flowtorch.ParamsModule"],
+        bijector: "Bijector",
+        params: Optional[ParamsModule],
         validate_args: Any = None,
     ) -> None:
         self.base_dist = base_distribution
-        self._context = torch.empty(0)
+        self._context = None
 
-        self.params = weakref.ref(params)
+        if params is not None:
+            self._params: Optional[weakref.ReferenceType[ParamsModule]] = weakref.ref(
+                params
+            )
+        else:
+            self._params = None
+
         self.bijector = bijector
 
         shape = self.base_dist.batch_shape + self.base_dist.event_shape
@@ -34,6 +42,14 @@ class TransformedDistribution(dist.Distribution):
         batch_shape = shape[: len(shape) - event_dim]
         event_shape = shape[len(shape) - event_dim :]
         super().__init__(batch_shape, event_shape, validate_args=validate_args)
+
+    @property
+    def params(self):
+        if self._params is not None:
+            # De-reference weak reference
+            return self._params()
+        else:
+            return None
 
     def condition(self, context):
         self._context = context
@@ -54,7 +70,7 @@ class TransformedDistribution(dist.Distribution):
             context = self._context
         with torch.no_grad():
             x = self.base_dist.sample(sample_shape)
-            x = self.bijector.forward(x, self.params(), context)
+            x = self.bijector.forward(x, self.params, context)
             return x
 
     def rsample(
@@ -71,7 +87,7 @@ class TransformedDistribution(dist.Distribution):
         if context is None:
             context = self._context
         x = self.base_dist.rsample(sample_shape)
-        x = self.bijector.forward(x, self.params(), context)
+        x = self.bijector.forward(x, self.params, context)
         return x
 
     def log_prob(
@@ -85,9 +101,9 @@ class TransformedDistribution(dist.Distribution):
             context = self._context
         event_dim = len(self.event_shape)
 
-        x = self.bijector.inverse(y, self.params(), context)
+        x = self.bijector.inverse(y, self.params, context)
         log_prob = -_sum_rightmost(
-            self.bijector.log_abs_det_jacobian(x, y, self.params(), context),
+            self.bijector.log_abs_det_jacobian(x, y, self.params, context),
             event_dim - self.bijector.domain.event_dim,
         )
         log_prob = log_prob + _sum_rightmost(
