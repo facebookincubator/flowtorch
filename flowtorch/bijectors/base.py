@@ -4,13 +4,13 @@ import weakref
 from typing import Optional, Sequence, Tuple, Union, cast
 
 import flowtorch.distributions
-import flowtorch.params
 import torch
 import torch.distributions
+from flowtorch.params.base import Params, ParamsModule, ParamsModuleList
 from torch.distributions import constraints
 
 
-class Bijector(object):
+class Bijector:
     _inv: Optional[Union[weakref.ReferenceType, "Bijector"]]
     codomain: constraints.Constraint = constraints.real
     domain: constraints.Constraint = constraints.real
@@ -20,7 +20,7 @@ class Bijector(object):
 
     def __init__(
         self,
-        param_fn: Optional["flowtorch.params.Params"] = None,
+        param_fn: Optional[Params] = None,
         context_size: int = 0,
     ) -> None:
         super().__init__()
@@ -34,7 +34,7 @@ class Bijector(object):
         self, base_dist: torch.distributions.Distribution
     ) -> Tuple[
         flowtorch.distributions.TransformedDistribution,
-        Optional["flowtorch.params.ParamsModule"],
+        Optional[Union[ParamsModule, ParamsModuleList]],
     ]:
         """
         Returns the distribution formed by passing dist through the bijection
@@ -64,7 +64,7 @@ class Bijector(object):
     def forward(
         self,
         x: torch.Tensor,
-        params: Optional["flowtorch.params.ParamsModule"],
+        params: Optional[ParamsModule],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         assert context is None or context.shape == (self._context_size,)
@@ -73,7 +73,7 @@ class Bijector(object):
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional["flowtorch.params.ParamsModule"],
+        params: Optional[ParamsModule],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
@@ -84,7 +84,7 @@ class Bijector(object):
     def inverse(
         self,
         y: torch.Tensor,
-        params: Optional["flowtorch.params.ParamsModule"],
+        params: Optional[ParamsModule],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         assert context is None or context.shape == (self._context_size,)
@@ -93,7 +93,7 @@ class Bijector(object):
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional["flowtorch.params.ParamsModule"],
+        params: Optional[ParamsModule],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
@@ -105,7 +105,7 @@ class Bijector(object):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional["flowtorch.params.ParamsModule"],
+        params: Optional[ParamsModule],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
@@ -118,7 +118,7 @@ class Bijector(object):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional["flowtorch.params.ParamsModule"],
+        params: Optional[ParamsModule],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
@@ -150,14 +150,14 @@ class Bijector(object):
     def __repr__(self) -> str:
         return self.__class__.__name__ + "()"
 
-    def forward_shape(self, shape):
+    def forward_shape(self, shape: Sequence[int]) -> Sequence[int]:
         """
         Infers the shape of the forward computation, given the input shape.
         Defaults to preserving shape.
         """
         return shape
 
-    def inverse_shape(self, shape):
+    def inverse_shape(self, shape: Sequence[int]) -> Sequence[int]:
         """
         Infers the shapes of the inverse computation, given the output shape.
         Defaults to preserving shape.
@@ -181,10 +181,10 @@ class _InverseBijector(Bijector):
         self._context_size = bijector._context_size
 
     @property
-    def inv(self):
+    def inv(self) -> Bijector:
         return self._inv
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, _InverseBijector):
             return False
         assert self._inv is not None
@@ -193,7 +193,7 @@ class _InverseBijector(Bijector):
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional["flowtorch.params.ParamsModule"],
+        params: Optional[ParamsModule],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return self._inv.inverse(x, params, context)
@@ -201,7 +201,7 @@ class _InverseBijector(Bijector):
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional["flowtorch.params.ParamsModule"],
+        params: Optional[ParamsModule],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return self._inv.forward(y, params, context)
@@ -210,7 +210,7 @@ class _InverseBijector(Bijector):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional["flowtorch.params.ParamsModule"],
+        params: Optional[ParamsModule],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return -self._inv.log_abs_det_jacobian(y, x, params, context)
@@ -220,8 +220,8 @@ class _InverseBijector(Bijector):
     ) -> Sequence[torch.Size]:
         return self._inv.param_shapes(dist)
 
-    def forward_shape(self, shape):
+    def forward_shape(self, shape: Sequence[int]) -> Sequence[int]:
         return self._inv.inverse_shape(shape)
 
-    def inverse_shape(self, shape):
+    def inverse_shape(self, shape: Sequence[int]) -> Sequence[int]:
         return self._inv.forward_shape(shape)

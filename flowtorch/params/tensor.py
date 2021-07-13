@@ -12,9 +12,9 @@ class ParameterModule(nn.Module):
     # TODO: Better way of coding this, maybe reconsidering _build...
     # Thought 1: Could we do Optional[nn.ModuleList, nn.ParameterList]?
     # Thought 2: Or pass `modules` and `parameters` to `_forward`?
-    def __init__(self, shape):
+    def __init__(self, shape: Sequence[int]):
         super().__init__()
-        self.parameters = nn.Parameter(torch.randn(shape) * 0.001)
+        self.__parameters = nn.Parameter(torch.randn(*shape) * 0.001)
 
 
 class Tensor(Params):
@@ -35,4 +35,4 @@ class Tensor(Params):
         context: Optional[torch.Tensor],
         modules: nn.ModuleList,
     ) -> Sequence[torch.Tensor]:
-        return [p.parameters for p in modules]
+        return [p.__parameters for p in modules]

@@ -1,6 +1,6 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
-from typing import Dict, Optional, Sequence, Tuple
+from typing import Dict, Optional, Sequence, Tuple, Iterator
 
 import torch
 import torch.nn as nn
@@ -21,17 +21,17 @@ class ParamsModuleList(torch.nn.Module):
     ) -> Sequence[Optional[Sequence[torch.Tensor]]]:
         return [p.forward(x, context=context) for p in self.params_modules]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Sequence["ParamsModule"]]:
         return iter(self.params_modules)
 
-    def __call__(self):
+    def __call__(self) -> nn.ModuleList:
         return self.params_modules
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.params_modules)
 
-    def __reversed__(self):
-        return reversed(self.params_modules)
+    def __reversed__(self) -> Iterator[Sequence["ParamsModule"]]:
+        return reversed(self.params_modules)  # type: ignore
 
 
 class ParamsModule(torch.nn.Module):
@@ -55,13 +55,13 @@ class ParamsModule(torch.nn.Module):
         return self.params.forward(x, modules=self.mods, context=context)
 
 
-class Params(object):
+class Params:
     """
     Deferred initialization of parameters.
     """
 
-    def __init__(self) -> None:
-        super().__init__()
+    #def __init__(self) -> None:
+    #    super().__init__()
 
     def __call__(
         self,

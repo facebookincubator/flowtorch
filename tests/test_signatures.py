@@ -3,9 +3,8 @@
 
 import inspect
 
-import pytest
-
 import flowtorch.bijectors as bijectors
+import pytest
 from flowtorch.utils import InterfaceError
 
 

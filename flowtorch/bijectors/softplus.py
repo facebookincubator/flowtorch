@@ -8,10 +8,11 @@ import torch
 import torch.distributions.constraints as constraints
 import torch.nn.functional as F
 from flowtorch.bijectors.base import Bijector
+from torch import Tensor
 
 
 # TODO: Move to flowtorch.ops
-def softplus_inv(y):
+def softplus_inv(y: Tensor) -> Tensor:
     return y + y.neg().expm1().neg().log()
 
 

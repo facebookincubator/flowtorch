@@ -136,7 +136,6 @@ class DenseAutoregressive(Params):
         self.permutation = permutation
         self.skip_connections = skip_connections
 
-    # Continue from here!
     def _build(
         self,
         input_shape: torch.Size,

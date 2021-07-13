@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: MIT
 
 import weakref
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 
 import torch
 import torch.distributions as dist
-from flowtorch.params.base import ParamsModule
+from flowtorch.params.base import ParamsModule, ParamsModuleList
 from torch import Tensor
 from torch.distributions.utils import _sum_rightmost
 
@@ -22,14 +22,14 @@ class TransformedDistribution(dist.Distribution):
         self,
         base_distribution: dist.Distribution,
         bijector: "Bijector",
-        params: Optional[ParamsModule],
+        params: Optional[Union[ParamsModule, ParamsModuleList]],
         validate_args: Any = None,
     ) -> None:
         self.base_dist = base_distribution
-        self._context = None
+        self._context: Optional[Tensor] = None
 
         if params is not None:
-            self._params: Optional[weakref.ReferenceType[ParamsModule]] = weakref.ref(
+            self._params: Optional[weakref.ReferenceType[Union[ParamsModule, ParamsModuleList]]] = weakref.ref(
                 params
             )
         else:
@@ -44,14 +44,14 @@ class TransformedDistribution(dist.Distribution):
         super().__init__(batch_shape, event_shape, validate_args=validate_args)
 
     @property
-    def params(self):
+    def params(self) -> Optional[Union[ParamsModule, ParamsModuleList]]:
         if self._params is not None:
             # De-reference weak reference
             return self._params()
         else:
             return None
 
-    def condition(self, context):
+    def condition(self, context: Tensor) -> "TransformedDistribution":
         self._context = context
         return self
 

@@ -2,9 +2,10 @@
 # SPDX-License-Identifier: MIT
 
 import inspect
-from typing import List, Tuple, Type
+from typing import Any, List, Tuple, Type
 
-from flowtorch import Bijector
+import torch
+import torch.distributions as dist
 
 # TODO: Autogenerate this from script!
 from flowtorch.bijectors.affine_autoregressive import AffineAutoregressive
@@ -33,12 +34,12 @@ meta_bijectors: List[Tuple[str, Type[Bijector]]] = [
 ]
 
 
-def isbijector(cls):
+def isbijector(cls: Any) -> bool:
     # A class must inherit from flowtorch.Bijector to be considered a valid bijector
     return issubclass(cls, Bijector)
 
 
-def standard_bijector(cls):
+def standard_bijector(cls: Any) -> bool:
     # "Standard bijectors" are the ones we can perform standard automated tests upon
     return (
         inspect.isclass(cls)
