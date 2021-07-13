@@ -16,17 +16,21 @@ any working directory.
 
 """
 
+import errno
 import os
 
 import flowtorch
-from flowtorch.docs import (
-    documentable_modules,
-    generate_markdown,
-    module_hierarchy,
-    name_entity_mapping,
-)
+from flowtorch.docs import (documentable_modules, generate_markdown,
+                            module_hierarchy, name_entity_mapping)
 
 if __name__ == "__main__":
+    # Create website/docs/api if doesn't exist
+    try:
+        os.makedirs(os.path.join(flowtorch.__path__[0], "../website/docs/api"))
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            raise
+
     # Build sidebar JSON based on module hierarchy and save to 'website/api.sidebar.js'
     all_sidebar_items = []
 
