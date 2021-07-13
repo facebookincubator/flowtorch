@@ -3,11 +3,12 @@
 
 # Production
 /build
-/docs/api
 
 # Generated files
 .docusaurus
 .cache-loader
+/docs/api
+api.sidebar.js
 
 # Misc
 .DS_Store

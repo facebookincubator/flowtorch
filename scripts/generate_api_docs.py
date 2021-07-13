@@ -10,6 +10,10 @@ We have chosen to take this approach to integrate our API documentation
 with Docusaurus because there is no pre-existing robust solution to use
 Sphinx output with Docusaurus.
 
+This script will be run by the "documentation" GitHub workflow on pushes
+and pull requests to the master branch. It will function corrrectly from
+any working directory.
+
 """
 
 import os
