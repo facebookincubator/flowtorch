@@ -20,8 +20,12 @@ import errno
 import os
 
 import flowtorch
-from flowtorch.docs import (documentable_modules, generate_markdown,
-                            module_hierarchy, name_entity_mapping)
+from flowtorch.docs import (
+    documentable_modules,
+    generate_markdown,
+    module_hierarchy,
+    name_entity_mapping,
+)
 
 if __name__ == "__main__":
     # Create website/docs/api if doesn't exist

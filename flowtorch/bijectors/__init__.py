@@ -22,7 +22,6 @@ from flowtorch.bijectors.softplus import Softplus
 from flowtorch.bijectors.tanh import Tanh
 from flowtorch.bijectors.volume_preserving import VolumePreserving
 
-
 # "Meta bijectors" are classes that descend from flowtorch.Bijector but either
 # are not used directly by the user, or are used to operate on other bijectors.
 # We have to write special units tests for these.
