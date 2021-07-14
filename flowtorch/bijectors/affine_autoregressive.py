@@ -1,9 +1,9 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
-import flowtorch.params
+from flowtorch.params.base import Params, ParamsModule, ParamsModuleList
 import torch
 import torch.distributions.constraints as constraints
 from flowtorch.bijectors.base import Bijector
@@ -17,7 +17,7 @@ class AffineAutoregressive(Bijector):
 
     def __init__(
         self,
-        param_fn: Optional[flowtorch.params.Params] = None,
+        param_fn: Optional[Params] = None,
         log_scale_min_clip: float = -5.0,
         log_scale_max_clip: float = 3.0,
         sigmoid_bias: float = 2.0,
@@ -34,10 +34,10 @@ class AffineAutoregressive(Bijector):
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule],
+        params: Optional[Union[ParamsModule, ParamsModuleList]],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        assert isinstance(params, flowtorch.params.ParamsModule)
+        assert isinstance(params, ParamsModule)
         mean, log_scale = params(x, context=context)
         log_scale = clamp_preserve_gradients(
             log_scale, self.log_scale_min_clip, self.log_scale_max_clip
@@ -49,10 +49,10 @@ class AffineAutoregressive(Bijector):
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule],
+        params: Optional[Union[ParamsModule, ParamsModuleList]],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        assert isinstance(params, flowtorch.params.ParamsModule)
+        assert isinstance(params, ParamsModule)
         x = torch.zeros_like(y)
 
         # NOTE: Inversion is an expensive operation that scales in the
@@ -75,10 +75,10 @@ class AffineAutoregressive(Bijector):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule],
+        params: Optional[Union[ParamsModule, ParamsModuleList]],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        assert isinstance(params, flowtorch.params.ParamsModule)
+        assert isinstance(params, ParamsModule)
         # Note: params will take care of caching "mean, log_scale, perm = params(x)"
         _, log_scale = params(x, context=context)
         log_scale = clamp_preserve_gradients(

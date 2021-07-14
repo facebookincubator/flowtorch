@@ -64,7 +64,7 @@ class Bijector:
     def forward(
         self,
         x: torch.Tensor,
-        params: Optional[ParamsModule],
+        params: Optional[Union[ParamsModule, ParamsModuleList]],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         assert context is None or context.shape == (self._context_size,)
@@ -73,7 +73,7 @@ class Bijector:
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional[ParamsModule],
+        params: Optional[Union[ParamsModule, ParamsModuleList]],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
@@ -84,7 +84,7 @@ class Bijector:
     def inverse(
         self,
         y: torch.Tensor,
-        params: Optional[ParamsModule],
+        params: Optional[Union[ParamsModule, ParamsModuleList]],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         assert context is None or context.shape == (self._context_size,)
@@ -93,7 +93,7 @@ class Bijector:
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional[ParamsModule],
+        params: Optional[Union[ParamsModule, ParamsModuleList]],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
@@ -105,7 +105,7 @@ class Bijector:
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[ParamsModule],
+        params: Optional[Union[ParamsModule, ParamsModuleList]],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
@@ -118,7 +118,7 @@ class Bijector:
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[ParamsModule],
+        params: Optional[Union[ParamsModule, ParamsModuleList]],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
@@ -193,7 +193,7 @@ class _InverseBijector(Bijector):
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional[ParamsModule],
+        params: Optional[Union[ParamsModule, ParamsModuleList]],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return self._inv.inverse(x, params, context)
@@ -201,7 +201,7 @@ class _InverseBijector(Bijector):
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional[ParamsModule],
+        params: Optional[Union[ParamsModule, ParamsModuleList]],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return self._inv.forward(y, params, context)
@@ -210,7 +210,7 @@ class _InverseBijector(Bijector):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[ParamsModule],
+        params: Optional[Union[ParamsModule, ParamsModuleList]],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return -self._inv.log_abs_det_jacobian(y, x, params, context)

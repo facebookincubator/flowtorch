@@ -1,9 +1,9 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
-from typing import Optional
+from typing import Optional, Union
 
-import flowtorch.params
+from flowtorch.params.base import Params, ParamsModule, ParamsModuleList
 import torch
 import torch.distributions.constraints as constraints
 from flowtorch.bijectors.fixed import Fixed
@@ -24,7 +24,7 @@ class Permute(Fixed, VolumePreserving):
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
+        params: Optional[Union[ParamsModule, ParamsModuleList]] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         if self.permutation is None:
@@ -35,7 +35,7 @@ class Permute(Fixed, VolumePreserving):
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
+        params: Optional[Union[ParamsModule, ParamsModuleList]] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         if self.permutation is None:

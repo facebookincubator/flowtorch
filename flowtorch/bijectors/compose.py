@@ -72,7 +72,7 @@ class Compose(Bijector):
     def forward(
         self,
         x: torch.Tensor,
-        params: Optional[ParamsModule] = None,
+        params: Optional[ParamsModuleList] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         assert len(params) == len(self.bijectors)
@@ -85,7 +85,7 @@ class Compose(Bijector):
     def inverse(
         self,
         y: torch.Tensor,
-        params: Optional[ParamsModule] = None,
+        params: Optional[ParamsModuleList] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         assert len(params) == len(self.bijectors)
@@ -99,7 +99,7 @@ class Compose(Bijector):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[ParamsModule] = None,
+        params: Optional[ParamsModuleList] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """

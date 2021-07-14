@@ -1,9 +1,9 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
-from typing import Optional
+from typing import Optional, Union
 
-import flowtorch.params
+from flowtorch.params.base import Params, ParamsModule, ParamsModuleList
 import torch
 import torch.distributions.constraints as constraints
 import torch.nn.functional as F
@@ -25,7 +25,7 @@ class Softplus(Bijector):
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
+        params: Optional[Union[ParamsModule, ParamsModuleList]] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return F.softplus(x)
@@ -33,7 +33,7 @@ class Softplus(Bijector):
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
+        params: Optional[Union[ParamsModule, ParamsModuleList]] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return softplus_inv(y)
@@ -42,7 +42,7 @@ class Softplus(Bijector):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
+        params: Optional[Union[ParamsModule, ParamsModuleList]] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return -F.softplus(-x)

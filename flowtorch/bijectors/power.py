@@ -1,9 +1,9 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
-from typing import Optional
+from typing import Optional, Union
 
-import flowtorch.params
+from flowtorch.params.base import Params, ParamsModule, ParamsModuleList
 import torch
 import torch.distributions.constraints as constraints
 from flowtorch.bijectors.base import Bijector
@@ -27,7 +27,7 @@ class Power(Bijector):
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
+        params: Optional[Union[ParamsModule, ParamsModuleList]] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return x.pow(self.exponent)
@@ -35,7 +35,7 @@ class Power(Bijector):
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
+        params: Optional[Union[ParamsModule, ParamsModuleList]] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return y.pow(1 / self.exponent)
@@ -44,7 +44,7 @@ class Power(Bijector):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
+        params: Optional[Union[ParamsModule, ParamsModuleList]] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return (self.exponent * y / x).abs().log()
