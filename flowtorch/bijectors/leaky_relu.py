@@ -16,7 +16,6 @@ class LeakyReLU(Bijector):
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return F.leaky_relu(x)
@@ -24,7 +23,6 @@ class LeakyReLU(Bijector):
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return F.leaky_relu(y, negative_slope=100.0)
@@ -33,7 +31,6 @@ class LeakyReLU(Bijector):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return torch.where(

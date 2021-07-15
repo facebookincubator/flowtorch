@@ -46,12 +46,11 @@ class Bijector(object):
                 base_dist.batch_shape + base_dist.event_shape  # pyre-ignore[16]
             )
 
-            params = self.param_fn
-            if params is not None:
-                params = params(
+            self.params = None
+            if self.param_fn is not None:
+                self.params = self.param_fn(
                     input_shape, self.param_shapes(base_dist), self._context_size
                 )  # <= this is where hypernets etc. are instantiated
-            self.params = params
             new_dist = flowtorch.distributions.TransformedDistribution(base_dist, self)
             return new_dist
 

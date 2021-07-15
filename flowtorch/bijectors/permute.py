@@ -24,7 +24,6 @@ class Permute(Fixed, VolumePreserving):
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         if self.permutation is None:
@@ -35,7 +34,6 @@ class Permute(Fixed, VolumePreserving):
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         if self.permutation is None:

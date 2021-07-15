@@ -14,7 +14,6 @@ class VolumePreserving(Bijector):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         # TODO: Confirm that this should involve `x`/`self.domain` and not

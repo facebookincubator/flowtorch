@@ -17,7 +17,6 @@ class Sigmoid(Bijector):
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return clipped_sigmoid(x)
@@ -25,7 +24,6 @@ class Sigmoid(Bijector):
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         finfo = torch.finfo(y.dtype)
@@ -36,7 +34,6 @@ class Sigmoid(Bijector):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return -F.softplus(-x) - F.softplus(x)
