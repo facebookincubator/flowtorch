@@ -21,7 +21,7 @@ class Exp(Bijector):
         params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        return x.exp()
+        return torch.exp(x)
 
     def _inverse(
         self,

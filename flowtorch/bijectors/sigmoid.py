@@ -30,7 +30,7 @@ class Sigmoid(Bijector):
     ) -> torch.Tensor:
         finfo = torch.finfo(y.dtype)
         y = y.clamp(min=finfo.tiny, max=1.0 - finfo.eps)
-        return y.log() - (-y).log1p()
+        return y.log() - torch.log1p(-y)
 
     def _log_abs_det_jacobian(
         self,

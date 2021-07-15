@@ -23,7 +23,7 @@ class Tanh(Bijector):
         params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        return x.tanh()
+        return torch.tanh(x)
 
     def _inverse(
         self,

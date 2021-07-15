@@ -47,4 +47,4 @@ class Power(Bijector):
         params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        return (self.exponent * y / x).abs().log()
+        return torch.abs(self.exponent * y / x).log()

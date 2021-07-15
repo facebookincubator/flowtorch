@@ -30,7 +30,7 @@ class Permute(Fixed, VolumePreserving):
         if self.permutation is None:
             self.permutation = torch.randperm(x.shape[-1])
 
-        return x.index_select(-1, self.permutation)
+        return torch.index_select(x, -1, self.permutation)
 
     def _inverse(
         self,
@@ -41,7 +41,7 @@ class Permute(Fixed, VolumePreserving):
         if self.permutation is None:
             self.permutation = torch.randperm(y.shape[-1])
 
-        return y.index_select(-1, self.inv_permutation)
+        return torch.index_select(y, -1, self.inv_permutation)
 
     @lazy_property
     def inv_permutation(self):

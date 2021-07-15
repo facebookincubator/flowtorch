@@ -1,5 +1,6 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
+from abc import ABC, abstractmethod
 from typing import Dict, Optional, Sequence, Tuple
 
 import torch
@@ -37,7 +38,7 @@ class ParamsModuleList(torch.nn.Module):
 class ParamsModule(torch.nn.Module):
     def __init__(
         self,
-        params: "Params",
+        params: "ParamsImpl",
         modules: Optional[nn.ModuleList] = None,
         buffers: Optional[Dict[str, torch.Tensor]] = None,
     ) -> None:
@@ -55,13 +56,10 @@ class ParamsModule(torch.nn.Module):
         return self.params.forward(x, modules=self.mods, context=context)
 
 
-class Params(object):
+class Params(ABC):
     """
     Deferred initialization of parameters.
     """
-
-    def __init__(self) -> None:
-        super().__init__()
 
     def __call__(
         self,
@@ -69,7 +67,25 @@ class Params(object):
         param_shapes: Sequence[torch.Size],
         context_dims: int,
     ) -> Optional[ParamsModule]:
-        return ParamsModule(self, *self.build(input_shape, param_shapes, context_dims))
+        return ParamsModule(*self._build(input_shape, param_shapes, context_dims))
+
+    @abstractmethod
+    def _build(
+        self,
+        input_shape: torch.Size,
+        param_shapes: Sequence[torch.Size],
+        context_dims: int,
+    ) -> Tuple["ParamsImpl", nn.ModuleList, Dict[str, torch.Tensor]]:
+        pass
+
+
+class ParamsImpl(ABC):
+    """
+    Parameter hypernet for a bijector.
+    """
+
+    input_shape: torch.Size
+    param_shapes: Sequence[torch.Size]
 
     def forward(
         self,
@@ -81,34 +97,11 @@ class Params(object):
             modules = nn.ModuleList()
         return self._forward(x, context=context, modules=modules)
 
+    @abstractmethod
     def _forward(
         self,
         x: torch.Tensor,
         context: Optional[torch.Tensor],
         modules: nn.ModuleList,
     ) -> Sequence[torch.Tensor]:
-        """
-        Abstract method to ***
-        """
-        raise NotImplementedError
-
-    def build(
-        self,
-        input_shape: torch.Size,
-        param_shapes: Sequence[torch.Size],
-        context_dims: int,
-    ) -> Tuple[nn.ModuleList, Dict[str, torch.Tensor]]:
-        self.input_shape = input_shape
-        self.param_shapes = param_shapes
-        return self._build(input_shape, param_shapes, context_dims)
-
-    def _build(
-        self,
-        input_shape: torch.Size,
-        param_shapes: Sequence[torch.Size],
-        context_dims: int,
-    ) -> Tuple[nn.ModuleList, Dict[str, torch.Tensor]]:
-        """
-        Abstract method to ***
-        """
-        raise NotImplementedError
+        pass

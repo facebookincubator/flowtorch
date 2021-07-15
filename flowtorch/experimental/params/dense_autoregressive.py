@@ -6,6 +6,7 @@ from typing import Any, Dict, Sequence, Tuple
 import flowtorch.params as params
 import torch
 import torch.nn as nn
+from flowtorch.params.dense_autoregressive import DenseAutoregressiveImpl
 
 
 class DenseAutoregressive(params.DenseAutoregressive):
@@ -14,16 +15,22 @@ class DenseAutoregressive(params.DenseAutoregressive):
         input_shape: torch.Size,
         param_shapes: Sequence[torch.Size],
         context_dims: int,
-    ) -> Tuple[nn.ModuleList, Dict[str, Any]]:
+    ) -> Tuple[DenseAutoregressiveImpl, nn.ModuleList, Dict[str, Any]]:
         # Construct network in standard way for DenseAutoregressive
-        layers, buffers = super()._build(input_shape, param_shapes, context_dims)
+        impl, layers, buffers = super()._build(input_shape, param_shapes, context_dims)
 
         # Perform experimental initialization
-        self._init_weights(layers)
+        input_dims = int(torch.sum(torch.tensor(input_shape)).int().item())
+        input_dim = input_dims + context_dims
+        self._init_weights(input_dim, layers)
 
-        return nn.ModuleList(layers), buffers
+        return (
+            impl,
+            nn.ModuleList(layers),
+            buffers,
+        )
 
-    def _init_weights(self, layers: nn.ModuleList) -> None:
+    def _init_weights(self, input_dim: int, layers: nn.ModuleList) -> None:
         """
         EXPERIMENTAL: initialize weights such that transforming a standard Normal yields
         a Normal with zero mean and variance less than one.
@@ -31,7 +38,6 @@ class DenseAutoregressive(params.DenseAutoregressive):
         NOTE: may have stability issues for reasonable (1e-3) learning rates,
         see https://github.com/stefanwebb/flowtorch/issues/43
         """
-        input_dim = self.input_dims + self.context_dims
         weight_product = torch.eye(input_dim, input_dim)
 
         for idx in range(0, len(layers), 2):

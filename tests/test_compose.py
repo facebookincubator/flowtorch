@@ -26,9 +26,9 @@ def test_compose():
 
     event_shape = (5,)
     base_dist = dist.Normal(loc=torch.zeros(event_shape), scale=torch.ones(event_shape))
-    new_dist, flow_params = flow(base_dist)
+    new_dist = flow(base_dist)
 
-    optimizer = torch.optim.Adam(flow_params.parameters())
+    optimizer = torch.optim.Adam(flow.params.parameters())
     assert optimizer.param_groups[0]["params"][0].grad is None
     new_dist.log_prob(torch.randn((100,) + event_shape)).sum().backward()
     assert optimizer.param_groups[0]["params"][0].grad.abs().sum().item() > 1e-3
