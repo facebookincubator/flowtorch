@@ -2,8 +2,6 @@
 # SPDX-License-Identifier: MIT
 from typing import Optional
 
-import flowtorch.distributions
-import flowtorch.params
 import torch
 import torch.distributions
 from flowtorch.bijectors.base import Bijector

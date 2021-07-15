@@ -4,7 +4,6 @@
 import math
 from typing import Optional
 
-import flowtorch.params
 import torch
 import torch.distributions.constraints as constraints
 import torch.nn.functional as F
