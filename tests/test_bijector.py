@@ -22,7 +22,7 @@ def flow(request):
     return flow
 
 
-def test_jacobian(flow, epsilon=1e-3):
+def test_jacobian(flow, epsilon=1e-2):
     # TODO: The following pattern to produce the standard bijector should
     # be factored out
     # Define plan for flow
@@ -100,7 +100,7 @@ def test_jacobian(flow, epsilon=1e-3):
         assert lower_sum == float(0.0)
 
 
-def test_inverse(flow, epsilon=1e-6):
+def test_inverse(flow, epsilon=1e-5):
     # Define plan for flow
     event_dim = max(flow.domain.event_dim, 1)
     event_shape = event_dim * [4]
