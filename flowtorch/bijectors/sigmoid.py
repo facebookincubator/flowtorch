@@ -3,7 +3,6 @@
 
 from typing import Optional
 
-import flowtorch.params
 import torch
 import torch.distributions.constraints as constraints
 import torch.nn.functional as F
@@ -17,7 +16,6 @@ class Sigmoid(Bijector):
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return clipped_sigmoid(x)
@@ -25,18 +23,16 @@ class Sigmoid(Bijector):
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         finfo = torch.finfo(y.dtype)
         y = y.clamp(min=finfo.tiny, max=1.0 - finfo.eps)
-        return y.log() - (-y).log1p()
+        return y.log() - torch.log1p(-y)
 
     def _log_abs_det_jacobian(
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return -F.softplus(-x) - F.softplus(x)

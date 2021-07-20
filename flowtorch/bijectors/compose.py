@@ -41,8 +41,9 @@ class Compose(Bijector):
             params = self.param_fn(
                 input_shape, self.param_shapes(x), self._context_size
             )  # <= this is where hypernets etc. are instantiated
-            new_dist = flowtorch.distributions.TransformedDistribution(x, self, params)
-            return new_dist, params
+            self.params = params
+            new_dist = flowtorch.distributions.TransformedDistribution(x, self)
+            return new_dist
 
         # TODO: Handle other types of inputs such as tensors
         else:
@@ -58,23 +59,21 @@ class Compose(Bijector):
 
     # NOTE: We overwrite forward rather than _forward so that the composed
     # bijectors can handle the caching separately!
-    def forward(self, x, params=None, context=None):
-        assert len(params) == len(self.bijectors)
-
-        for bijector, param in zip(self.bijectors, params):
-            x = bijector.forward(x, param, context)
+    def forward(self, x, context=None):
+        for bijector, param in zip(self.bijectors, self.params):
+            bijector.params = param
+            x = bijector.forward(x, context)
 
         return x
 
-    def inverse(self, y, params=None, context=None):
-        assert len(params) == len(self.bijectors)
-
-        for bijector, param in zip(reversed(self.bijectors), reversed(params)):
-            y = bijector.inverse(y, param, context)
+    def inverse(self, y, context=None):
+        for bijector, param in reversed(list(zip(self.bijectors, self.params))):
+            bijector.params = param
+            y = bijector.inverse(y, context)
 
         return y
 
-    def log_abs_det_jacobian(self, x, y, params=None, context=None):
+    def log_abs_det_jacobian(self, x, y, context=None):
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.
         By default, assumes a volume preserving bijection.
@@ -83,9 +82,10 @@ class Compose(Bijector):
             torch.zeros_like(y),
             self.domain.event_dim,
         )
-        for bijector, param in zip(reversed(self.bijectors), reversed(params)):
-            y_inv = bijector.inverse(y, param, context)
-            ldj += bijector.log_abs_det_jacobian(y_inv, y, param, context)
+        for bijector, param in reversed(list(zip(self.bijectors, self.params))):
+            bijector.params = param
+            y_inv = bijector.inverse(y, context)
+            ldj += bijector.log_abs_det_jacobian(y_inv, y, context)
             y = y_inv
         return ldj
 

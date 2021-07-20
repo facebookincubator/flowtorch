@@ -3,7 +3,6 @@
 
 from typing import Optional
 
-import flowtorch.params
 import torch
 import torch.distributions.constraints as constraints
 from flowtorch.bijectors.base import Bijector
@@ -18,15 +17,13 @@ class Exp(Bijector):
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        return x.exp()
+        return torch.exp(x)
 
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return y.log()
@@ -35,7 +32,6 @@ class Exp(Bijector):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return x

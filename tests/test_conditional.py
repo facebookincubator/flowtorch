@@ -21,7 +21,7 @@ def test_conditional_2gmm():
     ).inv()
 
     base_dist = dist.Normal(torch.zeros(2), torch.ones(2))
-    new_cond_dist, params_module = flow(base_dist)
+    new_cond_dist = flow(base_dist)
 
     target_dist_0 = dist.Independent(
         dist.Normal(torch.zeros(2) + 5, torch.ones(2) * 0.5), 1
@@ -30,7 +30,7 @@ def test_conditional_2gmm():
         dist.Normal(torch.zeros(2) - 5, torch.ones(2) * 0.5), 1
     )
 
-    opt = torch.optim.Adam(params_module.parameters(), lr=1e-3)
+    opt = torch.optim.Adam(flow.params.parameters(), lr=1e-3)
 
     for idx in range(101):
         opt.zero_grad()

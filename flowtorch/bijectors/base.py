@@ -1,41 +1,38 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 import weakref
-from typing import Optional, Sequence, Tuple, Union, cast
+from typing import Optional, Sequence, Union, cast
 
 import flowtorch.distributions
 import flowtorch.params
 import torch
 import torch.distributions
+from flowtorch.params import ParamsModule
 from torch.distributions import constraints
 
 
 class Bijector(object):
-    _inv: Optional[Union[weakref.ReferenceType, "Bijector"]]
+    _inv: Optional[Union[weakref.ReferenceType, "Bijector"]] = None
     codomain: constraints.Constraint = constraints.real
     domain: constraints.Constraint = constraints.real
-    identity_initialization: bool
-    autoregressinve: bool
-    event_dim: int
+    identity_initialization: bool = True
+    autoregressive: bool = False
+    _context_size: int
+    event_dim: int = 0
+    _params: Optional[flowtorch.params.ParamsModule] = None
 
     def __init__(
         self,
-        param_fn: Optional["flowtorch.params.Params"] = None,
+        param_fn: Optional[flowtorch.params.Params] = None,
         context_size: int = 0,
     ) -> None:
         super().__init__()
         self.param_fn = param_fn
-        self._inv = None
-        self.identity_initialization = True
-        self.autoregressive = False
         self._context_size = context_size
 
     def __call__(
         self, base_dist: torch.distributions.Distribution
-    ) -> Tuple[
-        flowtorch.distributions.TransformedDistribution,
-        Optional["flowtorch.params.ParamsModule"],
-    ]:
+    ) -> flowtorch.distributions.TransformedDistribution:
         """
         Returns the distribution formed by passing dist through the bijection
         """
@@ -45,35 +42,41 @@ class Bijector(object):
             # TODO: Check that if bijector is autoregressive then parameters are as
             # well Possibly do this in simplex.Bijector.__init__ and call from
             # simple.bijectors.*.__init__
-            input_shape = base_dist.batch_shape + base_dist.event_shape
+            input_shape = (
+                base_dist.batch_shape + base_dist.event_shape  # pyre-ignore[16]
+            )
+
+            self.params = None
             if self.param_fn is not None:
-                params = self.param_fn(
+                self.params = self.param_fn(
                     input_shape, self.param_shapes(base_dist), self._context_size
                 )  # <= this is where hypernets etc. are instantiated
-            else:
-                params = None
-            new_dist = flowtorch.distributions.TransformedDistribution(
-                base_dist, self, params
-            )
-            return new_dist, params
+            new_dist = flowtorch.distributions.TransformedDistribution(base_dist, self)
+            return new_dist
 
         # TODO: Handle other types of inputs such as tensors
         else:
             raise TypeError(f"Bijector called with invalid type: {type(base_dist)}")
 
+    @property
+    def params(self) -> Optional[ParamsModule]:
+        return self._params
+
+    @params.setter
+    def params(self, value: Optional[ParamsModule]):
+        self._params = value
+
     def forward(
         self,
         x: torch.Tensor,
-        params: Optional["flowtorch.params.ParamsModule"],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         assert context is None or context.shape == (self._context_size,)
-        return self._forward(x, params, context)
+        return self._forward(x, context)
 
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional["flowtorch.params.ParamsModule"],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
@@ -84,16 +87,14 @@ class Bijector(object):
     def inverse(
         self,
         y: torch.Tensor,
-        params: Optional["flowtorch.params.ParamsModule"],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         assert context is None or context.shape == (self._context_size,)
-        return self._inverse(y, params, context)
+        return self._inverse(y, context)
 
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional["flowtorch.params.ParamsModule"],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
@@ -105,20 +106,18 @@ class Bijector(object):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional["flowtorch.params.ParamsModule"],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.
         By default, assumes a volume preserving bijection.
         """
-        return self._log_abs_det_jacobian(x, y, params, context)
+        return self._log_abs_det_jacobian(x, y, context)
 
     def _log_abs_det_jacobian(
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional["flowtorch.params.ParamsModule"],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
@@ -184,6 +183,14 @@ class _InverseBijector(Bijector):
     def inv(self):
         return self._inv
 
+    @property
+    def params(self):
+        return self.inv.params
+
+    @params.setter
+    def params(self, value):
+        self.inv.params = value
+
     def __eq__(self, other):
         if not isinstance(other, _InverseBijector):
             return False
@@ -193,27 +200,24 @@ class _InverseBijector(Bijector):
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional["flowtorch.params.ParamsModule"],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        return self._inv.inverse(x, params, context)
+        return self._inv.inverse(x, context)
 
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional["flowtorch.params.ParamsModule"],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        return self._inv.forward(y, params, context)
+        return self._inv.forward(y, context)
 
     def _log_abs_det_jacobian(
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional["flowtorch.params.ParamsModule"],
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        return -self._inv.log_abs_det_jacobian(y, x, params, context)
+        return -self._inv.log_abs_det_jacobian(y, x, context)
 
     def param_shapes(
         self, dist: torch.distributions.Distribution

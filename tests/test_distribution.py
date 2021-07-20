@@ -11,6 +11,20 @@ from torch.distributions import constraints
 from torch.distributions.utils import _standard_normal
 
 
+def test_tdist_standalone():
+    d = 3
+
+    def make_tdist():
+        # train a flow here
+        flow = flowtorch.bijectors.AffineAutoregressive()
+        tdist = flow(dist.Normal(torch.zeros(d), torch.ones(d)))
+        return tdist
+
+    tdist = make_tdist()
+    tdist.log_prob(torch.randn(d))  # should run without error
+    assert True
+
+
 # TODO: Move to flowtorch.distributions
 class NealsFunnel(dist.Distribution):
     """
@@ -58,15 +72,13 @@ def test_neals_funnel_vi():
     flow = flowtorch.bijectors.AffineAutoregressive(
         flowtorch.params.DenseAutoregressive()
     )
-    tdist, params = flow(
-        dist.Independent(dist.Normal(torch.zeros(2), torch.ones(2)), 1)
-    )
-    opt = torch.optim.Adam(params.parameters(), lr=2e-3)
+    tdist = flow(dist.Independent(dist.Normal(torch.zeros(2), torch.ones(2)), 1))
+    opt = torch.optim.Adam(flow.params.parameters(), lr=2e-3)
     num_elbo_mc_samples = 200
     for _ in range(100):
         z0 = tdist.base_dist.rsample(sample_shape=(num_elbo_mc_samples,))
-        zk = flow._forward(z0, params)
-        ldj = flow._log_abs_det_jacobian(z0, zk, params)
+        zk = flow._forward(z0)
+        ldj = flow._log_abs_det_jacobian(z0, zk)
 
         neg_elbo = -nf.log_prob(zk).sum()
         neg_elbo += tdist.base_dist.log_prob(z0).sum() - ldj.sum()
@@ -96,7 +108,7 @@ def test_conditional_2gmm():
     ).inv()
 
     base_dist = dist.Normal(torch.zeros(2), torch.ones(2))
-    new_cond_dist, params_module = flow(base_dist)
+    new_cond_dist = flow(base_dist)
 
     target_dist_0 = dist.Independent(
         dist.Normal(torch.zeros(2) + 5, torch.ones(2) * 0.5), 1
@@ -105,7 +117,7 @@ def test_conditional_2gmm():
         dist.Normal(torch.zeros(2) - 5, torch.ones(2) * 0.5), 1
     )
 
-    opt = torch.optim.Adam(params_module.parameters(), lr=1e-3)
+    opt = torch.optim.Adam(flow.params.parameters(), lr=1e-3)
 
     for idx in range(100):
         opt.zero_grad()

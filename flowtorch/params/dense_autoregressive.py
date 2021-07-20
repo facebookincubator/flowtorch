@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, Optional, Sequence, Tuple
 
 import torch
 import torch.nn as nn
-from flowtorch.params.base import Params
+from flowtorch.params.base import Params, ParamsImpl
 from torch.nn import functional as F
 
 
@@ -121,8 +121,6 @@ class MaskedLinear(nn.Linear):
 
 
 class DenseAutoregressive(Params):
-    autoregressive = True
-
     def __init__(
         self,
         hidden_dims: Sequence[int] = (256, 256),
@@ -133,8 +131,8 @@ class DenseAutoregressive(Params):
         super().__init__()
         self.hidden_dims = hidden_dims
         self.nonlinearity = nonlinearity
-        self.permutation = permutation
         self.skip_connections = skip_connections
+        self.permutation = permutation
 
     # Continue from here!
     def _build(
@@ -142,24 +140,32 @@ class DenseAutoregressive(Params):
         input_shape: torch.Size,
         param_shapes: Sequence[torch.Size],
         context_dims: int,
-    ) -> Tuple[nn.ModuleList, Dict[str, Any]]:
-        # TODO: Implement conditional version!
-        self.context_dims = context_dims
-
+    ) -> Tuple["DenseAutoregressiveImpl", nn.ModuleList, Dict[str, Any]]:
         # Work out flattened input and output shapes
         param_shapes_ = list(param_shapes)
-        self.input_dims = int(torch.sum(torch.tensor(input_shape)).int().item())
-        if self.input_dims == 0:
-            self.input_dims = 1  # scalars represented by torch.Size([])
-        self.output_multiplier = int(
+        input_dims = int(torch.sum(torch.tensor(input_shape)).int().item())
+        if input_dims == 0:
+            input_dims = 1  # scalars represented by torch.Size([])
+        if self.permutation is None:
+            # By default set a random permutation of variables, which is
+            # important for performance with multiple steps
+            permutation = torch.LongTensor(
+                torch.randperm(input_dims, device="cpu").to(
+                    torch.LongTensor((1,)).device
+                )
+            )
+        else:
+            # The permutation is chosen by the user
+            permutation = torch.LongTensor(permutation)
+
+        output_multiplier = int(
             sum(max(torch.sum(torch.tensor(s)).item(), 1) for s in param_shapes_)
         )
-        if self.input_dims == 1:
+        if input_dims == 1:
             warnings.warn(
                 "DenseAutoregressive input_dim = 1. "
                 "Consider using an affine transformation instead."
             )
-        self.count_params = len(param_shapes_)
 
         # Calculate the indices on the output corresponding to each parameter
         ends = torch.cumsum(
@@ -169,79 +175,89 @@ class DenseAutoregressive(Params):
             dim=0,
         )
         starts = torch.cat((torch.zeros(1).type_as(ends), ends[:-1]))
-        self.param_slices = [slice(s.item(), e.item()) for s, e in zip(starts, ends)]
+        param_slices = [slice(s.item(), e.item()) for s, e in zip(starts, ends)]
 
         # Hidden dimension must be not less than the input otherwise it isn't
         # possible to connect to the outputs correctly
         for h in self.hidden_dims:
-            if h < self.input_dims:
+            if h < input_dims:
                 raise ValueError(
                     "Hidden dimension must not be less than input dimension."
                 )
-
-        if self.permutation is None:
-            # By default set a random permutation of variables, which is
-            # important for performance with multiple steps
-            self.permutation = torch.LongTensor(
-                torch.randperm(self.input_dims, device="cpu").to(
-                    torch.LongTensor().device
-                )
-            )
-        else:
-            # The permutation is chosen by the user
-            self.permutation = torch.LongTensor(self.permutation)
 
         # TODO: Check that the permutation is valid for the input dimension!
         # Implement ispermutation() that sorts permutation and checks whether it
         # has all integers from 0, 1, ..., self.input_dims - 1
 
-        buffers = {"permutation": self.permutation}
+        buffers = {"permutation": permutation}
 
         # Create masks
         hidden_dims = self.hidden_dims
-        self.masks, self.mask_skip = create_mask(
-            input_dim=self.input_dims,
-            context_dim=self.context_dims,
+        masks, mask_skip = create_mask(
+            input_dim=input_dims,
+            context_dim=context_dims,
             hidden_dims=hidden_dims,
-            permutation=self.permutation,
-            output_dim_multiplier=self.output_multiplier,
+            permutation=permutation,
+            output_dim_multiplier=output_multiplier,
         )
 
         # Create masked layers
         layers = [
             MaskedLinear(
-                self.input_dims + self.context_dims,
+                input_dims + context_dims,
                 hidden_dims[0],
-                self.masks[0],
+                masks[0],
             ),
             self.nonlinearity(),
         ]
         for i in range(1, len(hidden_dims)):
             layers.extend(
                 [
-                    MaskedLinear(hidden_dims[i - 1], hidden_dims[i], self.masks[i]),
+                    MaskedLinear(hidden_dims[i - 1], hidden_dims[i], masks[i]),
                     self.nonlinearity(),
                 ]
             )
         layers.append(
             MaskedLinear(
                 hidden_dims[-1],
-                self.input_dims * self.output_multiplier,
-                self.masks[-1],
+                input_dims * output_multiplier,
+                masks[-1],
             )
         )
 
         if self.skip_connections:
             layers.append(
                 MaskedLinear(
-                    self.input_dims + self.context_dims,
-                    self.input_dims * self.output_multiplier,
-                    self.mask_skip,
+                    input_dims + context_dims,
+                    input_dims * output_multiplier,
+                    mask_skip,
                     bias=False,
                 )
             )
 
-        return nn.ModuleList(layers), buffers
+        return (
+            DenseAutoregressiveImpl(
+                input_shape, param_shapes, param_slices, output_multiplier
+            ),
+            nn.ModuleList(layers),
+            buffers,
+        )
+
+
+class DenseAutoregressiveImpl(ParamsImpl):
+    autoregressive = True
+
+    def __init__(
+        self,
+        input_shape: torch.Size,
+        param_shapes: Sequence[torch.Size],
+        param_slices: Sequence[slice],
+        output_multiplier: int,
+    ):
+        self.input_shape = input_shape
+        self.param_shapes = param_shapes
+        self.param_slices = param_slices
+        self.output_multiplier = output_multiplier
 
     def _forward(
         self,
@@ -249,6 +265,8 @@ class DenseAutoregressive(Params):
         context: Optional[torch.Tensor],
         modules: nn.ModuleList,
     ) -> Sequence[torch.Tensor]:
+        input_dims = int(torch.sum(torch.tensor(self.input_shape)).int().item())
+
         # TODO: Flatten x. This will fail when len(input_shape) > 0
         # TODO: Get this working again when using skip_layers!
         # NOTE: this assumes x is a 2-tensor (batch_size, event_size)
@@ -267,17 +285,19 @@ class DenseAutoregressive(Params):
 
         # Shape the output
         if len(self.input_shape) == 0:
-            h = h.reshape(x.size()[:-1] + (self.output_multiplier, self.input_dims))
+            h = h.reshape(x.size()[:-1] + (self.output_multiplier, input_dims))
             result = tuple(
                 h[..., p_slice, :].reshape(
-                    torch.Size(h.shape[:-2]) + p_shape + torch.Size((1,))
+                    torch.Size(h.shape[:-2])
+                    + p_shape  # pyre-fixme[58]
+                    + torch.Size((1,))  # pyre-fixme[58]
                 )
                 for p_slice, p_shape in zip(self.param_slices, list(self.param_shapes))
             )
         else:
             h = h.reshape(
                 x.size()[: -len(self.input_shape)]
-                + (self.output_multiplier, self.input_dims)
+                + (self.output_multiplier, input_dims)
             )
             result = h.split([sl.stop - sl.start for sl in self.param_slices], dim=-2)
             result = tuple(

@@ -3,7 +3,6 @@
 
 from typing import Optional
 
-import flowtorch.params
 import torch
 import torch.distributions.constraints as constraints
 import torch.nn.functional as F
@@ -24,7 +23,6 @@ class Softplus(Bijector):
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return F.softplus(x)
@@ -32,7 +30,6 @@ class Softplus(Bijector):
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return softplus_inv(y)
@@ -41,7 +38,6 @@ class Softplus(Bijector):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return -F.softplus(-x)

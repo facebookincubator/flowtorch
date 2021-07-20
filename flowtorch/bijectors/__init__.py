@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 import inspect
+from typing import cast, List, Tuple
 
 import torch
 import torch.distributions as dist
@@ -70,11 +71,11 @@ for bij_name, cls in standard_bijectors:
     event_dim = max(bij.domain.event_dim, 1)
     event_shape = event_dim * [4]
     base_dist = dist.Normal(torch.zeros(event_shape), torch.ones(event_shape))
-    _, params = bij(base_dist)
+    _ = bij(base_dist)
 
     try:
         y = torch.randn(*bij.forward_shape(event_shape))
-        bij.inverse(y, params)
+        bij.inverse(y)
     except NotImplementedError:
         pass
     else:
@@ -82,5 +83,7 @@ for bij_name, cls in standard_bijectors:
 
 
 __all__ = ["standard_bijectors", "meta_bijectors", "invertible_bijectors"] + [
-    cls for cls, _ in meta_bijectors + standard_bijectors
+    cls
+    for cls, _ in cast(List[Tuple[str, Bijector]], meta_bijectors)
+    + cast(List[Tuple[str, Bijector]], standard_bijectors)
 ]

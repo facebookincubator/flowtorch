@@ -3,7 +3,6 @@
 
 from typing import Optional
 
-import flowtorch.params
 import torch
 import torch.distributions.constraints as constraints
 from flowtorch.bijectors.fixed import Fixed
@@ -24,24 +23,22 @@ class Permute(Fixed, VolumePreserving):
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         if self.permutation is None:
             self.permutation = torch.randperm(x.shape[-1])
 
-        return x.index_select(-1, self.permutation)
+        return torch.index_select(x, -1, self.permutation)
 
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional[flowtorch.params.ParamsModule] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         if self.permutation is None:
             self.permutation = torch.randperm(y.shape[-1])
 
-        return y.index_select(-1, self.inv_permutation)
+        return torch.index_select(y, -1, self.inv_permutation)
 
     @lazy_property
     def inv_permutation(self):
