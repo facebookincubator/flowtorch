@@ -17,31 +17,33 @@ def test_bijector_constructor():
 
 
 @pytest.fixture(params=[bij_name for _, bij_name in bijectors.standard_bijectors])
-def flow(request):
-    flow = request.param()
-    return flow
+def bijector(request):
+    bijector = request.param()
+    return bijector
 
 
-def test_jacobian(flow, epsilon=1e-2):
+def test_jacobian(bijector, epsilon=1e-2):
     # TODO: The following pattern to produce the standard bijector should
     # be factored out
     # Define plan for flow
-    event_dim = max(flow.domain.event_dim, 1)
+    event_dim = max(bijector.domain.event_dim, 1)
     event_shape = event_dim * [4]
     base_dist = dist.Normal(torch.zeros(event_shape), torch.ones(event_shape))
 
     # Instantiate transformed distribution and parameters
-    _ = flow(base_dist)
-    params = flow.params
+    flow = bijector(base_dist)
+    bijector = flow.bijector
+
+    params = bijector.params
 
     # Calculate auto-diff Jacobian
     x = torch.randn(*event_shape)
-    x = torch.distributions.transform_to(flow.domain)(x)
-    y = flow.forward(x)
-    if flow.domain.event_dim == 1:
-        analytic_ldt = flow.log_abs_det_jacobian(x, y).data
+    x = torch.distributions.transform_to(bijector.domain)(x)
+    y = bijector.forward(x)
+    if bijector.domain.event_dim == 1:
+        analytic_ldt = bijector.log_abs_det_jacobian(x, y).data
     else:
-        analytic_ldt = flow.log_abs_det_jacobian(x, y).sum(-1).data
+        analytic_ldt = bijector.log_abs_det_jacobian(x, y).sum(-1).data
 
     # Calculate numerical Jacobian
     # TODO: Better way to get all indices of array/tensor?
@@ -62,8 +64,8 @@ def test_jacobian(flow, epsilon=1e-2):
         epsilon_vector[(*idx,)] = epsilon
         # TODO: Use scipy.misc.derivative or another library's function?
         delta = (
-            flow.forward(x + 0.5 * epsilon_vector)
-            - flow.forward(x - 0.5 * epsilon_vector)
+            bijector.forward(x + 0.5 * epsilon_vector)
+            - bijector.forward(x - 0.5 * epsilon_vector)
         ) / epsilon
 
         for var_jdx in range(count_vars):
@@ -100,26 +102,27 @@ def test_jacobian(flow, epsilon=1e-2):
         assert lower_sum == float(0.0)
 
 
-def test_inverse(flow, epsilon=1e-5):
+def test_inverse(bijector, epsilon=1e-5):
     # Define plan for flow
-    event_dim = max(flow.domain.event_dim, 1)
+    event_dim = max(bijector.domain.event_dim, 1)
     event_shape = event_dim * [4]
     base_dist = dist.Normal(torch.zeros(event_shape), torch.ones(event_shape))
 
     # Instantiate transformed distribution and parameters
-    _ = flow(base_dist)
+    flow = bijector(base_dist)
+    bijector = flow.bijector
 
     # Test g^{-1}(g(x)) = x
     x_true = base_dist.sample(torch.Size([10]))
-    x_true = torch.distributions.transform_to(flow.domain)(x_true)
+    x_true = torch.distributions.transform_to(bijector.domain)(x_true)
 
-    y = flow._forward(x_true)
-    x_calculated = flow._inverse(y)
+    y = bijector._forward(x_true)
+    x_calculated = bijector._inverse(y)
     assert (x_true - x_calculated).abs().max().item() < epsilon
 
     # Test that Jacobian after inverse op is same as after forward
-    J_1 = flow.log_abs_det_jacobian(x_true, y)
-    J_2 = flow.log_abs_det_jacobian(x_calculated, y)
+    J_1 = bijector.log_abs_det_jacobian(x_true, y)
+    J_2 = bijector.log_abs_det_jacobian(x_calculated, y)
     assert (J_1 - J_2).abs().max().item() < epsilon
 
 

@@ -1,6 +1,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 import weakref
+from copy import deepcopy
 from typing import Optional, Sequence, Union, cast
 
 import flowtorch.distributions
@@ -36,6 +37,11 @@ class Bijector(object):
         """
         Returns the distribution formed by passing dist through the bijection
         """
+        if self.params is not None:
+            raise RuntimeError(
+                "Cannot instantiate a Bijector that has a non-None params attribute."
+            )
+
         # If the input is a distribution then return transformed distribution
         if isinstance(base_dist, torch.distributions.Distribution):
             # Create transformed distribution
@@ -46,12 +52,15 @@ class Bijector(object):
                 base_dist.batch_shape + base_dist.event_shape  # pyre-ignore[16]
             )
 
-            self.params = None
-            if self.param_fn is not None:
-                self.params = self.param_fn(
-                    input_shape, self.param_shapes(base_dist), self._context_size
+            # Instantiate hypernets on a copy of bijector, so self remains just a "plan"
+            self_copy = deepcopy(self)
+            if self_copy.param_fn is not None:
+                self_copy.params = self_copy.param_fn(
+                    input_shape, self.param_shapes(base_dist), self_copy._context_size
                 )  # <= this is where hypernets etc. are instantiated
-            new_dist = flowtorch.distributions.TransformedDistribution(base_dist, self)
+            new_dist = flowtorch.distributions.TransformedDistribution(
+                base_dist, self_copy
+            )
             return new_dist
 
         # TODO: Handle other types of inputs such as tensors

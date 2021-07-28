@@ -27,6 +27,7 @@ def test_compose():
     event_shape = (5,)
     base_dist = dist.Normal(loc=torch.zeros(event_shape), scale=torch.ones(event_shape))
     new_dist = flow(base_dist)
+    flow = new_dist.bijector
 
     optimizer = torch.optim.Adam(flow.params.parameters())
     assert optimizer.param_groups[0]["params"][0].grad is None

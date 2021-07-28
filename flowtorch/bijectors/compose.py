@@ -1,6 +1,8 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
+from copy import deepcopy
+
 import flowtorch.params
 import torch
 import torch.distributions
@@ -31,6 +33,11 @@ class Compose(Bijector):
         """
         Returns the distribution formed by passing dist through the bijection
         """
+        if self.params is not None:
+            raise RuntimeError(
+                "Cannot instantiate a Bijector that has a non-None params attribute."
+            )
+
         # If the input is a distribution then return transformed distribution
         if isinstance(x, torch.distributions.Distribution):
             # Create transformed distribution
@@ -38,11 +45,15 @@ class Compose(Bijector):
             # are as well Possibly do this in simplex.Bijector.__init__ and
             # call from simple.bijectors.*.__init__
             input_shape = x.batch_shape + x.event_shape
-            params = self.param_fn(
-                input_shape, self.param_shapes(x), self._context_size
+
+            # Instantiate hypernets on a copy of bijector, so self remains just a "plan"
+            self_copy = deepcopy(self)
+
+            params = self_copy.param_fn(
+                input_shape, self_copy.param_shapes(x), self_copy._context_size
             )  # <= this is where hypernets etc. are instantiated
-            self.params = params
-            new_dist = flowtorch.distributions.TransformedDistribution(x, self)
+            self_copy.params = params
+            new_dist = flowtorch.distributions.TransformedDistribution(x, self_copy)
             return new_dist
 
         # TODO: Handle other types of inputs such as tensors
