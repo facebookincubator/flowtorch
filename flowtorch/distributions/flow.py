@@ -7,23 +7,25 @@ import torch.distributions as dist
 from torch import Tensor
 from torch.distributions.utils import _sum_rightmost
 
+import flowtorch
+
 if TYPE_CHECKING:
     from flowtorch.bijectors.base import Bijector
 
 
-class TransformedDistribution(dist.Distribution):
+class Flow(dist.Distribution, metaclass=flowtorch.LazyMeta):
     _default_sample_shape = torch.Size()
     arg_constraints: Dict[str, dist.constraints.Constraint] = {}
 
     def __init__(
         self,
         base_distribution: dist.Distribution,
-        bijector: "Bijector",
+        bijector: flowtorch.Lazy,
         validate_args: Any = None,
     ) -> None:
         self.base_dist = base_distribution
         self._context = None
-        self.bijector = bijector
+        self.bijector = bijector(base_distribution)
 
         shape = (
             self.base_dist.batch_shape + self.base_dist.event_shape  # pyre-ignore[16]

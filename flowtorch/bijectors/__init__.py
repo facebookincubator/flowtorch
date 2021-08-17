@@ -8,10 +8,10 @@ import torch
 import torch.distributions as dist
 
 # TODO: Autogenerate this from script!
-from flowtorch.bijectors.affine_autoregressive import AffineAutoregressive
+#from flowtorch.bijectors.affine_autoregressive import AffineAutoregressive
 from flowtorch.bijectors.affine_fixed import AffineFixed
 from flowtorch.bijectors.base import Bijector
-from flowtorch.bijectors.compose import Compose
+#from flowtorch.bijectors.compose import Compose
 from flowtorch.bijectors.elu import ELU
 from flowtorch.bijectors.exp import Exp
 from flowtorch.bijectors.fixed import Fixed
@@ -28,7 +28,7 @@ from flowtorch.bijectors.volume_preserving import VolumePreserving
 # We have to write special units tests for these.
 meta_bijectors = [
     ("Bijector", Bijector),
-    ("Compose", Compose),
+    #("Compose", Compose),
     ("Fixed", Fixed),
     ("VolumePreserving", VolumePreserving),
 ]
@@ -50,7 +50,7 @@ def standard_bijector(cls):
 
 # TODO: Autogenerate this from script!
 standard_bijectors = [
-    ("AffineAutoregressive", AffineAutoregressive),
+    #("AffineAutoregressive", AffineAutoregressive),
     ("AffineFixed", AffineFixed),
     ("ELU", ELU),
     ("Exp", Exp),
@@ -71,7 +71,7 @@ for bij_name, cls in standard_bijectors:
     event_dim = max(bij.domain.event_dim, 1)
     event_shape = event_dim * [4]
     base_dist = dist.Normal(torch.zeros(event_shape), torch.ones(event_shape))
-    _ = bij(base_dist)
+    bij = bij(base_dist)
 
     try:
         y = torch.randn(*bij.forward_shape(event_shape))

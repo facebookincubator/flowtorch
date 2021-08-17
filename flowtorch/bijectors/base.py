@@ -3,6 +3,7 @@
 import weakref
 from typing import Optional, Sequence, Type, Union, cast
 
+import flowtorch
 import flowtorch.distributions
 import flowtorch.params
 import torch
@@ -10,8 +11,7 @@ import torch.distributions
 from flowtorch.params import Params
 from torch.distributions import constraints
 
-
-class Bijector(object):
+class Bijector(metaclass=flowtorch.LazyMeta):
     _inv: Optional[Union[weakref.ReferenceType, "Bijector"]] = None
     codomain: constraints.Constraint = constraints.real
     domain: constraints.Constraint = constraints.real
@@ -23,19 +23,12 @@ class Bijector(object):
 
     def __init__(
         self,
-        param_fn: Optional[Type[flowtorch.params.Params]] = None,
+        base_dist: torch.distributions.Distribution,
+        params: Optional[flowtorch.Lazy] = None,
         context_size: int = 0,
     ) -> None:
-        super().__init__()
-        self.param_fn = param_fn
         self._context_size = context_size
 
-    def __call__(
-        self, base_dist: torch.distributions.Distribution
-    ) -> flowtorch.distributions.TransformedDistribution:
-        """
-        Returns the distribution formed by passing dist through the bijection
-        """
         # If the input is a distribution then return transformed distribution
         if isinstance(base_dist, torch.distributions.Distribution):
             # Create transformed distribution
@@ -46,17 +39,15 @@ class Bijector(object):
                 base_dist.batch_shape + base_dist.event_shape  # pyre-ignore[16]
             )
 
-            self.params = None
-            if self.param_fn is not None:
-                self.params = self.param_fn(
+            if params is not None:
+                self._params = params(
                     input_shape, self.param_shapes(base_dist), self._context_size
                 )  # <= this is where hypernets etc. are instantiated
-            new_dist = flowtorch.distributions.TransformedDistribution(base_dist, self)
-            return new_dist
 
         # TODO: Handle other types of inputs such as tensors
         else:
             raise TypeError(f"Bijector called with invalid type: {type(base_dist)}")
+        
 
     @property
     def params(self) -> Optional[Params]:
@@ -129,6 +120,7 @@ class Bijector(object):
         # self.event_dim may be > 0 for derived classes!
         return torch.zeros_like(x)
 
+    # TODO: Should this take an event shape instead of a distribution???
     def param_shapes(
         self, dist: torch.distributions.Distribution
     ) -> Sequence[torch.Size]:

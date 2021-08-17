@@ -17,7 +17,7 @@ class AffineFixed(Bijector):
 
     # TODO: Handle non-scalar loc and scale with correct broadcasting semantics
     def __init__(self, loc=0.0, scale=1.0) -> None:
-        super().__init__(param_fn=None)
+        super().__init__()
         self.loc = loc
         self.scale = scale
 
