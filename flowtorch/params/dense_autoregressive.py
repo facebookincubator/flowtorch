@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, Optional, Sequence, Tuple
 
 import torch
 import torch.nn as nn
-from flowtorch.params.base import Params, ParamsImpl
+from flowtorch.params.base import Params
 from torch.nn import functional as F
 
 
@@ -121,32 +121,38 @@ class MaskedLinear(nn.Linear):
 
 
 class DenseAutoregressive(Params):
+    autoregressive = True
+
     def __init__(
         self,
+        input_shape: torch.Size,
+        param_shapes: Sequence[torch.Size],
+        context_dims: int,
+        *,
         hidden_dims: Sequence[int] = (256, 256),
         nonlinearity: Callable[[], nn.Module] = nn.ReLU,
         permutation: Optional[torch.LongTensor] = None,
         skip_connections: bool = False,
     ) -> None:
-        super().__init__()
+        super().__init__(input_shape, param_shapes, context_dims)
         self.hidden_dims = hidden_dims
         self.nonlinearity = nonlinearity
         self.skip_connections = skip_connections
-        self.permutation = permutation
+        self._build(input_shape, param_shapes, context_dims, permutation)
 
-    # Continue from here!
     def _build(
         self,
         input_shape: torch.Size,
         param_shapes: Sequence[torch.Size],
         context_dims: int,
-    ) -> Tuple["DenseAutoregressiveImpl", nn.ModuleList, Dict[str, Any]]:
+        permutation: Optional[torch.LongTensor],
+    ) -> None:
         # Work out flattened input and output shapes
         param_shapes_ = list(param_shapes)
         input_dims = int(torch.sum(torch.tensor(input_shape)).int().item())
         if input_dims == 0:
             input_dims = 1  # scalars represented by torch.Size([])
-        if self.permutation is None:
+        if permutation is None:
             # By default set a random permutation of variables, which is
             # important for performance with multiple steps
             permutation = torch.LongTensor(
@@ -158,7 +164,7 @@ class DenseAutoregressive(Params):
             # The permutation is chosen by the user
             permutation = torch.LongTensor(permutation)
 
-        output_multiplier = int(
+        self.output_multiplier = int(
             sum(max(torch.sum(torch.tensor(s)).item(), 1) for s in param_shapes_)
         )
         if input_dims == 1:
@@ -188,8 +194,7 @@ class DenseAutoregressive(Params):
         # TODO: Check that the permutation is valid for the input dimension!
         # Implement ispermutation() that sorts permutation and checks whether it
         # has all integers from 0, 1, ..., self.input_dims - 1
-
-        buffers = {"permutation": permutation}
+        self.register_buffer('permutation', permutation)
 
         # Create masks
         hidden_dims = self.hidden_dims
@@ -198,7 +203,7 @@ class DenseAutoregressive(Params):
             context_dim=context_dims,
             hidden_dims=hidden_dims,
             permutation=permutation,
-            output_dim_multiplier=output_multiplier,
+            output_dim_multiplier=self.output_multiplier,
         )
 
         # Create masked layers
@@ -220,7 +225,7 @@ class DenseAutoregressive(Params):
         layers.append(
             MaskedLinear(
                 hidden_dims[-1],
-                input_dims * output_multiplier,
+                input_dims * self.output_multiplier,
                 masks[-1],
             )
         )
@@ -229,41 +234,19 @@ class DenseAutoregressive(Params):
             layers.append(
                 MaskedLinear(
                     input_dims + context_dims,
-                    input_dims * output_multiplier,
+                    input_dims * self.output_multiplier,
                     mask_skip,
                     bias=False,
                 )
             )
 
-        return (
-            DenseAutoregressiveImpl(
-                input_shape, param_shapes, param_slices, output_multiplier
-            ),
-            nn.ModuleList(layers),
-            buffers,
-        )
+        self.layers = nn.ModuleList(layers)
 
-
-class DenseAutoregressiveImpl(ParamsImpl):
-    autoregressive = True
-
-    def __init__(
-        self,
-        input_shape: torch.Size,
-        param_shapes: Sequence[torch.Size],
-        param_slices: Sequence[slice],
-        output_multiplier: int,
-    ):
-        self.input_shape = input_shape
-        self.param_shapes = param_shapes
-        self.param_slices = param_slices
-        self.output_multiplier = output_multiplier
 
     def _forward(
         self,
         x: torch.Tensor,
-        context: Optional[torch.Tensor],
-        modules: nn.ModuleList,
+        context: Optional[torch.Tensor] = None,
     ) -> Sequence[torch.Tensor]:
         input_dims = int(torch.sum(torch.tensor(self.input_shape)).int().item())
 
@@ -275,9 +258,9 @@ class DenseAutoregressiveImpl(ParamsImpl):
         else:
             h = x
 
-        for idx in range(len(modules) // 2):
-            h = modules[2 * idx + 1](modules[2 * idx](h))
-        h = modules[-1](h)
+        for idx in range(len(self.layers) // 2):
+            h = self.layers[2 * idx + 1](self.layers[2 * idx](h))
+        h = self.layers[-1](h)
 
         # TODO: Get skip_layers working again!
         # if self.skip_layer is not None:

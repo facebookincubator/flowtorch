@@ -1,7 +1,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
-from typing import cast, Optional, Tuple
+from typing import cast, Optional, Type, Tuple
 
 import flowtorch.params
 import torch
@@ -17,7 +17,7 @@ class AffineAutoregressive(Bijector):
 
     def __init__(
         self,
-        param_fn: Optional[flowtorch.params.DenseAutoregressive] = None,
+        param_fn: Optional[Type[flowtorch.params.DenseAutoregressive]] = None,
         log_scale_min_clip: float = -5.0,
         log_scale_max_clip: float = 3.0,
         sigmoid_bias: float = 2.0,
@@ -25,7 +25,7 @@ class AffineAutoregressive(Bijector):
     ) -> None:
         # currently only DenseAutoregressive has a `permutation` buffer
         if not param_fn:
-            param_fn = flowtorch.params.DenseAutoregressive()
+            param_fn = flowtorch.params.DenseAutoregressive
 
         super().__init__(param_fn=param_fn)
         self.log_scale_min_clip = log_scale_min_clip

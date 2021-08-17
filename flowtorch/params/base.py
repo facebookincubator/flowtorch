@@ -1,18 +1,17 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
-from abc import ABC, abstractmethod
-from typing import Dict, Optional, Sequence, Tuple
+from typing import Dict, Optional, Sequence
 
 import torch
 import torch.nn as nn
 
 
-class ParamsModuleList(torch.nn.Module):
+class ParamsList(torch.nn.Module):
     params_modules: nn.ModuleList
 
     def __init__(
         self,
-        params_modules: Sequence["ParamsModule"],
+        params_modules: Sequence["Params"],
     ) -> None:
         super().__init__()
         self.params_modules = nn.ModuleList(params_modules)
@@ -20,6 +19,8 @@ class ParamsModuleList(torch.nn.Module):
     def forward(
         self, x: torch.Tensor, context: Optional[torch.Tensor] = None
     ) -> Sequence[Optional[Sequence[torch.Tensor]]]:
+        # TODO: I believe this is a bug, since we should feed output of previous
+        # module into next one
         return [p.forward(x, context=context) for p in self.params_modules]
 
     def __iter__(self):
@@ -35,73 +36,35 @@ class ParamsModuleList(torch.nn.Module):
         return reversed(self.params_modules)
 
 
-class ParamsModule(torch.nn.Module):
-    def __init__(
-        self,
-        params: "ParamsImpl",
-        modules: Optional[nn.ModuleList] = None,
-        buffers: Optional[Dict[str, torch.Tensor]] = None,
-    ) -> None:
-        super().__init__()
-        self.params = params
-        self.mods = modules
-
-        if buffers is not None:
-            for n, v in buffers.items():
-                self.register_buffer(n, v)
-
-    def forward(
-        self, x: torch.Tensor, context: Optional[torch.Tensor] = None
-    ) -> Optional[Sequence[torch.Tensor]]:
-        return self.params.forward(x, modules=self.mods, context=context)
-
-
-class Params(ABC):
+class Params(torch.nn.Module):
     """
     Deferred initialization of parameters.
     """
-
-    def __call__(
+    
+    def __init__(
         self,
         input_shape: torch.Size,
         param_shapes: Sequence[torch.Size],
         context_dims: int,
-    ) -> Optional[ParamsModule]:
-        return ParamsModule(*self._build(input_shape, param_shapes, context_dims))
+    ) -> None:
+        super().__init__()
 
-    @abstractmethod
-    def _build(
-        self,
-        input_shape: torch.Size,
-        param_shapes: Sequence[torch.Size],
-        context_dims: int,
-    ) -> Tuple["ParamsImpl", nn.ModuleList, Dict[str, torch.Tensor]]:
-        pass
-
-
-class ParamsImpl(ABC):
-    """
-    Parameter hypernet for a bijector.
-    """
-
-    input_shape: torch.Size
-    param_shapes: Sequence[torch.Size]
 
     def forward(
         self,
         x: torch.Tensor,
         context: Optional[torch.Tensor] = None,
-        modules: Optional[nn.ModuleList] = None,
-    ) -> Optional[Sequence[torch.Tensor]]:
-        if modules is None:
-            modules = nn.ModuleList()
-        return self._forward(x, context=context, modules=modules)
+    ) -> Sequence[torch.Tensor]:
+        # TODO: Caching etc.
+        return self._forward(x, context)
 
-    @abstractmethod
+
     def _forward(
         self,
         x: torch.Tensor,
-        context: Optional[torch.Tensor],
-        modules: nn.ModuleList,
+        context: Optional[torch.Tensor] = None,
     ) -> Sequence[torch.Tensor]:
-        pass
+        # I raise an exception rather than using @abstractmethod and
+        # metaclass=ABC so that we can reserve the metaclass for lazy
+        # evaluation.
+        raise NotImplementedError()

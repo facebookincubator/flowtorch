@@ -1,13 +1,13 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 import weakref
-from typing import Optional, Sequence, Union, cast
+from typing import Optional, Sequence, Type, Union, cast
 
 import flowtorch.distributions
 import flowtorch.params
 import torch
 import torch.distributions
-from flowtorch.params import ParamsModule
+from flowtorch.params import Params
 from torch.distributions import constraints
 
 
@@ -19,11 +19,11 @@ class Bijector(object):
     autoregressive: bool = False
     _context_size: int
     event_dim: int = 0
-    _params: Optional[flowtorch.params.ParamsModule] = None
+    _params: Optional[flowtorch.params.Params] = None
 
     def __init__(
         self,
-        param_fn: Optional[flowtorch.params.Params] = None,
+        param_fn: Optional[Type[flowtorch.params.Params]] = None,
         context_size: int = 0,
     ) -> None:
         super().__init__()
@@ -59,11 +59,11 @@ class Bijector(object):
             raise TypeError(f"Bijector called with invalid type: {type(base_dist)}")
 
     @property
-    def params(self) -> Optional[ParamsModule]:
+    def params(self) -> Optional[Params]:
         return self._params
 
     @params.setter
-    def params(self, value: Optional[ParamsModule]):
+    def params(self, value: Optional[Params]):
         self._params = value
 
     def forward(
