@@ -9,7 +9,7 @@ import torch.nn as nn
 from flowtorch.params.base import Params
 from torch.nn import functional as F
 
-
+# TODO: Move to flowtorch.nn.made?
 def sample_mask_indices(
     input_dim: int, hidden_dim: int, simple: bool = True
 ) -> torch.Tensor:
@@ -34,7 +34,7 @@ def sample_mask_indices(
         ints += torch.bernoulli(indices - ints)
         return ints
 
-
+# TODO: Move to flowtorch.nn.made?
 def create_mask(
     input_dim: int,
     context_dim: int,
@@ -98,7 +98,7 @@ def create_mask(
 
     return masks, mask_skip
 
-
+# TODO: Move to flowtorch.nn?
 class MaskedLinear(nn.Linear):
     """
     A linear mapping with a given mask on the weights (arbitrary bias)

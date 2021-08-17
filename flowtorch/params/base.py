@@ -5,8 +5,10 @@ from typing import Dict, Optional, Sequence
 import torch
 import torch.nn as nn
 
+from flowtorch import LazyMeta
 
-class ParamsList(torch.nn.Module):
+
+"""class ParamsList(torch.nn.Module):
     params_modules: nn.ModuleList
 
     def __init__(
@@ -33,10 +35,10 @@ class ParamsList(torch.nn.Module):
         return len(self.params_modules)
 
     def __reversed__(self):
-        return reversed(self.params_modules)
+        return reversed(self.params_modules)"""
 
 
-class Params(torch.nn.Module):
+class Params(torch.nn.Module, metaclass=LazyMeta):
     """
     Deferred initialization of parameters.
     """

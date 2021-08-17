@@ -23,13 +23,13 @@ Parameters should take care of caching when necessary.
 
 """
 
-from flowtorch.params.base import Params, ParamsList
-from flowtorch.params.dense_autoregressive import DenseAutoregressive
+from flowtorch.params.base import Params #, ParamsList
+#from flowtorch.params.dense_autoregressive import DenseAutoregressive
 from flowtorch.params.tensor import Tensor
 
 __all__ = [
-    "DenseAutoregressive",
+    #"DenseAutoregressive",
     "Params",
-    "ParamsList",
+    #"ParamsList",
     "Tensor",
 ]
