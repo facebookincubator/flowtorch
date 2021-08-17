@@ -5,6 +5,8 @@ from typing import Optional
 
 import torch
 import torch.distributions.constraints as constraints
+
+import flowtorch
 from flowtorch.bijectors.base import Bijector
 
 
@@ -18,9 +20,13 @@ class Power(Bijector):
     # TODO: Tensor valued exponents and corresponding determination of event_dim
     def __init__(
         self,
+        base_dist: torch.distributions.Distribution,
+        params: Optional[flowtorch.Lazy] = None,
+        context_size: int = 0,
+        *,
         exponent: float = 2.0,
     ) -> None:
-        super().__init__(param_fn=None)
+        super().__init__(base_dist, params, context_size)
         self.exponent = exponent
 
     def _forward(

@@ -67,11 +67,10 @@ invertible_bijectors = []
 for bij_name, cls in standard_bijectors:
     # TODO: Use factored out version of the following
     # Define plan for flow
-    bij = cls()
-    event_dim = max(bij.domain.event_dim, 1)
+    event_dim = max(cls.domain.event_dim, 1)
     event_shape = event_dim * [4]
     base_dist = dist.Normal(torch.zeros(event_shape), torch.ones(event_shape))
-    bij = bij(base_dist)
+    bij = cls(base_dist)
 
     try:
         y = torch.randn(*bij.forward_shape(event_shape))

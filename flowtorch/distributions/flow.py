@@ -13,19 +13,21 @@ if TYPE_CHECKING:
     from flowtorch.bijectors.base import Bijector
 
 
-class Flow(dist.Distribution, metaclass=flowtorch.LazyMeta):
+class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
     _default_sample_shape = torch.Size()
     arg_constraints: Dict[str, dist.constraints.Constraint] = {}
 
     def __init__(
         self,
-        base_distribution: dist.Distribution,
+        base_dist: dist.Distribution,
         bijector: flowtorch.Lazy,
         validate_args: Any = None,
     ) -> None:
-        self.base_dist = base_distribution
+        torch.nn.Module.__init__(self)
+
+        self.base_dist = base_dist
         self._context = None
-        self.bijector = bijector(base_distribution)
+        self.bijector = bijector(base_dist)
 
         shape = (
             self.base_dist.batch_shape + self.base_dist.event_shape  # pyre-ignore[16]
@@ -33,7 +35,7 @@ class Flow(dist.Distribution, metaclass=flowtorch.LazyMeta):
         event_dim = max(len(self.base_dist.event_shape), self.bijector.domain.event_dim)
         batch_shape = shape[: len(shape) - event_dim]
         event_shape = shape[len(shape) - event_dim :]
-        super().__init__(batch_shape, event_shape, validate_args=validate_args)
+        dist.Distribution.__init__(self, batch_shape, event_shape, validate_args=validate_args)
 
     def condition(self, context):
         self._context = context

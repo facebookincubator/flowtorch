@@ -5,6 +5,8 @@ from typing import Optional
 
 import torch
 import torch.distributions.constraints as constraints
+
+import flowtorch
 from flowtorch.bijectors.fixed import Fixed
 from flowtorch.bijectors.volume_preserving import VolumePreserving
 from torch.distributions.utils import lazy_property
@@ -15,9 +17,15 @@ class Permute(Fixed, VolumePreserving):
     codomain = constraints.real_vector
 
     # TODO: A new abstraction so can defer construction of permutation
-    def __init__(self, permutation=None):
-        super().__init__(param_fn=None)
-
+    def __init__(
+        self,
+        base_dist: torch.distributions.Distribution,
+        params: Optional[flowtorch.Lazy] = None,
+        context_size: int = 0,
+        *,
+        permutation=None
+    ):
+        super().__init__(base_dist, params, context_size)
         self.permutation = permutation
 
     def _forward(
