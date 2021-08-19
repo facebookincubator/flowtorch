@@ -11,7 +11,7 @@ import torch.distributions as dist
 #from flowtorch.bijectors.affine_autoregressive import AffineAutoregressive
 from flowtorch.bijectors.affine_fixed import AffineFixed
 from flowtorch.bijectors.base import Bijector
-#from flowtorch.bijectors.compose import Compose
+from flowtorch.bijectors.compose import Compose
 from flowtorch.bijectors.elu import ELU
 from flowtorch.bijectors.exp import Exp
 from flowtorch.bijectors.fixed import Fixed
@@ -28,7 +28,7 @@ from flowtorch.bijectors.volume_preserving import VolumePreserving
 # We have to write special units tests for these.
 meta_bijectors = [
     ("Bijector", Bijector),
-    #("Compose", Compose),
+    ("Compose", Compose),
     ("Fixed", Fixed),
     ("VolumePreserving", VolumePreserving),
 ]

@@ -27,14 +27,17 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
 
         self.base_dist = base_dist
         self._context = None
-        self.bijector = bijector(base_dist)
+        self.bijector = bijector(base_dist.event_shape)
 
+        # TODO: Confirm that the following logic works. Shouldn't it use .domain and .codomain??
+        # Infer shape from constructed self.bijector
         shape = (
             self.base_dist.batch_shape + self.base_dist.event_shape  # pyre-ignore[16]
         )
         event_dim = max(len(self.base_dist.event_shape), self.bijector.domain.event_dim)
         batch_shape = shape[: len(shape) - event_dim]
         event_shape = shape[len(shape) - event_dim :]
+
         dist.Distribution.__init__(self, batch_shape, event_shape, validate_args=validate_args)
 
     def condition(self, context):

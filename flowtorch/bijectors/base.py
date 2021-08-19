@@ -23,31 +23,17 @@ class Bijector(metaclass=flowtorch.LazyMeta):
 
     def __init__(
         self,
-        base_dist: torch.distributions.Distribution,
+        shape: torch.Size,
         params: Optional[flowtorch.Lazy] = None,
         context_size: int = 0,
     ) -> None:
         self._context_size = context_size
 
-        # If the input is a distribution then return transformed distribution
-        if isinstance(base_dist, torch.distributions.Distribution):
-            # Create transformed distribution
-            # TODO: Check that if bijector is autoregressive then parameters are as
-            # well Possibly do this in simplex.Bijector.__init__ and call from
-            # simple.bijectors.*.__init__
-            input_shape = (
-                base_dist.batch_shape + base_dist.event_shape  # pyre-ignore[16]
+        # Instantiate parameters (tensor, hypernets, etc.)
+        if params is not None:
+            self._params = params(
+                shape, self.param_shapes(shape), self._context_size
             )
-
-            if params is not None:
-                self._params = params(
-                    input_shape, self.param_shapes(base_dist), self._context_size
-                )  # <= this is where hypernets etc. are instantiated
-
-        # TODO: Handle other types of inputs such as tensors
-        else:
-            raise TypeError(f"Bijector called with invalid type: {type(base_dist)}")
-        
 
     @property
     def params(self) -> Optional[Params]:
@@ -120,9 +106,9 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         # self.event_dim may be > 0 for derived classes!
         return torch.zeros_like(x)
 
-    # TODO: Should this take an event shape instead of a distribution???
     def param_shapes(
-        self, dist: torch.distributions.Distribution
+        self,
+        shape: torch.Size
     ) -> Sequence[torch.Size]:
         """
         Abstract method to return shapes of parameters
@@ -141,14 +127,20 @@ class Bijector(metaclass=flowtorch.LazyMeta):
     def __repr__(self) -> str:
         return self.__class__.__name__ + "()"
 
-    def forward_shape(self, shape):
+    def forward_shape(
+        self,
+        shape: torch.Size
+    ):
         """
         Infers the shape of the forward computation, given the input shape.
         Defaults to preserving shape.
         """
         return shape
 
-    def inverse_shape(self, shape):
+    def inverse_shape(
+        self,
+        shape: torch.Size
+    ):
         """
         Infers the shapes of the inverse computation, given the output shape.
         Defaults to preserving shape.
@@ -212,9 +204,9 @@ class _InverseBijector(Bijector):
         return -self._inv.log_abs_det_jacobian(y, x, context)
 
     def param_shapes(
-        self, dist: torch.distributions.Distribution
+        self, shape: torch.Size
     ) -> Sequence[torch.Size]:
-        return self._inv.param_shapes(dist)
+        return self._inv.param_shapes(shape)
 
     def forward_shape(self, shape):
         return self._inv.inverse_shape(shape)
