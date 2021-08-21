@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 import warnings
-from typing import Any, Callable, Dict, Optional, Sequence, Tuple
+from typing import Callable, Optional, Sequence, Tuple
 
 import torch
 import torch.nn as nn
@@ -10,6 +10,8 @@ from flowtorch.params.base import Params
 from torch.nn import functional as F
 
 # TODO: Move to flowtorch.nn.made?
+
+
 def sample_mask_indices(
     input_dim: int, hidden_dim: int, simple: bool = True
 ) -> torch.Tensor:
@@ -33,6 +35,7 @@ def sample_mask_indices(
         ints = indices.floor()
         ints += torch.bernoulli(indices - ints)
         return ints
+
 
 # TODO: Move to flowtorch.nn.made?
 def create_mask(
@@ -97,6 +100,7 @@ def create_mask(
     )
 
     return masks, mask_skip
+
 
 # TODO: Move to flowtorch.nn?
 class MaskedLinear(nn.Linear):
@@ -181,7 +185,7 @@ class DenseAutoregressive(Params):
             dim=0,
         )
         starts = torch.cat((torch.zeros(1).type_as(ends), ends[:-1]))
-        param_slices = [slice(s.item(), e.item()) for s, e in zip(starts, ends)]
+        self.param_slices = [slice(s.item(), e.item()) for s, e in zip(starts, ends)]
 
         # Hidden dimension must be not less than the input otherwise it isn't
         # possible to connect to the outputs correctly
@@ -194,7 +198,7 @@ class DenseAutoregressive(Params):
         # TODO: Check that the permutation is valid for the input dimension!
         # Implement ispermutation() that sorts permutation and checks whether it
         # has all integers from 0, 1, ..., self.input_dims - 1
-        self.register_buffer('permutation', permutation)
+        self.register_buffer("permutation", permutation)
 
         # Create masks
         hidden_dims = self.hidden_dims
@@ -241,7 +245,6 @@ class DenseAutoregressive(Params):
             )
 
         self.layers = nn.ModuleList(layers)
-
 
     def _forward(
         self,

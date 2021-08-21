@@ -1,7 +1,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 import weakref
-from typing import Optional, Sequence, Type, Union, cast
+from typing import Optional, Sequence, Union, cast
 
 import flowtorch
 import flowtorch.distributions
@@ -10,6 +10,7 @@ import torch
 import torch.distributions
 from flowtorch.params import Params
 from torch.distributions import constraints
+
 
 class Bijector(metaclass=flowtorch.LazyMeta):
     _inv: Optional[Union[weakref.ReferenceType, "Bijector"]] = None
@@ -31,9 +32,7 @@ class Bijector(metaclass=flowtorch.LazyMeta):
 
         # Instantiate parameters (tensor, hypernets, etc.)
         if params is not None:
-            self._params = params(
-                shape, self.param_shapes(shape), self._context_size
-            )
+            self._params = params(shape, self.param_shapes(shape), self._context_size)
 
     @property
     def params(self) -> Optional[Params]:
@@ -106,10 +105,7 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         # self.event_dim may be > 0 for derived classes!
         return torch.zeros_like(x)
 
-    def param_shapes(
-        self,
-        shape: torch.Size
-    ) -> Sequence[torch.Size]:
+    def param_shapes(self, shape: torch.Size) -> Sequence[torch.Size]:
         """
         Abstract method to return shapes of parameters
         """
@@ -127,20 +123,14 @@ class Bijector(metaclass=flowtorch.LazyMeta):
     def __repr__(self) -> str:
         return self.__class__.__name__ + "()"
 
-    def forward_shape(
-        self,
-        shape: torch.Size
-    ):
+    def forward_shape(self, shape: torch.Size):
         """
         Infers the shape of the forward computation, given the input shape.
         Defaults to preserving shape.
         """
         return shape
 
-    def inverse_shape(
-        self,
-        shape: torch.Size
-    ):
+    def inverse_shape(self, shape: torch.Size):
         """
         Infers the shapes of the inverse computation, given the output shape.
         Defaults to preserving shape.
@@ -203,9 +193,7 @@ class _InverseBijector(Bijector):
     ) -> torch.Tensor:
         return -self._inv.log_abs_det_jacobian(y, x, context)
 
-    def param_shapes(
-        self, shape: torch.Size
-    ) -> Sequence[torch.Size]:
+    def param_shapes(self, shape: torch.Size) -> Sequence[torch.Size]:
         return self._inv.param_shapes(shape)
 
     def forward_shape(self, shape):

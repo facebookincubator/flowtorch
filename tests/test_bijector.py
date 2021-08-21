@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: MIT
 import flowtorch
 import flowtorch.bijectors as bijectors
-from flowtorch.distributions import Flow
 import flowtorch.params
 import numpy as np
 import pytest
 import torch
 import torch.distributions as dist
 import torch.optim
+from flowtorch.distributions import Flow
 
 """
 def test_bijector_constructor():
@@ -17,12 +17,15 @@ def test_bijector_constructor():
     assert b is not None
 """
 
+
 @pytest.fixture(params=[bij_name for _, bij_name in bijectors.standard_bijectors])
 def flow(request):
     bij = request.param
     event_dim = max(bij.domain.event_dim, 1)
     event_shape = event_dim * [3]
-    base_dist = dist.Independent(dist.Normal(torch.zeros(event_shape), torch.ones(event_shape)), event_dim)
+    base_dist = dist.Independent(
+        dist.Normal(torch.zeros(event_shape), torch.ones(event_shape)), event_dim
+    )
 
     flow = Flow(base_dist, bij)
     return flow
@@ -98,6 +101,7 @@ def test_jacobian(flow, epsilon=1e-2):
         assert diag_sum == float(count_vars)
         assert lower_sum == float(0.0)
 
+
 """
 def test_inverse(flow, epsilon=1e-5):
     # Define plan for flow
@@ -139,6 +143,8 @@ if __name__ == "__main__":
     bij = bijectors.AffineFixed
     event_dim = max(bij.domain.event_dim, 1)
     event_shape = event_dim * [3]
-    base_dist = dist.Independent(dist.Normal(torch.zeros(event_shape), torch.ones(event_shape)), event_dim)
+    base_dist = dist.Independent(
+        dist.Normal(torch.zeros(event_shape), torch.ones(event_shape)), event_dim
+    )
     flow = Flow(base_dist, bij)
     test_jacobian(flow)

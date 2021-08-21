@@ -1,7 +1,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
-from typing import Any, Dict, Optional, Sequence, Tuple
+from typing import Optional, Sequence
 
 import torch
 import torch.nn as nn
@@ -18,11 +18,11 @@ class Tensor(Params):
         super().__init__(input_shape, param_shapes, context_dims)
 
         # TODO: Initialization strategies and constraints!
-        self.parameters = nn.ParameterList([nn.Parameter(torch.randn(shape) * 0.001) for shape in param_shapes])
+        self.params = nn.ParameterList(
+            [nn.Parameter(torch.randn(shape) * 0.001) for shape in param_shapes]
+        )
 
     def _forward(
-        self,
-        x: torch.Tensor,
-        context: Optional[torch.Tensor] = None
+        self, x: torch.Tensor, context: Optional[torch.Tensor] = None
     ) -> Sequence[torch.Tensor]:
-        return self.parameters
+        return self.params

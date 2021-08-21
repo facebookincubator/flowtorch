@@ -1,8 +1,9 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
-from collections import OrderedDict
 import inspect
+from collections import OrderedDict
+
 
 # TODO: Move functions to flowtorch.utils?
 def partial_signature(sig, *args, **kwargs):
@@ -25,7 +26,9 @@ def partial_signature(sig, *args, **kwargs):
 
 
 def count_unbound(sig):
-    return len([p for p, v in sig.parameters.items() if v.default is inspect.Parameter.empty])
+    return len(
+        [p for p, v in sig.parameters.items() if v.default is inspect.Parameter.empty]
+    )
 
 
 class LazyMeta(type):
@@ -42,7 +45,9 @@ class LazyMeta(type):
 
         # Remove first argument (i.e., self) from signature of class' initializer
         sig = inspect.signature(lazy_cls.__init__)
-        new_parameters = OrderedDict([(k,v) for idx, (k,v) in enumerate(sig.parameters.items()) if idx != 0])
+        new_parameters = OrderedDict(
+            [(k, v) for idx, (k, v) in enumerate(sig.parameters.items()) if idx != 0]
+        )
         sig = sig.replace(parameters=new_parameters.values())
 
         # Attempt binding arguments to initializer
@@ -51,7 +56,7 @@ class LazyMeta(type):
         # If there are no unbound arguments then instantiate class
         if not count_unbound(bound_sig):
             return type.__call__(lazy_cls, *args, **kwargs)
-        
+
         # Otherwise, return Lazy instance
         else:
             return type.__call__(Lazy, lazy_cls, bindings, sig, bound_sig)
@@ -61,6 +66,7 @@ class Lazy(metaclass=LazyMeta):
     """
     Represents delayed instantiation of a class.
     """
+
     def __init__(self, cls, bindings, sig, bound_sig):
         self.cls = cls
         self.bindings = bindings
@@ -76,7 +82,7 @@ class Lazy(metaclass=LazyMeta):
         """
         new_bindings = dict(self.bound_sig.bind_partial(*args, **kwargs).arguments)
         new_bindings.update(self.bindings)
-        
+
         # Update args and kwargs
         new_args = []
         new_kwargs = {}
@@ -84,7 +90,7 @@ class Lazy(metaclass=LazyMeta):
             if n in new_bindings:
                 if p.kind == inspect.Parameter.POSITIONAL_ONLY:
                     new_args.append(new_bindings[n])
-                
+
                 else:
                     new_kwargs[n] = new_bindings[n]
 

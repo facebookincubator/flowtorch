@@ -4,9 +4,8 @@
 import math
 from typing import Optional
 
-import torch
-
 import flowtorch
+import torch
 from flowtorch.bijectors.base import Bijector
 
 

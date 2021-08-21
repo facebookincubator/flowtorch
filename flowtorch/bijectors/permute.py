@@ -3,10 +3,9 @@
 
 from typing import Optional
 
+import flowtorch
 import torch
 import torch.distributions.constraints as constraints
-
-import flowtorch
 from flowtorch.bijectors.fixed import Fixed
 from flowtorch.bijectors.volume_preserving import VolumePreserving
 from torch.distributions.utils import lazy_property

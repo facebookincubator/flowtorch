@@ -8,7 +8,7 @@ import torch
 import torch.distributions as dist
 
 # TODO: Autogenerate this from script!
-#from flowtorch.bijectors.affine_autoregressive import AffineAutoregressive
+# from flowtorch.bijectors.affine_autoregressive import AffineAutoregressive
 from flowtorch.bijectors.affine_fixed import AffineFixed
 from flowtorch.bijectors.base import Bijector
 from flowtorch.bijectors.compose import Compose
@@ -50,7 +50,7 @@ def standard_bijector(cls):
 
 # TODO: Autogenerate this from script!
 standard_bijectors = [
-    #("AffineAutoregressive", AffineAutoregressive),
+    # ("AffineAutoregressive", AffineAutoregressive),
     ("AffineFixed", AffineFixed),
     ("ELU", ELU),
     ("Exp", Exp),

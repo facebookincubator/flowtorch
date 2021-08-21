@@ -3,10 +3,9 @@
 
 from typing import Optional
 
+import flowtorch
 import torch
 import torch.distributions.constraints as constraints
-
-import flowtorch
 from flowtorch.bijectors.base import Bijector
 
 

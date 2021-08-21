@@ -5,10 +5,9 @@ from typing import Sequence
 
 import flowtorch
 import flowtorch.params
-from flowtorch.bijectors.base import Bijector
-
 import torch
 import torch.distributions
+from flowtorch.bijectors.base import Bijector
 from torch.distributions import constraints
 from torch.distributions.utils import _sum_rightmost
 
@@ -17,10 +16,10 @@ class Compose(Bijector):
     def __init__(
         self,
         shape: torch.Size,
-        #params: Optional[flowtorch.Lazy] = None,
+        # params: Optional[flowtorch.Lazy] = None,
         context_size: int = 0,
         *,
-        bijectors: Sequence[flowtorch.Lazy], 
+        bijectors: Sequence[flowtorch.Lazy],
     ):
         assert len(bijectors) > 0
 
@@ -38,12 +37,11 @@ class Compose(Bijector):
         self.codomain = constraints.independent(constraints.real, event_dim)
         self._inv = None
 
-        #self.identity_initialization = all(
+        # self.identity_initialization = all(
         #    b.identity_initialization for b in self.bijectors
-        #)
+        # )
         self.autoregressive = all(b.autoregressive for b in self.bijectors)
         self._context_size = context_size
-
 
     # NOTE: We overwrite forward rather than _forward so that the composed
     # bijectors can handle the caching separately!

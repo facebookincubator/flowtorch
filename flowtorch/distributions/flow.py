@@ -1,16 +1,17 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
-from typing import TYPE_CHECKING, Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Union
 
+import flowtorch
 import torch
 import torch.distributions as dist
 from torch import Tensor
 from torch.distributions.utils import _sum_rightmost
 
-import flowtorch
-
+"""
 if TYPE_CHECKING:
     from flowtorch.bijectors.base import Bijector
+"""
 
 
 class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
@@ -29,8 +30,8 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         self._context = None
         self.bijector = bijector(base_dist.event_shape)
 
-        # TODO: Confirm that the following logic works. Shouldn't it use .domain and .codomain??
-        # Infer shape from constructed self.bijector
+        # TODO: Confirm that the following logic works. Shouldn't it use
+        # .domain and .codomain?? Infer shape from constructed self.bijector
         shape = (
             self.base_dist.batch_shape + self.base_dist.event_shape  # pyre-ignore[16]
         )
@@ -38,7 +39,9 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         batch_shape = shape[: len(shape) - event_dim]
         event_shape = shape[len(shape) - event_dim :]
 
-        dist.Distribution.__init__(self, batch_shape, event_shape, validate_args=validate_args)
+        dist.Distribution.__init__(
+            self, batch_shape, event_shape, validate_args=validate_args
+        )
 
     def condition(self, context):
         self._context = context

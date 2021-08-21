@@ -3,7 +3,4 @@
 
 from flowtorch.lazy import Lazy, LazyMeta
 
-__all__ = [
-    "Lazy",
-    "LazyMeta"
-]
+__all__ = ["Lazy", "LazyMeta"]
