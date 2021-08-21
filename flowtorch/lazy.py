@@ -3,10 +3,13 @@
 
 import inspect
 from collections import OrderedDict
+from typing import Tuple, Mapping, Any
 
 
 # TODO: Move functions to flowtorch.utils?
-def partial_signature(sig, *args, **kwargs):
+def partial_signature(
+    sig: inspect.Signature, *args: Any, **kwargs: Any
+) -> Tuple[inspect.Signature, Mapping[str, Any]]:
     """
     Given an inspect.Signature object and a dictionary of (name, val) pairs,
     bind the names to the signature and return a new modified signature
@@ -20,19 +23,19 @@ def partial_signature(sig, *args, **kwargs):
         if param_name not in bindings:
             new_parameters[param_name] = old_parameters[param_name]
 
-    bound_sig = sig.replace(parameters=new_parameters.values())
+    bound_sig = sig.replace(parameters=list(new_parameters.values()))
 
     return bound_sig, bindings
 
 
-def count_unbound(sig):
+def count_unbound(sig: inspect.Signature) -> int:
     return len(
         [p for p, v in sig.parameters.items() if v.default is inspect.Parameter.empty]
     )
 
 
 class LazyMeta(type):
-    def __call__(cls, *args, **kwargs):
+    def __call__(cls: Any, *args: Any, **kwargs: Any) -> Any:
         """
         Intercept instance creation
         """
@@ -48,7 +51,7 @@ class LazyMeta(type):
         new_parameters = OrderedDict(
             [(k, v) for idx, (k, v) in enumerate(sig.parameters.items()) if idx != 0]
         )
-        sig = sig.replace(parameters=new_parameters.values())
+        sig = sig.replace(parameters=list(new_parameters.values()))
 
         # Attempt binding arguments to initializer
         bound_sig, bindings = partial_signature(sig, *args, **kwargs)
@@ -67,16 +70,22 @@ class Lazy(metaclass=LazyMeta):
     Represents delayed instantiation of a class.
     """
 
-    def __init__(self, cls, bindings, sig, bound_sig):
+    def __init__(
+        self,
+        cls: Any,
+        bindings: Mapping[str, Any],
+        sig: inspect.Signature,
+        bound_sig: inspect.Signature,
+    ):
         self.cls = cls
         self.bindings = bindings
         self.sig = sig
         self.bound_sig = bound_sig
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Lazy(cls={self.cls.__name__}, bindings={self.bindings})"
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args: Any, **kwargs: Any) -> "Lazy":
         """
         Apply additional bindings
         """

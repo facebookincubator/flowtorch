@@ -14,3 +14,7 @@ def clamp_preserve_gradients(x: torch.Tensor, min: float, max: float) -> torch.T
 def clipped_sigmoid(x: torch.Tensor) -> torch.Tensor:
     finfo = torch.finfo(x.dtype)
     return torch.clamp(torch.sigmoid(x), min=finfo.tiny, max=1.0 - finfo.eps)
+
+
+def softplus_inv(y: torch.Tensor) -> torch.Tensor:
+    return y + y.neg().expm1().neg().log()

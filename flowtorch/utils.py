@@ -6,14 +6,14 @@ import inspect
 import os
 import pkgutil
 from functools import partial
-from typing import Sequence, Tuple
+from typing import Sequence, Tuple, Callable, Optional, Any
 
 import flowtorch
 from flowtorch.bijectors.base import Bijector
 from flowtorch.params.base import Params
 
 
-def isderivedclass(cls, base_cls):
+def isderivedclass(cls: type, base_cls: type) -> bool:
     return inspect.isclass(cls) and issubclass(cls, base_cls)
 
 
@@ -25,12 +25,14 @@ def list_params() -> Sequence[Tuple[str, Params]]:
     return _walk_packages("params", partial(isderivedclass, base_cls=Params))
 
 
-def _walk_packages(modname, filter):
+def _walk_packages(
+    modname: str, filter: Optional[Callable[[Any], bool]]
+) -> Sequence[Tuple[str, Any]]:
     classes = []
 
     # NOTE: I use path of flowtorch rather than e.g. flowtorch.bijectors
     # to avoid circular imports
-    path = [os.path.join(flowtorch.__path__[0], modname)]
+    path = [os.path.join(flowtorch.__path__[0], modname)]  # type: ignore
 
     # The followings line uncovered a bug that hasn't been fixed in mypy:
     # https://github.com/python/mypy/issues/1422

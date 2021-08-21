@@ -31,14 +31,16 @@ class Bijector(metaclass=flowtorch.LazyMeta):
 
         # Instantiate parameters (tensor, hypernets, etc.)
         if params is not None:
-            self._params = params(shape, self.param_shapes(shape), self._context_size)
+            self._params = params(
+                shape, self.param_shapes(shape), self._context_size
+            )  # type: ignore
 
     @property
     def params(self) -> Optional[Params]:
         return self._params
 
     @params.setter
-    def params(self, value: Optional[Params]):
+    def params(self, value: Optional[Params]) -> None:
         self._params = value
 
     def forward(
@@ -124,14 +126,14 @@ class Bijector(metaclass=flowtorch.LazyMeta):
     def __repr__(self) -> str:
         return self.__class__.__name__ + "()"
 
-    def forward_shape(self, shape: torch.Size):
+    def forward_shape(self, shape: torch.Size) -> torch.Size:
         """
         Infers the shape of the forward computation, given the input shape.
         Defaults to preserving shape.
         """
         return shape
 
-    def inverse_shape(self, shape: torch.Size):
+    def inverse_shape(self, shape: torch.Size) -> torch.Size:
         """
         Infers the shapes of the inverse computation, given the output shape.
         Defaults to preserving shape.

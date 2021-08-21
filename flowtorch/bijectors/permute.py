@@ -22,8 +22,8 @@ class Permute(Fixed, VolumePreserving):
         params: Optional[flowtorch.Lazy] = None,
         context_size: int = 0,
         *,
-        permutation=None
-    ):
+        permutation: Optional[torch.Tensor] = None
+    ) -> None:
         super().__init__(shape, params, context_size)
         self.permutation = permutation
 
@@ -48,7 +48,10 @@ class Permute(Fixed, VolumePreserving):
         return torch.index_select(y, -1, self.inv_permutation)
 
     @lazy_property
-    def inv_permutation(self):
+    def inv_permutation(self) -> Optional[torch.Tensor]:
+        if self.permutation is None:
+            return None
+
         result = torch.empty_like(self.permutation, dtype=torch.long)
         result[self.permutation] = torch.arange(
             self.permutation.size(0), dtype=torch.long, device=self.permutation.device

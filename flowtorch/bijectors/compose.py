@@ -29,10 +29,10 @@ class Compose(Bijector):
             assert issubclass(bijector.cls, Bijector)
 
             self.bijectors.append(bijector(shape))
-            shape = self.bijectors[-1].forward_shape(shape)
+            shape = self.bijectors[-1].forward_shape(shape)  # type: ignore
 
         # TODO: Adjust domain accordingly and check domain/codomain compatibility!
-        event_dim = self.bijectors[0].domain.event_dim
+        event_dim = self.bijectors[0].domain.event_dim  # type: ignore
         self.domain = constraints.independent(constraints.real, event_dim)
         self.codomain = constraints.independent(constraints.real, event_dim)
         self._inv = None
@@ -40,24 +40,28 @@ class Compose(Bijector):
         # self.identity_initialization = all(
         #    b.identity_initialization for b in self.bijectors
         # )
-        self.autoregressive = all(b.autoregressive for b in self.bijectors)
+        self.autoregressive = all(
+            b.autoregressive for b in self.bijectors  # type: ignore
+        )
         self._context_size = context_size
 
     # NOTE: We overwrite forward rather than _forward so that the composed
     # bijectors can handle the caching separately!
-    def forward(self, x, context=None):
+    def forward(self, x: torch.Tensor, context: torch.Tensor = None) -> torch.Tensor:
         for bijector in self.bijectors:
-            x = bijector.forward(x, context)
+            x = bijector.forward(x, context)  # type: ignore
 
         return x
 
-    def inverse(self, y, context=None):
+    def inverse(self, y: torch.Tensor, context: torch.Tensor = None) -> torch.Tensor:
         for bijector in reversed(self.bijectors):
-            y = bijector.inverse(y, context)
+            y = bijector.inverse(y, context)  # type: ignore
 
         return y
 
-    def log_abs_det_jacobian(self, x, y, context=None):
+    def log_abs_det_jacobian(
+        self, x: torch.Tensor, y: torch.Tensor, context: torch.Tensor = None
+    ) -> torch.Tensor:
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.
         By default, assumes a volume preserving bijection.
@@ -67,15 +71,15 @@ class Compose(Bijector):
             self.domain.event_dim,
         )
         for bijector in reversed(self.bijectors):
-            y_inv = bijector.inverse(y, context)
-            ldj += bijector.log_abs_det_jacobian(y_inv, y, context)
+            y_inv = bijector.inverse(y, context)  # type: ignore
+            ldj += bijector.log_abs_det_jacobian(y_inv, y, context)  # type: ignore
             y = y_inv
         return ldj
 
-    def param_shapes(self, shape):
+    def param_shapes(self, shape: torch.Size) -> Sequence[torch.Size]:
         """
         Given a base distribution, calculate the parameters for the transformation
         of that distribution under this bijector. By default, no parameters are
         set.
         """
-        return None
+        return []

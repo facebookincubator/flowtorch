@@ -2,10 +2,11 @@
 # SPDX-License-Identifier: MIT
 
 import importlib
+import types
 from collections import OrderedDict
 from functools import lru_cache
 from inspect import isclass, isfunction, ismodule
-from typing import Any, Dict, Sequence
+from typing import Any, Dict, Sequence, Mapping, Tuple
 
 # We don't want to include, e.g. both flowtorch.bijectors.Affine and
 # flowtorch.bijectors.affine.Affine. Hence, we specify a list of modules
@@ -22,12 +23,12 @@ include_modules = [
 ]
 
 
-def ispublic(name):
+def ispublic(name: str) -> bool:
     return not name.startswith("_")
 
 
 @lru_cache(maxsize=1)
-def _documentable_modules() -> Dict[Any, Sequence[Any]]:
+def _documentable_modules() -> Mapping[types.ModuleType, Sequence[Tuple[str, Any]]]:
     """
     Returns a list of (module, [(name, entity), ...]) pairs for modules
     that are documentable
@@ -36,7 +37,7 @@ def _documentable_modules() -> Dict[Any, Sequence[Any]]:
     # TODO: Self document flowtorch.docs module
     results = {}
 
-    def dfs(dict):
+    def dfs(dict: Mapping[str, Any]) -> None:
         for key, val in dict.items():
             module = importlib.import_module(key)
             entities = [
@@ -63,7 +64,7 @@ def _documentable_modules() -> Dict[Any, Sequence[Any]]:
 
 
 @lru_cache(maxsize=1)
-def _documentable_entities():
+def _documentable_entities() -> Tuple[Sequence[str], Dict[str, Any]]:
     """
     Returns a list of (str, entity) pairs for entities that are documentable
     """
@@ -83,9 +84,9 @@ def _documentable_entities():
 
 
 @lru_cache(maxsize=1)
-def _module_hierarchy():
+def _module_hierarchy() -> Mapping[str, Any]:
     # Make list of modules to search and their hierarchy
-    results = OrderedDict()
+    results: Dict[str, Any] = OrderedDict()
     for module in sorted(include_modules):
         submodules = module.split(".")
         this_dict = results.setdefault(submodules[0], {})
@@ -98,7 +99,7 @@ def _module_hierarchy():
     return results
 
 
-def generate_markdown(name, entity):
+def generate_markdown(name: str, entity: Any) -> Tuple[str, str]:
     """
     TODO: Method that inputs an object, extracts signature/docstring,
     and formats as markdown

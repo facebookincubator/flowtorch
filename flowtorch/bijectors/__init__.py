@@ -34,12 +34,12 @@ meta_bijectors = [
 ]
 
 
-def isbijector(cls):
+def isbijector(cls: type) -> bool:
     # A class must inherit from flowtorch.Bijector to be considered a valid bijector
     return issubclass(cls, Bijector)
 
 
-def standard_bijector(cls):
+def standard_bijector(cls: type) -> bool:
     # "Standard bijectors" are the ones we can perform standard automated tests upon
     return (
         inspect.isclass(cls)

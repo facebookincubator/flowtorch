@@ -23,8 +23,8 @@ class AffineFixed(Bijector):
         params: Optional[flowtorch.Lazy] = None,
         context_size: int = 0,
         *,
-        loc=0.0,
-        scale=1.0
+        loc: float = 0.0,
+        scale: float = 1.0
     ) -> None:
         super().__init__(shape, params, context_size)
         self.loc = loc

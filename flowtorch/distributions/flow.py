@@ -8,11 +8,6 @@ import torch.distributions as dist
 from torch import Tensor
 from torch.distributions.utils import _sum_rightmost
 
-"""
-if TYPE_CHECKING:
-    from flowtorch.bijectors.base import Bijector
-"""
-
 
 class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
     _default_sample_shape = torch.Size()
@@ -27,7 +22,7 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         torch.nn.Module.__init__(self)
 
         self.base_dist = base_dist
-        self._context = None
+        self._context: Optional[torch.Tensor] = None
         self.bijector = bijector(base_dist.event_shape)
 
         # TODO: Confirm that the following logic works. Shouldn't it use
@@ -35,7 +30,8 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         shape = (
             self.base_dist.batch_shape + self.base_dist.event_shape  # pyre-ignore[16]
         )
-        event_dim = max(len(self.base_dist.event_shape), self.bijector.domain.event_dim)
+        event_dim = self.bijector.domain.event_dim  # type: ignore
+        event_dim = max(event_dim, len(self.base_dist.event_shape))
         batch_shape = shape[: len(shape) - event_dim]
         event_shape = shape[len(shape) - event_dim :]
 
@@ -43,7 +39,7 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
             self, batch_shape, event_shape, validate_args=validate_args
         )
 
-    def condition(self, context):
+    def condition(self, context: torch.Tensor) -> "Flow":
         self._context = context
         return self
 
@@ -62,7 +58,7 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
             context = self._context
         with torch.no_grad():
             x = self.base_dist.sample(sample_shape)
-            x = self.bijector.forward(x, context)
+            x = self.bijector.forward(x, context)  # type: ignore
             return x
 
     def rsample(
@@ -79,7 +75,7 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         if context is None:
             context = self._context
         x = self.base_dist.rsample(sample_shape)
-        x = self.bijector.forward(x, context)
+        x = self.bijector.forward(x, context)  # type: ignore
         return x
 
     def log_prob(
@@ -93,10 +89,10 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
             context = self._context
         event_dim = len(self.event_shape)  # pyre-ignore[16]
 
-        x = self.bijector.inverse(value, context)
+        x = self.bijector.inverse(value, context)  # type: ignore
         log_prob = -_sum_rightmost(
-            self.bijector.log_abs_det_jacobian(x, value, context),
-            event_dim - self.bijector.domain.event_dim,
+            self.bijector.log_abs_det_jacobian(x, value, context),  # type: ignore
+            event_dim - self.bijector.domain.event_dim,  # type: ignore
         )
         log_prob = log_prob + _sum_rightmost(
             self.base_dist.log_prob(x),
