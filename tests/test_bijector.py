@@ -1,8 +1,6 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
-import flowtorch
 import flowtorch.bijectors as bijectors
-import flowtorch.params
 import numpy as np
 import pytest
 import torch
@@ -138,7 +136,7 @@ def _test_autodiff(self, input_dim, transform, inverse=False):
     pass
 """
 
-
+"""
 if __name__ == "__main__":
     bij = bijectors.AffineFixed
     event_dim = max(bij.domain.event_dim, 1)
@@ -148,3 +146,4 @@ if __name__ == "__main__":
     )
     flow = Flow(base_dist, bij)
     test_jacobian(flow)
+"""
