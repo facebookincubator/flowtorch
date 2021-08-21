@@ -31,9 +31,8 @@ class Bijector(metaclass=flowtorch.LazyMeta):
 
         # Instantiate parameters (tensor, hypernets, etc.)
         if params is not None:
-            self._params = params(
-                shape, self.param_shapes(shape), self._context_size
-            )  # type: ignore
+            shapes = self.param_shapes(shape)
+            self._params = params(shape, shapes, self._context_size)  # type: ignore
 
     @property
     def params(self) -> Optional[Params]:
