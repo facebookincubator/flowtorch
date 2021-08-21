@@ -19,13 +19,13 @@ class Power(Bijector):
     # TODO: Tensor valued exponents and corresponding determination of event_dim
     def __init__(
         self,
-        base_dist: torch.distributions.Distribution,
+        shape: torch.Size,
         params: Optional[flowtorch.Lazy] = None,
         context_size: int = 0,
         *,
         exponent: float = 2.0,
     ) -> None:
-        super().__init__(base_dist, params, context_size)
+        super().__init__(shape, params, context_size)
         self.exponent = exponent
 
     def _forward(

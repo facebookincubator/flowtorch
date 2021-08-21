@@ -25,4 +25,4 @@ class Tensor(Params):
     def _forward(
         self, x: torch.Tensor, context: Optional[torch.Tensor] = None
     ) -> Sequence[torch.Tensor]:
-        return self.params
+        return list(self.params)

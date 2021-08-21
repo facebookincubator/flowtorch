@@ -19,14 +19,14 @@ class AffineFixed(Bijector):
     # TODO: Handle non-scalar loc and scale with correct broadcasting semantics
     def __init__(
         self,
-        base_dist: torch.distributions.Distribution,
+        shape: torch.Size,
         params: Optional[flowtorch.Lazy] = None,
         context_size: int = 0,
         *,
         loc=0.0,
         scale=1.0
     ) -> None:
-        super().__init__(base_dist, params, context_size)
+        super().__init__(shape, params, context_size)
         self.loc = loc
         self.scale = scale
 

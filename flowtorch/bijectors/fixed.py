@@ -37,12 +37,10 @@ class Fixed(Bijector):
         assert context is None or context.shape == (self._context_size,)
         return self._log_abs_det_jacobian(x, y, context)
 
-    def param_shapes(
-        self, dist: torch.distributions.Distribution
-    ) -> Sequence[torch.Size]:
+    def param_shapes(self, shape: torch.Size) -> Sequence[torch.Size]:
         """
         Given a base distribution, calculate the parameters for the transformation
         of that distribution under this bijector. By default, no parameters are
         set.
         """
-        return (torch.Size([]),)
+        return []

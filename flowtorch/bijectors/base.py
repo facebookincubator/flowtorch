@@ -1,7 +1,6 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
-import weakref
-from typing import Optional, Sequence, Union, cast
+from typing import Optional, Sequence
 
 import flowtorch
 import flowtorch.distributions
@@ -13,7 +12,7 @@ from torch.distributions import constraints
 
 
 class Bijector(metaclass=flowtorch.LazyMeta):
-    _inv: Optional[Union[weakref.ReferenceType, "Bijector"]] = None
+    # _inv: Optional[Union[weakref.ReferenceType, "Bijector"]] = None
     codomain: constraints.Constraint = constraints.real
     domain: constraints.Constraint = constraints.real
     identity_initialization: bool = True
@@ -111,6 +110,7 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         """
         raise NotImplementedError
 
+    """
     def inv(self) -> "Bijector":
         if self._inv is not None:
             # TODO: remove casting without failing mypy
@@ -119,6 +119,7 @@ class Bijector(metaclass=flowtorch.LazyMeta):
             inv = _InverseBijector(self)
             self._inv = weakref.ref(inv)
         return inv
+    """
 
     def __repr__(self) -> str:
         return self.__class__.__name__ + "()"
@@ -136,68 +137,3 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         Defaults to preserving shape.
         """
         return shape
-
-
-class _InverseBijector(Bijector):
-    _inv: Bijector
-    """
-    Inverts a single :class:`Bijector`.
-    This class is private; please instead use the ``Bijector.inv`` property.
-    """
-
-    def __init__(self, bijector: Bijector):
-        super(_InverseBijector, self).__init__(param_fn=bijector.param_fn)
-        self._inv = bijector
-        self.param_fn = bijector.param_fn
-        self.domain = bijector.codomain
-        self.codomain = bijector.domain
-        self._context_size = bijector._context_size
-
-    @property
-    def inv(self):
-        return self._inv
-
-    @property
-    def params(self):
-        return self.inv.params
-
-    @params.setter
-    def params(self, value):
-        self.inv.params = value
-
-    def __eq__(self, other):
-        if not isinstance(other, _InverseBijector):
-            return False
-        assert self._inv is not None
-        return self._inv == other._inv
-
-    def _forward(
-        self,
-        x: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
-    ) -> torch.Tensor:
-        return self._inv.inverse(x, context)
-
-    def _inverse(
-        self,
-        y: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
-    ) -> torch.Tensor:
-        return self._inv.forward(y, context)
-
-    def _log_abs_det_jacobian(
-        self,
-        x: torch.Tensor,
-        y: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
-    ) -> torch.Tensor:
-        return -self._inv.log_abs_det_jacobian(y, x, context)
-
-    def param_shapes(self, shape: torch.Size) -> Sequence[torch.Size]:
-        return self._inv.param_shapes(shape)
-
-    def forward_shape(self, shape):
-        return self._inv.inverse_shape(shape)
-
-    def inverse_shape(self, shape):
-        return self._inv.forward_shape(shape)

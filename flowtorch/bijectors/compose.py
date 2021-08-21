@@ -26,7 +26,7 @@ class Compose(Bijector):
         # Instantiate all bijectors, propagating shape information
         self.bijectors = []
         for bijector in bijectors:
-            assert issubclass(bijector.cls, flowtorch.bijectors.Bijector)
+            assert issubclass(bijector.cls, Bijector)
 
             self.bijectors.append(bijector(shape))
             shape = self.bijectors[-1].forward_shape(shape)
