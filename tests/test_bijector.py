@@ -101,24 +101,25 @@ def test_jacobian(flow, epsilon=1e-2):
 """
 def test_inverse(flow, epsilon=1e-5):
     # Define plan for flow
-    event_dim = max(flow.domain.event_dim, 1)
+    event_dim = max(bijector.domain.event_dim, 1)
     event_shape = event_dim * [4]
     base_dist = dist.Normal(torch.zeros(event_shape), torch.ones(event_shape))
 
     # Instantiate transformed distribution and parameters
-    _ = flow(base_dist)
+    flow = bijector(base_dist)
+    bijector = flow.bijector
 
     # Test g^{-1}(g(x)) = x
     x_true = base_dist.sample(torch.Size([10]))
-    x_true = torch.distributions.transform_to(flow.domain)(x_true)
+    x_true = torch.distributions.transform_to(bijector.domain)(x_true)
 
-    y = flow._forward(x_true)
-    x_calculated = flow._inverse(y)
+    y = bijector._forward(x_true)
+    x_calculated = bijector._inverse(y)
     assert (x_true - x_calculated).abs().max().item() < epsilon
 
     # Test that Jacobian after inverse op is same as after forward
-    J_1 = flow.log_abs_det_jacobian(x_true, y)
-    J_2 = flow.log_abs_det_jacobian(x_calculated, y)
+    J_1 = bijector.log_abs_det_jacobian(x_true, y)
+    J_2 = bijector.log_abs_det_jacobian(x_calculated, y)
     assert (J_1 - J_2).abs().max().item() < epsilon
 """
 

@@ -22,6 +22,7 @@ def test_conditional_2gmm():
 
     base_dist = dist.Normal(torch.zeros(2), torch.ones(2))
     new_cond_dist = flow(base_dist)
+    flow = new_cond_dist.bijector
 
     target_dist_0 = dist.Independent(
         dist.Normal(torch.zeros(2) + 5, torch.ones(2) * 0.5), 1

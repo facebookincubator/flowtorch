@@ -73,6 +73,7 @@ def test_neals_funnel_vi():
         flowtorch.params.DenseAutoregressive()
     )
     tdist = flow(dist.Independent(dist.Normal(torch.zeros(2), torch.ones(2)), 1))
+    flow = tdist.bijector
     opt = torch.optim.Adam(flow.params.parameters(), lr=2e-3)
     num_elbo_mc_samples = 200
     for _ in range(100):
@@ -109,6 +110,7 @@ def test_conditional_2gmm():
 
     base_dist = dist.Normal(torch.zeros(2), torch.ones(2))
     new_cond_dist = flow(base_dist)
+    flow = new_cond_dist.bijector
 
     target_dist_0 = dist.Independent(
         dist.Normal(torch.zeros(2) + 5, torch.ones(2) * 0.5), 1
