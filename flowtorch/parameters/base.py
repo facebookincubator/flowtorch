@@ -6,7 +6,7 @@ import torch
 from flowtorch import LazyMeta
 
 
-class Params(torch.nn.Module, metaclass=LazyMeta):
+class Parameters(torch.nn.Module, metaclass=LazyMeta):
     """
     Deferred initialization of parameters.
     """

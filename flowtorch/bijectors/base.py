@@ -4,10 +4,10 @@ from typing import Optional, Sequence
 
 import flowtorch
 import flowtorch.distributions
-import flowtorch.params
+import flowtorch.parameters
 import torch
 import torch.distributions
-from flowtorch.params import Params
+from flowtorch.parameters import Parameters
 from torch.distributions import constraints
 
 
@@ -19,7 +19,7 @@ class Bijector(metaclass=flowtorch.LazyMeta):
     autoregressive: bool = False
     _context_size: int
     event_dim: int = 0
-    _params: Optional[flowtorch.params.Params] = None
+    _params: Optional[Parameters] = None
 
     def __init__(
         self,
@@ -35,11 +35,11 @@ class Bijector(metaclass=flowtorch.LazyMeta):
             self._params = params(shape, shapes, self._context_size)  # type: ignore
 
     @property
-    def params(self) -> Optional[Params]:
+    def params(self) -> Optional[Parameters]:
         return self._params
 
     @params.setter
-    def params(self, value: Optional[Params]) -> None:
+    def params(self, value: Optional[Parameters]) -> None:
         self._params = value
 
     def forward(

@@ -4,7 +4,7 @@
 from typing import Sequence
 
 import flowtorch
-import flowtorch.params
+import flowtorch.parameters
 import torch
 import torch.distributions
 from flowtorch.bijectors.base import Bijector

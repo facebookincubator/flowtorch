@@ -6,8 +6,10 @@ eps = 1e-8
 
 
 def clamp_preserve_gradients(x: torch.Tensor, min: float, max: float) -> torch.Tensor:
-    # This helper function clamps gradients but still passes through the
-    # gradient in clamped regions
+    """
+    This helper function clamps gradients but still passes through the
+    gradient in clamped regions
+    """
     return x + (x.clamp(min, max) - x).detach()
 
 

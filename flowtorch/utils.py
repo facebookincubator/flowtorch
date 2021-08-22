@@ -10,7 +10,7 @@ from typing import Sequence, Tuple, Callable, Optional, Any
 
 import flowtorch
 from flowtorch.bijectors.base import Bijector
-from flowtorch.params.base import Params
+from flowtorch.parameters.base import Parameters
 
 
 def isderivedclass(cls: type, base_cls: type) -> bool:
@@ -21,8 +21,8 @@ def list_bijectors() -> Sequence[Tuple[str, Bijector]]:
     return _walk_packages("bijectors", partial(isderivedclass, base_cls=Bijector))
 
 
-def list_params() -> Sequence[Tuple[str, Params]]:
-    return _walk_packages("params", partial(isderivedclass, base_cls=Params))
+def list_params() -> Sequence[Tuple[str, Parameters]]:
+    return _walk_packages("params", partial(isderivedclass, base_cls=Parameters))
 
 
 def _walk_packages(

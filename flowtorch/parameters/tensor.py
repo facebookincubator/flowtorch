@@ -5,10 +5,10 @@ from typing import Optional, Sequence
 
 import torch
 import torch.nn as nn
-from flowtorch.params.base import Params
+from flowtorch.parameters.base import Parameters
 
 
-class Tensor(Params):
+class Tensor(Parameters):
     def __init__(
         self,
         input_shape: torch.Size,
