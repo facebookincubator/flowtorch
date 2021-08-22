@@ -18,6 +18,9 @@ class Parameters(torch.nn.Module, metaclass=LazyMeta):
         context_dims: int,
     ) -> None:
         super().__init__()
+        self.input_shape = input_shape
+        self.param_shapes = param_shapes
+        self.context_dims = context_dims
 
     def forward(
         self,
