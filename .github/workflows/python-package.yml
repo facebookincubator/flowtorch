@@ -41,7 +41,7 @@ jobs:
         flake8 . --count --show-source --statistics
     - name: Check types with mypy
       run: |
-        mypy flowtorch
+        mypy --disallow-untyped-defs flowtorch
     - name: Test with pytest
       run: |
         pytest --cov=tests --cov-report=xml -W ignore::DeprecationWarning tests/

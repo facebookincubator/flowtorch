@@ -3,6 +3,7 @@
 
 from typing import Optional
 
+import flowtorch
 import torch
 import torch.distributions.constraints as constraints
 from flowtorch.bijectors.fixed import Fixed
@@ -15,9 +16,15 @@ class Permute(Fixed, VolumePreserving):
     codomain = constraints.real_vector
 
     # TODO: A new abstraction so can defer construction of permutation
-    def __init__(self, permutation=None):
-        super().__init__(param_fn=None)
-
+    def __init__(
+        self,
+        shape: torch.Size,
+        params: Optional[flowtorch.Lazy] = None,
+        context_size: int = 0,
+        *,
+        permutation: Optional[torch.Tensor] = None
+    ) -> None:
+        super().__init__(shape, params, context_size)
         self.permutation = permutation
 
     def _forward(
@@ -41,7 +48,10 @@ class Permute(Fixed, VolumePreserving):
         return torch.index_select(y, -1, self.inv_permutation)
 
     @lazy_property
-    def inv_permutation(self):
+    def inv_permutation(self) -> Optional[torch.Tensor]:
+        if self.permutation is None:
+            return None
+
         result = torch.empty_like(self.permutation, dtype=torch.long)
         result[self.permutation] = torch.arange(
             self.permutation.size(0), dtype=torch.long, device=self.permutation.device

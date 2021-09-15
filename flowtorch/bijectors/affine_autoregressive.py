@@ -3,45 +3,54 @@
 
 from typing import cast, Optional, Tuple
 
-import flowtorch.params
+import flowtorch
+import flowtorch.parameters
 import torch
 import torch.distributions.constraints as constraints
 from flowtorch.bijectors.base import Bijector
 from flowtorch.ops import clamp_preserve_gradients
+from torch.distributions.utils import _sum_rightmost
 
 
 class AffineAutoregressive(Bijector):
+    # "Default" event shape is to operate on vectors
     domain = constraints.real_vector
     codomain = constraints.real_vector
+
+    # TODO: Remove when bijector/params type system is implemented
     autoregressive = True
 
     def __init__(
         self,
-        param_fn: Optional[flowtorch.params.DenseAutoregressive] = None,
+        shape: torch.Size,
+        params: Optional[flowtorch.Lazy] = None,
+        context_size: int = 0,
+        *,
         log_scale_min_clip: float = -5.0,
         log_scale_max_clip: float = 3.0,
         sigmoid_bias: float = 2.0,
-        context_size: int = 0,
     ) -> None:
-        # currently only DenseAutoregressive has a `permutation` buffer
-        if not param_fn:
-            param_fn = flowtorch.params.DenseAutoregressive()
+        # Event shape is determined by `shape` argument
+        self.domain = constraints.independent(constraints.real, len(shape))
+        self.codomain = constraints.independent(constraints.real, len(shape))
 
-        super().__init__(param_fn=param_fn)
+        # currently only DenseAutoregressive has a `permutation` buffer
+        if not params:
+            params = flowtorch.parameters.DenseAutoregressive()  # type: ignore
+
+        super().__init__(shape, params, context_size)
         self.log_scale_min_clip = log_scale_min_clip
         self.log_scale_max_clip = log_scale_max_clip
         self.sigmoid_bias = sigmoid_bias
-        self._context_size = context_size
 
     def _forward(
         self,
         x: torch.Tensor,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        # TODO: lift into type system using thunk, see similar pattern for
-        # Param/ParamImpl
         params = self.params
         assert params is not None
+
         mean, log_scale = params(x, context=context)
         log_scale = clamp_preserve_gradients(
             log_scale, self.log_scale_min_clip, self.log_scale_max_clip
@@ -55,8 +64,6 @@ class AffineAutoregressive(Bijector):
         y: torch.Tensor,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        # TODO: lift into type system using thunk, see similar pattern for
-        # Param/ParamImpl
         params = self.params
         assert params is not None
 
@@ -74,7 +81,7 @@ class AffineAutoregressive(Bijector):
                     min=self.log_scale_min_clip,
                     max=self.log_scale_max_clip,
                 )
-            )  # * 10
+            )
             mean = mean[..., idx]
             x[..., idx] = (y[..., idx] - mean) * inverse_scale
 
@@ -86,8 +93,6 @@ class AffineAutoregressive(Bijector):
         y: torch.Tensor,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        # TODO: lift into type system using thunk, see similar pattern for
-        # Param/ParamImpl
         params = self.params
         assert params is not None
 
@@ -96,11 +101,8 @@ class AffineAutoregressive(Bijector):
         log_scale = clamp_preserve_gradients(
             log_scale, self.log_scale_min_clip, self.log_scale_max_clip
         )
-        return log_scale.sum(-1)
+        return _sum_rightmost(log_scale, self.domain.event_dim)
 
-    def param_shapes(
-        self, dist: torch.distributions.Distribution
-    ) -> Tuple[torch.Size, torch.Size]:
-        # A mean and log variance for every dimension of base distribution
-        # TODO: Change this to reflect base dimension!
-        return torch.Size([]), torch.Size([])
+    def param_shapes(self, shape: torch.Size) -> Tuple[torch.Size, torch.Size]:
+        # A mean and log variance for every dimension of the event shape
+        return shape, shape
