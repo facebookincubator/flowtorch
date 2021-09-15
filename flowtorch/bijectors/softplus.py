@@ -3,15 +3,11 @@
 
 from typing import Optional
 
+import flowtorch.ops
 import torch
 import torch.distributions.constraints as constraints
 import torch.nn.functional as F
 from flowtorch.bijectors.base import Bijector
-
-
-# TODO: Move to flowtorch.ops
-def softplus_inv(y):
-    return y + y.neg().expm1().neg().log()
 
 
 class Softplus(Bijector):
@@ -32,7 +28,7 @@ class Softplus(Bijector):
         y: torch.Tensor,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        return softplus_inv(y)
+        return flowtorch.ops.softplus_inv(y)
 
     def _log_abs_det_jacobian(
         self,

@@ -4,6 +4,7 @@
 import math
 from typing import Optional
 
+import flowtorch
 import torch
 from flowtorch.bijectors.base import Bijector
 
@@ -16,8 +17,16 @@ class AffineFixed(Bijector):
     """
 
     # TODO: Handle non-scalar loc and scale with correct broadcasting semantics
-    def __init__(self, loc=0.0, scale=1.0) -> None:
-        super().__init__(param_fn=None)
+    def __init__(
+        self,
+        shape: torch.Size,
+        params: Optional[flowtorch.Lazy] = None,
+        context_size: int = 0,
+        *,
+        loc: float = 0.0,
+        scale: float = 1.0
+    ) -> None:
+        super().__init__(shape, params, context_size)
         self.loc = loc
         self.scale = scale
 

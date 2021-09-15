@@ -5,7 +5,6 @@ import inspect
 from typing import cast, List, Tuple
 
 import torch
-import torch.distributions as dist
 
 # TODO: Autogenerate this from script!
 from flowtorch.bijectors.affine_autoregressive import AffineAutoregressive
@@ -34,12 +33,12 @@ meta_bijectors = [
 ]
 
 
-def isbijector(cls):
+def isbijector(cls: type) -> bool:
     # A class must inherit from flowtorch.Bijector to be considered a valid bijector
     return issubclass(cls, Bijector)
 
 
-def standard_bijector(cls):
+def standard_bijector(cls: type) -> bool:
     # "Standard bijectors" are the ones we can perform standard automated tests upon
     return (
         inspect.isclass(cls)
@@ -67,12 +66,10 @@ invertible_bijectors = []
 for bij_name, cls in standard_bijectors:
     # TODO: Use factored out version of the following
     # Define plan for flow
-    bij = cls()
-    event_dim = max(bij.domain.event_dim, 1)
+    event_dim = max(cls.domain.event_dim, 1)  # type: ignore
     event_shape = event_dim * [4]
-    base_dist = dist.Normal(torch.zeros(event_shape), torch.ones(event_shape))
-    flow = bij(base_dist)
-    bij = flow.bijector
+    # base_dist = dist.Normal(torch.zeros(event_shape), torch.ones(event_shape))
+    bij = cls(torch.Size(event_shape))
 
     try:
         y = torch.randn(*bij.forward_shape(event_shape))
