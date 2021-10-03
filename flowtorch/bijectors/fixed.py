@@ -2,12 +2,22 @@
 # SPDX-License-Identifier: MIT
 from typing import Optional, Sequence
 
+import flowtorch
 import torch
 import torch.distributions
 from flowtorch.bijectors.base import Bijector
 
 
 class Fixed(Bijector):
+    def __init__(
+        self,
+        shape: torch.Size,
+        params: Optional[flowtorch.Lazy] = None,
+        context_size: int = 0,
+    ) -> None:
+        super().__init__(shape, params, context_size)
+        assert params is None
+
     def forward(
         self,
         x: torch.Tensor,
