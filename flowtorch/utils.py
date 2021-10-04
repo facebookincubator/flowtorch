@@ -11,6 +11,12 @@ from typing import Sequence, Tuple, Callable, Optional, Any
 import flowtorch
 from flowtorch.bijectors.base import Bijector
 from flowtorch.parameters.base import Parameters
+from torch.distributions import Distribution
+
+
+copyright_header = """Copyright (c) Facebook, Inc. and its affiliates. \
+All Rights Reserved
+SPDX-License-Identifier: MIT"""
 
 
 def isderivedclass(cls: type, base_cls: type) -> bool:
@@ -21,8 +27,14 @@ def list_bijectors() -> Sequence[Tuple[str, Bijector]]:
     return _walk_packages("bijectors", partial(isderivedclass, base_cls=Bijector))
 
 
-def list_params() -> Sequence[Tuple[str, Parameters]]:
-    return _walk_packages("params", partial(isderivedclass, base_cls=Parameters))
+def list_parameters() -> Sequence[Tuple[str, Parameters]]:
+    return _walk_packages("parameters", partial(isderivedclass, base_cls=Parameters))
+
+
+def list_distributions() -> Sequence[Tuple[str, Parameters]]:
+    return _walk_packages(
+        "distributions", partial(isderivedclass, base_cls=Distribution)
+    )
 
 
 def _walk_packages(
