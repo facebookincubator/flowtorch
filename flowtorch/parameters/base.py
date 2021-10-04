@@ -24,7 +24,7 @@ class Parameters(torch.nn.Module, metaclass=LazyMeta):
 
     def forward(
         self,
-        x: torch.Tensor,
+        x: Optional[torch.Tensor] = None,
         context: Optional[torch.Tensor] = None,
     ) -> Sequence[torch.Tensor]:
         # TODO: Caching etc.
@@ -32,7 +32,7 @@ class Parameters(torch.nn.Module, metaclass=LazyMeta):
 
     def _forward(
         self,
-        x: torch.Tensor,
+        x: Optional[torch.Tensor] = None,
         context: Optional[torch.Tensor] = None,
     ) -> Sequence[torch.Tensor]:
         # I raise an exception rather than using @abstractmethod and
