@@ -6,9 +6,7 @@ import os
 import sys
 from enum import Enum
 
-copyright_header = """Copyright (c) Facebook, Inc. and its affiliates. \
-All Rights Reserved
-SPDX-License-Identifier: MIT"""
+from flowtorch.utils import copyright_header
 
 lines_header = ["# " + ln + "\n" for ln in copyright_header.splitlines()]
 

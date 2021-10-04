@@ -17,7 +17,7 @@ include_modules = [
     "flowtorch",
     "flowtorch.bijectors",
     "flowtorch.distributions",
-    # "flowtorch.experimental.params",
+    # "flowtorch.experimental.parameters",
     "flowtorch.nn",
     "flowtorch.ops",
     "flowtorch.parameters",
