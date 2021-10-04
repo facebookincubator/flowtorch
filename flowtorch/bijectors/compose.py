@@ -8,7 +8,6 @@ import flowtorch.parameters
 import torch
 import torch.distributions
 from flowtorch.bijectors.base import Bijector
-from torch.distributions import constraints
 from torch.distributions.utils import _sum_rightmost
 
 
@@ -30,11 +29,8 @@ class Compose(Bijector):
             self.bijectors.append(bijector(shape=shape))
             shape = self.bijectors[-1].forward_shape(shape)  # type: ignore
 
-        # TODO: Adjust domain accordingly and check domain/codomain compatibility!
-        event_dim = self.bijectors[0].domain.event_dim  # type: ignore
-        self.domain = constraints.independent(constraints.real, event_dim)
-        self.codomain = constraints.independent(constraints.real, event_dim)
-        self._inv = None
+        self.domain = self.bijectors[0].domain  # type: ignore
+        self.codomain = self.bijectors[-1].codomain  # type: ignore
 
         # Make parameters accessible to dist.Flow
         self._params = torch.nn.ModuleList(
@@ -45,9 +41,7 @@ class Compose(Bijector):
             ]
         )
 
-        # self.identity_initialization = all(
-        #    b.identity_initialization for b in self.bijectors
-        # )
+        # TODO: Remove once autoregressive property is indicated by a Class
         self.autoregressive = all(
             b.autoregressive for b in self.bijectors  # type: ignore
         )
