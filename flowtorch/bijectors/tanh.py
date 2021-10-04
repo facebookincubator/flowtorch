@@ -7,10 +7,10 @@ from typing import Optional
 import torch
 import torch.distributions.constraints as constraints
 import torch.nn.functional as F
-from flowtorch.bijectors.base import Bijector
+from flowtorch.bijectors.fixed import Fixed
 
 
-class Tanh(Bijector):
+class Tanh(Fixed):
     r"""
     Transform via the mapping :math:`y = \tanh(x)`.
     """

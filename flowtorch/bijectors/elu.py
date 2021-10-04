@@ -6,11 +6,11 @@ from typing import Optional
 import torch
 import torch.distributions.constraints as constraints
 import torch.nn.functional as F
-from flowtorch.bijectors.base import Bijector
+from flowtorch.bijectors.fixed import Fixed
 from flowtorch.ops import eps
 
 
-class ELU(Bijector):
+class ELU(Fixed):
     codomain = constraints.greater_than(-1.0)
 
     # TODO: Setting the alpha value of ELU as __init__ argument

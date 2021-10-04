@@ -6,10 +6,10 @@ from typing import Optional
 
 import torch
 import torch.nn.functional as F
-from flowtorch.bijectors.base import Bijector
+from flowtorch.bijectors.fixed import Fixed
 
 
-class LeakyReLU(Bijector):
+class LeakyReLU(Fixed):
     # TODO: Setting the slope of Leaky ReLU as __init__ argument
 
     def _forward(

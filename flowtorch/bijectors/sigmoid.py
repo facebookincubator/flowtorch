@@ -6,11 +6,11 @@ from typing import Optional
 import torch
 import torch.distributions.constraints as constraints
 import torch.nn.functional as F
-from flowtorch.bijectors.base import Bijector
+from flowtorch.bijectors.fixed import Fixed
 from flowtorch.ops import clipped_sigmoid
 
 
-class Sigmoid(Bijector):
+class Sigmoid(Fixed):
     codomain = constraints.unit_interval
 
     def _forward(

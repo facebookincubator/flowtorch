@@ -6,10 +6,10 @@ from typing import Optional
 import flowtorch
 import torch
 import torch.distributions.constraints as constraints
-from flowtorch.bijectors.base import Bijector
+from flowtorch.bijectors.fixed import Fixed
 
 
-class Power(Bijector):
+class Power(Fixed):
     r"""
     Elementwise bijector via the mapping :math:`y = x^{\text{exponent}}`.
     """
