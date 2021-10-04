@@ -1,7 +1,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
-from typing import Sequence
+from typing import Optional, Sequence
 
 import flowtorch
 import flowtorch.parameters
@@ -15,11 +15,10 @@ from torch.distributions.utils import _sum_rightmost
 class Compose(Bijector):
     def __init__(
         self,
-        shape: torch.Size,
-        # params: Optional[flowtorch.Lazy] = None,
-        context_size: int = 0,
-        *,
         bijectors: Sequence[flowtorch.Lazy],
+        *,
+        shape: torch.Size,
+        context_shape: Optional[torch.Size] = None,
     ):
         assert len(bijectors) > 0
 
@@ -28,7 +27,7 @@ class Compose(Bijector):
         for bijector in bijectors:
             assert issubclass(bijector.cls, Bijector)
 
-            self.bijectors.append(bijector(shape))
+            self.bijectors.append(bijector(shape=shape))
             shape = self.bijectors[-1].forward_shape(shape)  # type: ignore
 
         # TODO: Adjust domain accordingly and check domain/codomain compatibility!
@@ -52,7 +51,7 @@ class Compose(Bijector):
         self.autoregressive = all(
             b.autoregressive for b in self.bijectors  # type: ignore
         )
-        self._context_size = context_size
+        self._context_shape = context_shape
 
     # NOTE: We overwrite forward rather than _forward so that the composed
     # bijectors can handle the caching separately!

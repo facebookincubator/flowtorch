@@ -12,27 +12,26 @@ from torch.distributions import constraints
 
 
 class Bijector(metaclass=flowtorch.LazyMeta):
-    # _inv: Optional[Union[weakref.ReferenceType, "Bijector"]] = None
     codomain: constraints.Constraint = constraints.real
     domain: constraints.Constraint = constraints.real
     identity_initialization: bool = True
     autoregressive: bool = False
-    _context_size: int
-    event_dim: int = 0
+    _context_shape: Optional[torch.Size]
     _params: Optional[Union[Parameters, torch.nn.ModuleList]] = None
 
     def __init__(
         self,
-        shape: torch.Size,
         params: Optional[flowtorch.Lazy] = None,
-        context_size: int = 0,
+        *,
+        shape: torch.Size,
+        context_shape: Optional[torch.Size] = None,
     ) -> None:
-        self._context_size = context_size
+        self._context_shape = context_shape
 
         # Instantiate parameters (tensor, hypernets, etc.)
         if params is not None:
             shapes = self.param_shapes(shape)
-            self._params = params(shape, shapes, self._context_size)  # type: ignore
+            self._params = params(shapes, shape, self._context_shape)  # type: ignore
 
     @property
     def params(self) -> Optional[Union[Parameters, torch.nn.ModuleList]]:
@@ -47,7 +46,8 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         x: torch.Tensor,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        assert context is None or context.shape == (self._context_size,)
+        # TODO: Allow that context can have a batch shape
+        assert context is None  # or context.shape == (self._context_size,)
         return self._forward(x, context)
 
     def _forward(
@@ -65,7 +65,8 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         y: torch.Tensor,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        assert context is None or context.shape == (self._context_size,)
+        # TODO: Allow that context can have a batch shape
+        assert context is None  # or context.shape == (self._context_size,)
         return self._inverse(y, context)
 
     def _inverse(
@@ -110,17 +111,6 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         Abstract method to return shapes of parameters
         """
         raise NotImplementedError
-
-    """
-    def inv(self) -> "Bijector":
-        if self._inv is not None:
-            # TODO: remove casting without failing mypy
-            inv = cast(_InverseBijector, cast(weakref.ReferenceType, self._inv)())
-        else:
-            inv = _InverseBijector(self)
-            self._inv = weakref.ref(inv)
-        return inv
-    """
 
     def __repr__(self) -> str:
         return self.__class__.__name__ + "()"

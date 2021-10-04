@@ -23,7 +23,7 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
 
         self.base_dist = base_dist
         self._context: Optional[torch.Tensor] = None
-        self.bijector = bijector(base_dist.event_shape)
+        self.bijector = bijector(shape=base_dist.event_shape)
 
         # Required so that parameters are registered with nn.Module
         self.params = self.bijector._params  # type: ignore

@@ -13,14 +13,14 @@ class Parameters(torch.nn.Module, metaclass=LazyMeta):
 
     def __init__(
         self,
-        input_shape: torch.Size,
         param_shapes: Sequence[torch.Size],
-        context_dims: int,
+        input_shape: torch.Size,
+        context_shape: Optional[torch.Size],
     ) -> None:
         super().__init__()
         self.input_shape = input_shape
         self.param_shapes = param_shapes
-        self.context_dims = context_dims
+        self.context_shape = context_shape
 
     def forward(
         self,

@@ -69,7 +69,7 @@ for bij_name, cls in standard_bijectors:
     event_dim = max(cls.domain.event_dim, 1)  # type: ignore
     event_shape = event_dim * [4]
     # base_dist = dist.Normal(torch.zeros(event_shape), torch.ones(event_shape))
-    bij = cls(torch.Size(event_shape))
+    bij = cls(shape=torch.Size(event_shape))
 
     try:
         y = torch.randn(*bij.forward_shape(event_shape))
