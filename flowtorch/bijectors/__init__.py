@@ -7,10 +7,12 @@ from typing import cast, List, Tuple
 import torch
 
 # TODO: Autogenerate this from script!
+from flowtorch.bijectors.affine import Affine
 from flowtorch.bijectors.affine_autoregressive import AffineAutoregressive
 from flowtorch.bijectors.affine_fixed import AffineFixed
 from flowtorch.bijectors.base import Bijector
 from flowtorch.bijectors.compose import Compose
+from flowtorch.bijectors.elementwise import Elementwise
 from flowtorch.bijectors.elu import ELU
 from flowtorch.bijectors.exp import Exp
 from flowtorch.bijectors.fixed import Fixed
@@ -28,6 +30,7 @@ from flowtorch.bijectors.volume_preserving import VolumePreserving
 meta_bijectors = [
     ("Bijector", Bijector),
     ("Compose", Compose),
+    ("Elementwise", Elementwise),
     ("Fixed", Fixed),
     ("VolumePreserving", VolumePreserving),
 ]
@@ -49,6 +52,7 @@ def standard_bijector(cls: type) -> bool:
 
 # TODO: Autogenerate this from script!
 standard_bijectors = [
+    ("Affine", Affine),
     ("AffineAutoregressive", AffineAutoregressive),
     ("AffineFixed", AffineFixed),
     ("ELU", ELU),

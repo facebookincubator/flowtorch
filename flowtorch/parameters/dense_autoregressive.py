@@ -146,9 +146,11 @@ class DenseAutoregressive(Parameters):
 
     def _forward(
         self,
-        x: torch.Tensor,
+        x: Optional[torch.Tensor] = None,
         context: Optional[torch.Tensor] = None,
     ) -> Sequence[torch.Tensor]:
+        assert x is not None
+
         # Flatten x
         batch_shape = x.shape[: len(x.shape) - len(self.input_shape)]
         if len(batch_shape) > 0:
