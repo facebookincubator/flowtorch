@@ -22,10 +22,10 @@ class AffineAutoregressive(Bijector):
 
     def __init__(
         self,
-        shape: torch.Size,
         params: Optional[flowtorch.Lazy] = None,
-        context_size: int = 0,
         *,
+        shape: torch.Size,
+        context_shape: Optional[torch.Size] = None,
         log_scale_min_clip: float = -5.0,
         log_scale_max_clip: float = 3.0,
         sigmoid_bias: float = 2.0,
@@ -38,7 +38,7 @@ class AffineAutoregressive(Bijector):
         if not params:
             params = flowtorch.parameters.DenseAutoregressive()  # type: ignore
 
-        super().__init__(shape, params, context_size)
+        super().__init__(params, shape=shape, context_shape=context_shape)
         self.log_scale_min_clip = log_scale_min_clip
         self.log_scale_max_clip = log_scale_max_clip
         self.sigmoid_bias = sigmoid_bias

@@ -13,13 +13,13 @@ def test_compose():
     transforms = bijs.Compose(
         bijectors=[
             bijs.AffineAutoregressive(
-                params=params.DenseAutoregressive(),
+                params.DenseAutoregressive(),
             ),
             bijs.AffineAutoregressive(
-                params=params.DenseAutoregressive(),
+                params.DenseAutoregressive(),
             ),
             bijs.AffineAutoregressive(
-                params=params.DenseAutoregressive(),
+                params.DenseAutoregressive(),
             ),
         ]
     )
@@ -39,7 +39,3 @@ def test_compose():
     assert optimizer.param_groups[0]["params"][0].grad.abs().sum().item() > 1e-3
     optimizer.zero_grad()
     assert optimizer.param_groups[0]["params"][0].grad.abs().sum().item() < 1e-3
-
-
-if __name__ == "__main__":
-    test_compose()

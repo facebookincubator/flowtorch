@@ -15,16 +15,16 @@ class DenseAutoregressive(Parameters):
 
     def __init__(
         self,
-        input_shape: torch.Size,
         param_shapes: Sequence[torch.Size],
-        context_dims: int,
+        input_shape: torch.Size,
+        context_shape: Optional[torch.Size],
         *,
         hidden_dims: Sequence[int] = (256, 256),
         nonlinearity: Callable[[], nn.Module] = nn.ReLU,
         permutation: Optional[torch.LongTensor] = None,
         skip_connections: bool = False,
     ) -> None:
-        super().__init__(input_shape, param_shapes, context_dims)
+        super().__init__(param_shapes, input_shape, context_shape)
 
         # Check consistency of input_shape with param_shapes
         # We need each param_shapes to match input_shape in
@@ -35,13 +35,13 @@ class DenseAutoregressive(Parameters):
         self.hidden_dims = hidden_dims
         self.nonlinearity = nonlinearity
         self.skip_connections = skip_connections
-        self._build(input_shape, param_shapes, context_dims, permutation)
+        self._build(input_shape, param_shapes, context_shape, permutation)
 
     def _build(
         self,
         input_shape: torch.Size,
         param_shapes: Sequence[torch.Size],
-        context_dims: int,
+        context_shape: Optional[torch.Size],
         permutation: Optional[torch.LongTensor],
     ) -> None:
         # Work out flattened input and output shapes
@@ -102,7 +102,7 @@ class DenseAutoregressive(Parameters):
         hidden_dims = self.hidden_dims
         masks, mask_skip = create_mask(
             input_dim=input_dims,
-            context_dim=context_dims,
+            context_dim=0,  # context_dims,
             hidden_dims=hidden_dims,
             permutation=permutation,
             output_multiplier=self.output_multiplier,
@@ -111,7 +111,7 @@ class DenseAutoregressive(Parameters):
         # Create masked layers
         layers = [
             MaskedLinear(
-                input_dims + context_dims,
+                input_dims,  # + context_dims,
                 hidden_dims[0],
                 masks[0],
             ),
@@ -135,7 +135,7 @@ class DenseAutoregressive(Parameters):
         if self.skip_connections:
             layers.append(
                 MaskedLinear(
-                    input_dims + context_dims,
+                    input_dims,  # + context_dims,
                     input_dims * self.output_multiplier,
                     mask_skip,
                     bias=False,

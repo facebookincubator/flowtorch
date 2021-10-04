@@ -11,11 +11,11 @@ from flowtorch.parameters.base import Parameters
 class Tensor(Parameters):
     def __init__(
         self,
-        input_shape: torch.Size,
         param_shapes: Sequence[torch.Size],
-        context_dims: int,
+        input_shape: torch.Size,
+        context_shape: Optional[torch.Size] = None,
     ) -> None:
-        super().__init__(input_shape, param_shapes, context_dims)
+        super().__init__(param_shapes, input_shape, context_shape)
 
         # TODO: Initialization strategies and constraints!
         self.params = nn.ParameterList(
