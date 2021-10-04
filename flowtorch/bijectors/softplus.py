@@ -7,10 +7,10 @@ import flowtorch.ops
 import torch
 import torch.distributions.constraints as constraints
 import torch.nn.functional as F
-from flowtorch.bijectors.base import Bijector
+from flowtorch.bijectors.fixed import Fixed
 
 
-class Softplus(Bijector):
+class Softplus(Fixed):
     r"""
     Elementwise bijector via the mapping :math:`\text{Softplus}(x) = \log(1 + \exp(x))`.
     """

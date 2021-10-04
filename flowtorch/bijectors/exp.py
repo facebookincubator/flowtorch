@@ -5,10 +5,10 @@ from typing import Optional
 
 import torch
 import torch.distributions.constraints as constraints
-from flowtorch.bijectors.base import Bijector
+from flowtorch.bijectors.fixed import Fixed
 
 
-class Exp(Bijector):
+class Exp(Fixed):
     r"""
     Elementwise bijector via the mapping :math:`y = \exp(x)`.
     """

@@ -6,10 +6,10 @@ from typing import Optional
 
 import flowtorch
 import torch
-from flowtorch.bijectors.base import Bijector
+from flowtorch.bijectors.fixed import Fixed
 
 
-class AffineFixed(Bijector):
+class AffineFixed(Fixed):
     r"""
     Elementwise bijector via the affine mapping :math:`\mathbf{y} = \mu +
     \sigma \otimes \mathbf{x}` where $\mu$ and $\sigma$ are fixed rather than
