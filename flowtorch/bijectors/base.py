@@ -32,8 +32,8 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         if params is not None:
             param_shapes = self.param_shapes(shape)
             self._params = params(
-                param_shapes, self._shape, self._context_shape
-            )  # type: ignore
+                param_shapes, self._shape, self._context_shape  # type: ignore
+            )
 
     @property
     def params(self) -> Optional[Union[Parameters, torch.nn.ModuleList]]:
