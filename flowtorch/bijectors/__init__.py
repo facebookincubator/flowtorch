@@ -10,6 +10,7 @@ import torch
 from flowtorch.bijectors.affine import Affine
 from flowtorch.bijectors.affine_autoregressive import AffineAutoregressive
 from flowtorch.bijectors.affine_fixed import AffineFixed
+from flowtorch.bijectors.autoregressive import Autoregressive
 from flowtorch.bijectors.base import Bijector
 from flowtorch.bijectors.compose import Compose
 from flowtorch.bijectors.elementwise import Elementwise
@@ -28,6 +29,7 @@ from flowtorch.bijectors.volume_preserving import VolumePreserving
 # are not used directly by the user, or are used to operate on other bijectors.
 # We have to write special units tests for these.
 meta_bijectors = [
+    ("Autoregressive", Autoregressive),
     ("Bijector", Bijector),
     ("Compose", Compose),
     ("Elementwise", Elementwise),

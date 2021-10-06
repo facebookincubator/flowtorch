@@ -43,7 +43,7 @@ class Affine(Elementwise):
         params = self.params
         assert params is not None
 
-        mean, log_scale = params(context=context)
+        mean, log_scale = params(x, context=context)
         log_scale = clamp_preserve_gradients(
             log_scale, self.log_scale_min_clip, self.log_scale_max_clip
         )
@@ -54,18 +54,19 @@ class Affine(Elementwise):
     def _inverse(
         self,
         y: torch.Tensor,
+        x: Optional[torch.Tensor] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         params = self.params
         assert params is not None
 
-        mean, log_scale = params(context=context)
+        mean, log_scale = params(x, context=context)
         log_scale = clamp_preserve_gradients(
             log_scale, self.log_scale_min_clip, self.log_scale_max_clip
         )
-        scale = torch.exp(log_scale)
-        x = (y - mean) / scale
-        return x
+        inverse_scale = torch.exp(-log_scale)
+        x_new = (y - mean) * inverse_scale
+        return x_new
 
     def _log_abs_det_jacobian(
         self,
@@ -76,8 +77,8 @@ class Affine(Elementwise):
         params = self.params
         assert params is not None
 
-        # Note: params will take care of caching "mean, log_scale, perm = params(x)"
-        _, log_scale = params(None, context=context)
+        # Note: params will take care of caching "mean, log_scale = params(x)"
+        _, log_scale = params(x, context=context)
         log_scale = clamp_preserve_gradients(
             log_scale, self.log_scale_min_clip, self.log_scale_max_clip
         )

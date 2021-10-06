@@ -108,8 +108,8 @@ def test_inverse(flow, epsilon=1e-5):
     x_true = base_dist.sample(torch.Size([10]))
     x_true = torch.distributions.transform_to(bij.domain)(x_true)
 
-    y = bij._forward(x_true)
-    x_calculated = bij._inverse(y)
+    y = bij.forward(x_true)
+    x_calculated = bij.inverse(y)
     assert (x_true - x_calculated).abs().max().item() < epsilon
 
     # Test that Jacobian after inverse op is same as after forward
