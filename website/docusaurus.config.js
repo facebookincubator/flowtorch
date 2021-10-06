@@ -123,7 +123,7 @@ module.exports = {
           items: [
             {
               label: 'MIT Open Source License',
-              href: 'https://github.com/facebookincubator/flowtorch/blob/master/LICENSE.txt',
+              href: 'https://github.com/facebookincubator/flowtorch/blob/main/LICENSE.txt',
             },
             {
               label: 'Code of Conduct',
@@ -154,7 +154,7 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/facebookincubator/flowtorch/edit/master/website/',
+          editUrl: 'https://github.com/facebookincubator/flowtorch/edit/main/website/',
           routeBasePath: '/',
           remarkPlugins: [math],
           rehypePlugins: [katex],

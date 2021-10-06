@@ -17,7 +17,7 @@ Please provide clear instructions on how the changes were verified. Attach scree
 - [ ] My code follows the code style of this project.
 - [ ] My change requires a change to the documentation.
 - [ ] I have updated the documentation accordingly.
-- [ ] I have read the **[CONTRIBUTING](https://github.com/facebookincubator/flowtorch/blob/master/CONTRIBUTING.md)** document.
+- [ ] I have read the **[CONTRIBUTING](https://github.com/facebookincubator/flowtorch/blob/main/CONTRIBUTING.md)** document.
 - [ ] I have added tests to cover my changes.
 - [ ] All new and existing tests passed.
 - [ ] The title of my pull request is a short description of the requested changes.

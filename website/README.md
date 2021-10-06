@@ -1,6 +1,6 @@
-<a href="https://flowtorch.ai"><img src="https://github.com/facebookincubator/flowtorch/raw/master/gh-pages/flowtorch-ai.png" width="100%" /></a>
+<a href="https://flowtorch.ai"><img src="https://github.com/facebookincubator/flowtorch/raw/main/gh-pages/flowtorch-ai.png" width="100%" /></a>
 
-This website is built using [Docusaurus 2](https://v2.docusaurus.io/), a modern static website generator, and hosted using GitHub pages at [https://flowtorch.ai](https://flowtorch.ai). The source for the website is located in [master/website](https://github.com/facebookincubator/flowtorch/tree/master/website) and it is hosted from the root directory of the [website](https://github.com/facebookincubator/flowtorch/tree/website) branch.
+This website is built using [Docusaurus 2](https://v2.docusaurus.io/), a modern static website generator, and hosted using GitHub pages at [https://flowtorch.ai](https://flowtorch.ai). The source for the website is located in [main/website](https://github.com/facebookincubator/flowtorch/tree/main/website) and it is hosted from the root directory of the [website](https://github.com/facebookincubator/flowtorch/tree/website) branch.
 
 ## Preparation
 1. Install [Node.js](https://nodejs.org/).
@@ -8,7 +8,7 @@ This website is built using [Docusaurus 2](https://v2.docusaurus.io/), a modern 
 ```console
 npm install --global yarn
 ```
-4. Navigate to [master/website](https://github.com/facebookincubator/flowtorch/tree/master/website) and install the dependencies:
+4. Navigate to [main/website](https://github.com/facebookincubator/flowtorch/tree/main/website) and install the dependencies:
 ```console
 cd website
 yarn install

@@ -1,11 +1,11 @@
-<p align="center"><img src="https://github.com/facebookincubator/flowtorch/raw/master/website/static/img/logo.svg" width="200rem" /></p>
+<p align="center"><img src="https://github.com/facebookincubator/flowtorch/raw/main/website/static/img/logo.svg" width="200rem" /></p>
 
 [![](https://github.com/facebookincubator/flowtorch/workflows/Python%20package/badge.svg)](https://github.com/facebookincubator/flowtorch/actions?query=workflow%3A%22Python+package%22)
 
 Copyright (c) FlowTorch Development Team.
 
 This source code is licensed under the MIT license found in the
-[LICENSE.txt](https://github.com/facebookincubator/flowtorch/blob/master/LICENSE.txt) file in the root directory of this source tree.
+[LICENSE.txt](https://github.com/facebookincubator/flowtorch/blob/main/LICENSE.txt) file in the root directory of this source tree.
 
 > :boom: **FlowTorch is currently in pre-release and many of its planned features and documentation are incomplete!** You may wish to wait until the first release planned for **8/03/2021**.
 
