@@ -24,7 +24,9 @@ def isderivedclass(cls: type, base_cls: type) -> bool:
 
 
 def list_bijectors() -> Sequence[Tuple[str, Bijector]]:
-    return _walk_packages("bijectors", partial(isderivedclass, base_cls=Bijector))
+    # Filter out the bijector operators
+    b = _walk_packages("bijectors", partial(isderivedclass, base_cls=Bijector))
+    return [a for a in b if ".ops." not in a[1].__module__]
 
 
 def list_parameters() -> Sequence[Tuple[str, Parameters]]:
