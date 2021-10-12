@@ -8,11 +8,11 @@ sidebar_label: Installation
 
 ## Requirements
 
-Python 3.6 or later is required. Other requirements will be downloaded by `pip` according to [setup.py](https://github.com/facebookincubator/flowtorch/blob/master/setup.py).
+Python 3.6 or later is required. Other requirements will be downloaded by `pip` according to [setup.py](https://github.com/facebookincubator/flowtorch/blob/main/setup.py).
 
 ## Pre-release
 
-As [FlowTorch](https://flowtorch.ai) is currently under rapid development, we recommend installing the [latest commit](https://github.com/facebookincubator/flowtorch/commits/master) from GitHub:
+As [FlowTorch](https://flowtorch.ai) is currently under rapid development, we recommend installing the [latest commit](https://github.com/facebookincubator/flowtorch/commits/main) from GitHub:
 
     git clone https://github.com/facebookincubator/flowtorch.git
     cd flowtorch
@@ -30,6 +30,6 @@ Alternatively, the [latest release](https://github.com/facebookincubator/flowtor
 
 ## Developers
 
-[Additional libraries](https://github.com/facebookincubator/flowtorch/blob/master/setup.py#L14) required for development are installed by replacing the above `pip` command with:
+[Additional libraries](https://github.com/facebookincubator/flowtorch/blob/main/setup.py#L14) required for development are installed by replacing the above `pip` command with:
 
     pip install -e .[dev]
