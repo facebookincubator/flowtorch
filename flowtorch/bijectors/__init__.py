@@ -23,6 +23,7 @@ from flowtorch.bijectors.power import Power
 from flowtorch.bijectors.sigmoid import Sigmoid
 from flowtorch.bijectors.softplus import Softplus
 from flowtorch.bijectors.spline import Spline
+from flowtorch.bijectors.spline_autoregressive import SplineAutoregressive
 from flowtorch.bijectors.tanh import Tanh
 from flowtorch.bijectors.volume_preserving import VolumePreserving
 
@@ -66,6 +67,7 @@ standard_bijectors = [
     ("Sigmoid", Sigmoid),
     ("Softplus", Softplus),
     ("Spline", Spline),
+    ("SplineAutoregressive", SplineAutoregressive),
     ("Tanh", Tanh),
 ]
 
