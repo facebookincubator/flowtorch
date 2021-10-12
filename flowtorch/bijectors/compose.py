@@ -41,10 +41,6 @@ class Compose(Bijector):
             ]
         )
 
-        # TODO: Remove once autoregressive property is indicated by a Class
-        # self.autoregressive = all(
-        #     b.autoregressive for b in self.bijectors  # type: ignore
-        # )
         self._context_shape = context_shape
 
     # NOTE: We overwrite forward rather than _forward so that the composed
