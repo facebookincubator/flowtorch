@@ -22,6 +22,7 @@ from flowtorch.bijectors.permute import Permute
 from flowtorch.bijectors.power import Power
 from flowtorch.bijectors.sigmoid import Sigmoid
 from flowtorch.bijectors.softplus import Softplus
+from flowtorch.bijectors.spline import Spline
 from flowtorch.bijectors.tanh import Tanh
 from flowtorch.bijectors.volume_preserving import VolumePreserving
 
@@ -64,6 +65,7 @@ standard_bijectors = [
     ("Power", Power),
     ("Sigmoid", Sigmoid),
     ("Softplus", Softplus),
+    ("Spline", Spline),
     ("Tanh", Tanh),
 ]
 

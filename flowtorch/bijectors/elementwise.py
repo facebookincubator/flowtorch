@@ -1,6 +1,6 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
-from typing import Optional
+from typing import Any, Optional
 
 import flowtorch
 import torch
@@ -16,6 +16,7 @@ class Elementwise(Bijector):
         *,
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None,
+        **kwargs: Any
     ) -> None:
         if not params:
             params = Tensor()  # type: ignore
