@@ -24,7 +24,7 @@ Another reason is that [it is inherently satisfying to make](https://en.wikipedi
 See [here](https://opensource.guide/how-to-contribute/) for a more detailed essay on the philosophy of open-source.
 
 ## Code of Conduct
-As a contributor, you agree to abide by the [Contributor Covenant Code of Conduct](https://github.com/facebookincubator/flowtorch/blob/master/CODE_OF_CONDUCT.md). In a nutshell, the code says [Be Excellent to Each Other!](https://www.youtube.com/watch?v=rph_1DODXDU) Please report any suspected violations to the Core Developers.
+As a contributor, you agree to abide by the [Contributor Covenant Code of Conduct](https://github.com/facebookincubator/flowtorch/blob/main/CODE_OF_CONDUCT.md). In a nutshell, the code says [Be Excellent to Each Other!](https://www.youtube.com/watch?v=rph_1DODXDU) Please report any suspected violations to the Core Developers.
 
 :::note
 In the `v0.2` release, we will put our contact details behind a captcha.

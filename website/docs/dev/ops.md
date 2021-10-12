@@ -4,14 +4,14 @@ title: Continuous Integration
 sidebar_label: Continuous Integration
 ---
 
-FlowTorch uses [GitHub Actions](https://docs.github.com/en/actions) to run code quality tests on pushes or pull requests to the `master` branch, a process known as [continuous integration](https://en.wikipedia.org/wiki/Continuous_integration) (CI). The tests are run for Python versions 3.6, 3.7, and 3.8, and must be successful for a PR to be merged into `master`. All workflow runs can be viewed [here](https://github.com/facebookincubator/flowtorch/actions), or else viewed from the link at the bottom of the [PR](https://github.com/facebookincubator/flowtorch/pulls) in question.
+FlowTorch uses [GitHub Actions](https://docs.github.com/en/actions) to run code quality tests on pushes or pull requests to the `main` branch, a process known as [continuous integration](https://en.wikipedia.org/wiki/Continuous_integration) (CI). The tests are run for Python versions 3.6, 3.7, and 3.8, and must be successful for a PR to be merged into `main`. All workflow runs can be viewed [here](https://github.com/facebookincubator/flowtorch/actions), or else viewed from the link at the bottom of the [PR](https://github.com/facebookincubator/flowtorch/pulls) in question.
 
 :::info
 Please do not feel intimidated by the thought of having to make your code pass the CI tests! The core developer team is happy to work closely with contributors to integrate their code and merge PRs.
 :::
 
 ## Workflow Steps
-The definition of the steps performed in the build workflow is found [here](https://github.com/facebookincubator/flowtorch/blob/master/.github/workflows/python-package.yml) and is as follows:
+The definition of the steps performed in the build workflow is found [here](https://github.com/facebookincubator/flowtorch/blob/main/.github/workflows/python-package.yml) and is as follows:
 
 1. The version of Python (3.6, 3.7, or 3.8) is installed along with the developer dependencies of FlowTorch;
 ```bash
@@ -22,10 +22,10 @@ pip install --pre torch torchvision torchaudio -f https://download.pytorch.org/w
 pip install -e .[dev]
 ```
 :::note
-Currently, FlowTorch requires the nightly build of PyTorch since it depends on features of [`torch.distributions.transforms`](https://github.com/pytorch/pytorch/blob/master/torch/distributions/transforms.py) that have not yet been released in a stable version.
+Currently, FlowTorch requires the nightly build of PyTorch since it depends on features of [`torch.distributions.transforms`](https://github.com/pytorch/pytorch/blob/main/torch/distributions/transforms.py) that have not yet been released in a stable version.
 :::
 
-2. The formatting of the Python code in the [library](https://github.com/facebookincubator/flowtorch/tree/master/flowtorch) and [tests](https://github.com/facebookincubator/flowtorch/tree/master/tests) is checked to ensure it follows a standard using [`black`](https://black.readthedocs.io/en/stable/);
+2. The formatting of the Python code in the [library](https://github.com/facebookincubator/flowtorch/tree/main/flowtorch) and [tests](https://github.com/facebookincubator/flowtorch/tree/main/tests) is checked to ensure it follows a standard using [`black`](https://black.readthedocs.io/en/stable/);
 ```bash
 black --check flowtorch tests
 ```
@@ -54,13 +54,13 @@ pytest --cov=tests --cov-report=xml -W ignore::DeprecationWarning
 Uploading code coverage report to `codecov.io` and viewing results has not yet been tested!
 :::
 
-8. An API reference is generated automatically from the code's docstrings with [Sphinx](https://www.sphinx-doc.org/en/master/).
+8. An API reference is generated automatically from the code's docstrings with [Sphinx](https://www.sphinx-doc.org/en/main/).
 ```bash
 cd docs
 sphinx-apidoc -o source ../flowtorch/
 make html
 ```
-If any step fails, the workflow fails and it is inadvisable for the PR to be merged into `master`.
+If any step fails, the workflow fails and it is inadvisable for the PR to be merged into `main`.
 
 ## Successful Commits
 To ensure your PR passes, you should perform these steps *before pushing your local commits to the remote branch*.
@@ -86,7 +86,7 @@ cd docs
 sphinx-apidoc -o source ../flowtorch/
 ```
 :::note
-Currently, the Sphinx output is not integrated with the [Docusaurus v2 website](https://flowtorch.ai/api). In a future release, we would like to both automate this integration plus the deployment of the website when a PR is merged to `master`. In the meanwhile, core developers can run [this script](https://github.com/facebookincubator/flowtorch/blob/master/deploy-website-windows.bat) (on Windows) - more instructions [here](https://github.com/facebookincubator/flowtorch/tree/master/website).
+Currently, the Sphinx output is not integrated with the [Docusaurus v2 website](https://flowtorch.ai/api). In a future release, we would like to both automate this integration plus the deployment of the website when a PR is merged to `main`. In the meanwhile, core developers can run [this script](https://github.com/facebookincubator/flowtorch/blob/main/deploy-website-windows.bat) (on Windows) - more instructions [here](https://github.com/facebookincubator/flowtorch/tree/main/website).
 :::
 
 ### Formatting and Linting
@@ -106,4 +106,4 @@ Finally, run the linter and fix any resulting errors:
 ```bash
 flake8 flowtorch tests
 ```
-At this point, you are ready to commit your changes and push to the remote branch - you're a star! :star: From there, your PR will be reviewed by the core developers and after any modifications are made, merged to the `master` branch.
+At this point, you are ready to commit your changes and push to the remote branch - you're a star! :star: From there, your PR will be reviewed by the core developers and after any modifications are made, merged to the `main` branch.
