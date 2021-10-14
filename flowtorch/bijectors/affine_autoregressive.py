@@ -7,12 +7,12 @@ import flowtorch
 import flowtorch.parameters
 import torch
 import torch.distributions.constraints as constraints
-from flowtorch.bijectors.base import Bijector
+from flowtorch.bijectors.autoregressive import Autoregressive
 from flowtorch.ops import clamp_preserve_gradients
 from torch.distributions.utils import _sum_rightmost
 
 
-class AffineAutoregressive(Bijector):
+class AffineAutoregressive(Autoregressive):
     # "Default" event shape is to operate on vectors
     domain = constraints.real_vector
     codomain = constraints.real_vector
