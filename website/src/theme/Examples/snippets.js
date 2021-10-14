@@ -3,28 +3,36 @@ const snippets = [
     label: "Bivariate Normal",
     code: 
 `import torch
-import torch.distributions as dist
-import flowtorch
-import flowtorch.bijectors as bijectors
+import flowtorch.bijectors as bij
+import flowtorch.distributions as dist
+import flowtorch.parameters as params
 
 # Lazily instantiated flow plus base and target distributions
-flow = bijectors.AffineAutoregressive()
-base_dist = dist.Normal(torch.zeros(2), torch.ones(2))
-target_dist = dist.Normal(torch.zeros(2)+5, torch.ones(2)*0.5)
+params = params.DenseAutoregressive(hidden_dims=(32,))
+bijectors = bij.AffineAutoregressive(params=params)
+base_dist = torch.distributions.Independent(
+  torch.distributions.Normal(torch.zeros(2), torch.ones(2)), 
+  1
+)
+target_dist = torch.distributions.Independent(
+  torch.distributions.Normal(torch.zeros(2)+5, torch.ones(2)*0.5),
+  1
+)
 
 # Instantiate transformed distribution and parameters
-new_dist, params = flow(base_dist)
+flow = dist.Flow(base_dist, bijectors)
 
 # Training loop
-opt = torch.optim.Adam(params.parameters(), lr=5e-2)
-for idx in range(501):
+opt = torch.optim.Adam(flow.parameters(), lr=5e-3)
+frame = 0
+for idx in range(3001):
     opt.zero_grad()
 
     # Minimize KL(p || q)
     y = target_dist.sample((1000,))
-    loss = -new_dist.log_prob(y).mean()
+    loss = -flow.log_prob(y).mean()
 
-    if idx % 100 == 0:
+    if idx % 500 == 0:
         print('epoch', idx, 'loss', loss)
         
     loss.backward()

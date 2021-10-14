@@ -11,7 +11,7 @@ const data = [
     title: <>Simple but powerful</>,
     description: (
       <>
-        Design, train, and sample from complex probability distributions using only a few lines of code. Yet FlowTorch is feature rich with a wide selection of state-of-the-art methods and abstractions like conditionality and caching.
+        Design, train, and sample from complex probability distributions using only a few lines of code. Advanced features such as conditionality, caching, and structured representations are planned for future released.
       </>
     ),
   },
@@ -30,7 +30,7 @@ const data = [
     description: (
       <>
         Combine multiple bijections to form complex normalizing flows, and mix-and-match conditioning networks with bijections.
-        FlowTorch has a well-defined interface for bijections and conditioning networks so you easily create your own!
+        FlowTorch has a well-defined interface so you easily create your own components!
       </>
     ),
   },
@@ -39,7 +39,8 @@ const data = [
     title: <>Production ready</>,
     description: (
       <>
-        Tried and proven code with rigorous unit testing, continuous integration, and other best practices. And it is easy to add standard unit tests to components you write yourself!
+        Proven code migrated from Pyro, with improved unit testing and continuous integration.
+        And it is easy to add standard unit tests to components you write yourself!
       </>
     ),
   },
