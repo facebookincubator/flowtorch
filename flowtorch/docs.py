@@ -114,7 +114,15 @@ def generate_markdown(name: str, entity: Any) -> Tuple[str, str]:
 id: overview
 sidebar_label: "Overview"
 slug: "/api"
----"""
+---
+
+:::info
+
+These API stubs are generated from Python via a custom script and will filled out in the future.
+
+:::
+
+"""
         filename = "../website/docs/api/overview.mdx"
         return filename, header
 
