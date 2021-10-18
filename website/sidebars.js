@@ -3,12 +3,12 @@ var apiSideBar = require('./api.sidebar.js');
 module.exports = {
   usersSidebar: {
     "Getting Started": ['users/introduction', 'users/installation', 'users/start'],
-    "Normalizing Flows": ['users/univariate', 'users/multivariate', 'users/conditional'],
+    "Tutorial": ['users/univariate', 'users/multivariate'],
     "Basic Concepts": ['users/shapes'],
   },
   devsSidebar: {
     "General": ['dev/contributing', 'dev/releases', 'dev/about'],
-    "Extending the Library": ['dev/overview', 'dev/ops', 'dev/bijector', 'dev/params', 'dev/docs', 'dev/tests'],
+    "Extending the Library": ['dev/overview', 'dev/ops', 'dev/docs', 'dev/tests'],
     "Resources": ['dev/bibliography'],
   },
   apiSidebar: apiSideBar,

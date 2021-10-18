@@ -8,7 +8,7 @@ sidebar_label: Installation
 
 ## Requirements
 
-Python 3.6 or later is required. Other requirements will be downloaded by `pip` according to [setup.py](https://github.com/facebookincubator/flowtorch/blob/main/setup.py).
+Python 3.7 or later is required. Other requirements will be downloaded by `pip` according to [setup.py](https://github.com/facebookincubator/flowtorch/blob/main/setup.py).
 
 ## Pre-release
 
