@@ -21,7 +21,7 @@ jobs:
       - name: Test Build
         working-directory: ./website
         run: |
-          pip install pip>=21.3.1
+          python -m pip install --upgrade pip
           pip install -e ..
           python ../scripts/generate_api_docs.py
           if [ -e yarn.lock ]; then
@@ -54,7 +54,7 @@ jobs:
         run: |
           git config --global user.email "feynmanl@fb.com"
           git config --global user.name "Feynman Liang"
-          pip install pip>=21.3.1
+          python -m pip install --upgrade pip
           pip install -e ..
           python ../scripts/generate_api_docs.py
           if [ -e yarn.lock ]; then
