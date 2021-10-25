@@ -30,13 +30,13 @@ jobs:
         pip install -e .[dev]
     - name: Check copyright headers
       run: |
-        python scripts/copyright_headers.py --check flowtorch tests scripts samples
+        python scripts/copyright_headers.py --check flowtorch tests scripts examples
     - name: Check formatting with black
       run: |
-        black --check flowtorch tests scripts samples
+        black --check flowtorch tests scripts examples
     - name: Check imports with usort
       run: |
-        usort check flowtorch tests scripts samples
+        usort check flowtorch tests scripts examples
     - name: Lint with flake8
       run: |
         flake8 . --count --show-source --statistics

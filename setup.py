@@ -78,7 +78,7 @@ setup(
     },
     packages=find_packages(
         include=["flowtorch", "flowtorch.*"],
-        exclude=["debug", "tests", "website", "samples", "scripts"],
+        exclude=["debug", "tests", "website", "examples", "scripts"],
     ),
     extras_require={
         "dev": DEV_REQUIRES,
