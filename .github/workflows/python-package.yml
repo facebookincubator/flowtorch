@@ -26,7 +26,6 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        python -m ensurepip
         pip install -e .[dev]
     - name: Check copyright headers
       run: |
