@@ -41,10 +41,6 @@ class Compose(Bijector):
             ]
         )
 
-        # TODO: Remove once autoregressive property is indicated by a Class
-        self.autoregressive = all(
-            b.autoregressive for b in self.bijectors  # type: ignore
-        )
         self._context_shape = context_shape
 
     # NOTE: We overwrite forward rather than _forward so that the composed
@@ -55,9 +51,14 @@ class Compose(Bijector):
 
         return x
 
-    def inverse(self, y: torch.Tensor, context: torch.Tensor = None) -> torch.Tensor:
+    def inverse(
+        self,
+        y: torch.Tensor,
+        x: Optional[torch.Tensor] = None,
+        context: Optional[torch.Tensor] = None,
+    ) -> torch.Tensor:
         for bijector in reversed(self.bijectors):
-            y = bijector.inverse(y, context)  # type: ignore
+            y = bijector.inverse(y, x, context)  # type: ignore
 
         return y
 

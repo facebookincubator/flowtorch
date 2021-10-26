@@ -25,6 +25,7 @@ class ELU(Fixed):
     def _inverse(
         self,
         y: torch.Tensor,
+        x: Optional[torch.Tensor] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return torch.max(y, torch.zeros_like(y)) + torch.min(

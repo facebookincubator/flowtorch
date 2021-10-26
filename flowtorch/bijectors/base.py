@@ -14,8 +14,7 @@ from torch.distributions import constraints
 class Bijector(metaclass=flowtorch.LazyMeta):
     codomain: constraints.Constraint = constraints.real
     domain: constraints.Constraint = constraints.real
-    identity_initialization: bool = True
-    autoregressive: bool = False
+    _shape: torch.Size
     _context_shape: Optional[torch.Size]
     _params: Optional[Union[Parameters, torch.nn.ModuleList]] = None
 
@@ -26,12 +25,19 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None,
     ) -> None:
+        # Prevent "meta bijectors" from being initialized
+        if len(self.__class__.__mro__) <= 3:
+            raise TypeError("Only standard bijectors can be initialized.")
+
+        self._shape = shape
         self._context_shape = context_shape
 
         # Instantiate parameters (tensor, hypernets, etc.)
         if params is not None:
-            shapes = self.param_shapes(shape)
-            self._params = params(shapes, shape, self._context_shape)  # type: ignore
+            param_shapes = self.param_shapes(shape)
+            self._params = params(  # type: ignore
+                param_shapes, self._shape, self._context_shape
+            )
 
     @property
     def params(self) -> Optional[Union[Parameters, torch.nn.ModuleList]]:
@@ -63,15 +69,17 @@ class Bijector(metaclass=flowtorch.LazyMeta):
     def inverse(
         self,
         y: torch.Tensor,
+        x: Optional[torch.Tensor] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         # TODO: Allow that context can have a batch shape
         assert context is None  # or context.shape == (self._context_size,)
-        return self._inverse(y, context)
+        return self._inverse(y, x, context)
 
     def _inverse(
         self,
         y: torch.Tensor,
+        x: Optional[torch.Tensor] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
