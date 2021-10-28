@@ -17,5 +17,9 @@ class Elementwise(Bijector):
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None,
     ) -> None:
-        super().__init__(params, shape=shape, context_shape=context_shape)
+        if not params:
+            params = Tensor()  # type: ignore
+
         assert params is None or issubclass(params.cls, Tensor)
+
+        super().__init__(params, shape=shape, context_shape=context_shape)

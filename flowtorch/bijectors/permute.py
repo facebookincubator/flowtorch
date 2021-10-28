@@ -40,6 +40,7 @@ class Permute(Fixed, VolumePreserving):
     def _inverse(
         self,
         y: torch.Tensor,
+        x: Optional[torch.Tensor] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         if self.permutation is None:

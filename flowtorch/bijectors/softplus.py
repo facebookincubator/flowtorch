@@ -26,6 +26,7 @@ class Softplus(Fixed):
     def _inverse(
         self,
         y: torch.Tensor,
+        x: Optional[torch.Tensor] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return flowtorch.ops.softplus_inv(y)

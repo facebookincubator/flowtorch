@@ -38,6 +38,7 @@ class Power(Fixed):
     def _inverse(
         self,
         y: torch.Tensor,
+        x: Optional[torch.Tensor] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return y.pow(1 / self.exponent)
