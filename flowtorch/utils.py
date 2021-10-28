@@ -43,10 +43,6 @@ def list_bijectors() -> Sequence[Tuple[str, Bijector]]:
     ans = [a for a in ans if ".ops." not in a[1].__module__]
     return list({classname(cls[1]): cls for cls in ans}.values())
 
-    # Filter out the bijector operators
-    b = _walk_packages("bijectors", partial(isderivedclass, base_cls=Bijector))
-    return 
-
 
 def list_parameters() -> Sequence[Tuple[str, Parameters]]:
     ans = _walk_packages("parameters", partial(isderivedclass, base_cls=Parameters))
