@@ -1,5 +1,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
+import inspect
+
 import flowtorch
 import flowtorch.bijectors
 import flowtorch.distributions
@@ -7,39 +9,58 @@ import flowtorch.parameters
 import flowtorch.utils
 
 
-# TODO: Refactoring of the following three test functions
-
-
 def test_parameters_imports():
-    params = [cls for cls, _ in flowtorch.utils.list_parameters()]
-    unimported_params = set(params).difference(set(flowtorch.parameters.__all__))
-
-    if len(unimported_params):
-        raise ImportError(
-            f'The following Parameters classes are declared but not imported: \
-{",".join(unimported_params)}'
-        )
+    tst_imports(
+        "Parameters",
+        [cls for cls, _ in flowtorch.utils.list_parameters()],
+        [
+            c
+            for c in flowtorch.parameters.__all__
+            if inspect.isclass(flowtorch.parameters.__dict__[c])
+        ],
+    )
 
 
 def test_bijector_imports():
-    bijectors = [cls for cls, _ in flowtorch.utils.list_bijectors()]
-    unimported_bijectors = set(bijectors).difference(set(flowtorch.bijectors.__all__))
-
-    if len(unimported_bijectors):
-        raise ImportError(
-            f'The following Bijector classes are declared but not imported: \
-{",".join(unimported_bijectors)}'
-        )
+    tst_imports(
+        "Bijector",
+        [cls for cls, _ in flowtorch.utils.list_bijectors()],
+        [
+            c
+            for c in flowtorch.bijectors.__all__
+            if inspect.isclass(flowtorch.bijectors.__dict__[c])
+        ],
+    )
 
 
 def test_distribution_imports():
-    distributions = [cls for cls, _ in flowtorch.utils.list_distributions()]
-    unimported_distributions = set(distributions).difference(
-        set(flowtorch.distributions.__all__)
+    tst_imports(
+        "Distribution",
+        [cls for cls, _ in flowtorch.utils.list_distributions()],
+        [
+            c
+            for c in flowtorch.distributions.__all__
+            if inspect.isclass(flowtorch.distributions.__dict__[c])
+        ],
     )
 
-    if len(unimported_distributions):
-        raise ImportError(
-            f'The following Distribution classes are declared but not imported: \
-{",".join(unimported_distributions)}'
+
+def tst_imports(cls_name, detected, imported):
+    unimported = set(detected).difference(set(imported))
+    undetected = set(imported).difference(set(detected))
+
+    error_msg = []
+    if len(unimported):
+        error_msg.append(
+            f'The following {cls_name} classes are declared but not imported: \
+{", ".join(unimported)}'
         )
+
+    if len(undetected):
+        error_msg.append(
+            f'The following {cls_name} classes are imported but not detected: \
+{", ".join(undetected)}'
+        )
+
+    if len(error_msg):
+        raise ImportError("\n".join(error_msg))
