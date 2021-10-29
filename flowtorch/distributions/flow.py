@@ -81,6 +81,28 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         x = self.bijector.forward(x, context)  # type: ignore
         return x
 
+    def rnormalize(
+        self, value: torch.Tensor, context: Optional[torch.Tensor] = None
+    ) -> Tensor:
+        """
+        Push a tensor through the normalizing direction of the flow where
+        we can take autodiff gradients on the bijector.
+        """
+        if context is None:
+            context = self._context
+
+        return self.bijector.inverse(value, context)  # type: ignore
+
+    def normalize(
+        self, value: torch.Tensor, context: Optional[torch.Tensor] = None
+    ) -> Tensor:
+        """
+        Push a tensor through the normalizing direction of the flow and
+        block autodiff gradients on the bijector.
+        """
+        with torch.no_grad():
+            return self.rnormalize(value, context)
+
     def log_prob(
         self, value: torch.Tensor, context: Optional[torch.Tensor] = None
     ) -> torch.Tensor:
