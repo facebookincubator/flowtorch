@@ -1,7 +1,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
-from typing import cast, Optional
+from typing import Any, cast, Optional
 
 import flowtorch
 import flowtorch.parameters
@@ -22,6 +22,7 @@ class Autoregressive(Bijector):
         *,
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None,
+        **kwargs: Any
     ) -> None:
         # Event shape is determined by `shape` argument
         self.domain = constraints.independent(constraints.real, len(shape))

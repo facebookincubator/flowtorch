@@ -26,7 +26,12 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         context_shape: Optional[torch.Size] = None,
     ) -> None:
         # Prevent "meta bijectors" from being initialized
-        if self.__class__.__module__ == "flowtorch.bijectors.base":
+        # NOTE: We define a "standard bijector" as one that inherits from a
+        # subclass of Bijector, hence why we need to test the length of the MRO
+        if (
+            self.__class__.__module__ == "flowtorch.bijectors.base"
+            or len(self.__class__.__mro__) <= 3
+        ):
             raise TypeError("Only standard bijectors can be initialized.")
 
         self._shape = shape
