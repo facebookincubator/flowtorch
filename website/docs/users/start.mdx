@@ -5,7 +5,7 @@ sidebar_label: Your First Flow
 ---
 
 ## The Task
-Let's begin learning our first Normalizing Flow with a simple example! The target distribution that we desire to learn will be,
+Let's begin training our first Normalizing Flow with a simple example! The target distribution that we intend to learn is,
 $$
 \begin{aligned}
   Y' &\sim \mathcal{N}\left(\mu=\begin{bmatrix}
@@ -73,15 +73,22 @@ $$
 First, we import the relevant libraries:
 ```python
 import torch
-import torch.distributions as dist
-import flowtorch
-import flowtorch.bijectors as bijectors
+import flowtorch.bijectors as bij
+import flowtorch.distributions as dist
 ```
 The base and target distributions are defined using standard PyTorch:
 ```python
-base_dist = dist.Normal(torch.zeros(2), torch.ones(2))
-target_dist = dist.Normal(torch.zeros(2)+5, torch.ones(2)*0.5)
+base_dist = torch.distributions.Independent(
+  torch.distributions.Normal(torch.zeros(2), torch.ones(2)), 
+  1
+)
+target_dist = torch.distributions.Independent(
+  torch.distributions.Normal(torch.zeros(2)+5, torch.ones(2)*0.5),
+  1
+)
 ```
+Note the use of [`torch.distributions.Independent`](https://pytorch.org/docs/stable/distributions.html#independent) so that our base and target distributions are *vector valued*.
+
 We can visualize samples from the base and target:
 <p align="center">
 <img src="/img/bivariate-normal-frame-0.svg" />
@@ -90,29 +97,31 @@ We can visualize samples from the base and target:
 A Normalizing Flow is created in two steps. First, we create a "plan" for the flow as a `flowtorch.bijectors.Bijector` object,
 ```python
 # Lazily instantiated flow
-flow = bijectors.AffineAutoregressive()
+bijectors = bij.AffineAutoregressive()
 ```
-This plan is then made concrete by calling it with the base distribution,
+This plan is then made concrete by combining it with the base distributions, which provides the input shape, and constructing a `flowtorch.distributions.Flow` object, and extension of `torch.distributions.Distribution`:
 ```python
 # Instantiate transformed distribution and parameters
-new_dist, params = flow(base_dist)
+flow = dist.Flow(base_dist, bijectors)
 ```
-At this point, we have an object, `new_dist`, for the distribution, $q_\theta(\cdot)$, that follows the standard PyTorch interface. Therefore, it can be trained with the following code, which will be familiar for readers who have used `torch.distributions` before:
+At this point, we have an object, `flow`, for the distribution, $q_\theta(\cdot)$, that follows the standard PyTorch interface. Therefore, it can be trained with the following code, which will be familiar for readers who have used `torch.distributions` before:
 ```python
 # Training loop
-opt = torch.optim.Adam(params.parameters(), lr=5e-2)
-for idx in range(501):
+opt = torch.optim.Adam(flow.parameters(), lr=5e-3)
+for idx in range(3001):
     opt.zero_grad()
+
     # Minimize KL(p || q)
     y = target_dist.sample((1000,))
-    loss = -new_dist.log_prob(y).mean()
-    if idx % 100 == 0:
+    loss = -flow.log_prob(y).mean()
+
+    if idx % 500 == 0:
         print('epoch', idx, 'loss', loss)
 
     loss.backward()
     opt.step()
 ```
-Note how we obtain the learnable parameters of the normalizing flow from the `params` object, which is a `torch.nn.Module`. Visualizing samples after learning, we see that we have been successful in matching the target distribution:
+Note how we obtain the learnable parameters of the normalizing flow from the `flow` object, which is a `torch.nn.Module`. Visualizing samples after learning, we see that we have been successful in matching the target distribution:
 <p align="center">
 <img src="/img/bivariate-normal-frame-5.svg" />
 </p>
@@ -122,6 +131,6 @@ Congratulations on training your first flow!
 
 This simple example illustrates a few important points of FlowTorch's design:
 
-Firstly, `Bijector` objects are agnostic to their shape. A `Bijector` object specifies *how the shape is changed* by the forward and inverse operations, and then calculates the exact shapes when it obtains knowledge of the base distribution, when `new_dist, params = flow(base_dist)` is run. Any neural networks or other parametrized functions, which also require this shape information, are not instantiated until the same moment. In this sense, a `Bijector` can be thought of as a lazy plan for creating a normalizing flow. The advantage of doing things this way is that the shape information can be "type checked" and does not need to be specified in multiple locations (ensuring these quantities are consistent).
+Firstly, `Bijector` objects are agnostic to their shape. A `Bijector` object specifies *how the shape is changed* by the forward and inverse operations, and then calculates the exact shapes when it obtains knowledge of the base distribution, when `flow = dist.Flow(base_dist, bijectors)` is run. Any neural networks or other parametrized functions, which also require this shape information, are not instantiated until the same moment. In this sense, a `Bijector` can be thought of as a lazy plan for creating a normalizing flow. The advantage of doing things this way is that the shape information can be "type checked" and does not need to be specified in multiple locations (ensuring these quantities are consistent).
 
-Secondly, all objects are designed to have sensible defaults. We do not need to define the conditioning network for `bijectors.AffineAutoregressive`, it will use a [MADE network](/dev/bibliography#germain2015made) with sensible hyperparameters and defer initialization until it later receives shape information. Thirdly, there is compatibility, in as far as is possible, with standard PyTorch interfaces such as `torch.distributions` and `torch.distributions.transform`.
+Secondly, all objects are designed to have sensible defaults. We do not need to define the conditioning network for `bijectors.AffineAutoregressive`, it will use a [MADE network](/dev/bibliography#germain2015made) with sensible hyperparameters and defer initialization until it later receives shape information. Thirdly, there is compatibility, in as far as is possible, with standard PyTorch interfaces such as `torch.distributions`.

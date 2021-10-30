@@ -3,7 +3,7 @@ var apiSideBar = require('./api.sidebar.js');
 module.exports = {
   usersSidebar: {
     "Getting Started": ['users/introduction', 'users/installation', 'users/start'],
-    "Tutorial": ['users/univariate', 'users/multivariate'],
+    "Tutorials": ['users/univariate', 'users/multivariate'],
     "Basic Concepts": ['users/shapes'],
   },
   devsSidebar: {

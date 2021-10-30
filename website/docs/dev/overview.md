@@ -37,6 +37,4 @@ Assuming it passes these tests, commit the changes to your local repo and push t
 ### Review
 Finally, create a [pull request](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests) (PR) to merge your forked feature branch into the [main branch](https://github.com/facebookincubator/flowtorch). Give an informative name to your PR and include in the description of your PR the details of which features are added. Ensure your feature branch contains the latest commits from the main branch so as to avoid merge conflicts.
 
-9. The core developers will review your PR and most likely suggest changes to the code. After edits have been made, pushing to the feature branch of your forked remote will update the existing PR that you have opened.
-
-10. After all edits have been made and the tests pass, the core developers will merge your code into the main branch!
+The core developers will review your PR and most likely suggest changes to the code. After edits have been made, pushing to the feature branch of your forked remote will update the existing PR that you have opened. After all edits have been made and the tests pass, the core developers will merge your code into the main branch!

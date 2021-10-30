@@ -38,9 +38,6 @@ $$
 where we've defined $y_{(0)}=x$, $y_{(L-1)}=y$ for convenience of notation. In the [following section](/users/multivariate), we will see how to generalize this method to multivariate $X$.
 
 ## Fixed Univariate `Bijector`s
-:::caution
-The examples in this section makes use of `Bijector` classes that are not yet available - they will be added in the `v0.3` release. The concepts are still relevant.
-:::
 [FlowTorch](https://flowtorch.ai) contains classes for representing *fixed* univariate bijective transformations. These are particularly useful for restricting the range of transformed distributions, for example to lie on the unit hypercube. (In the following sections, we will explore how to represent learnable bijectors.)
 
 Let us begin by showing how to represent and manipulate a simple transformed distribution,
@@ -58,18 +55,20 @@ We begin by importing the relevant libraries:
 
 ```python
 import torch
-import torch.distributions as dist
-import flowtorch
-import flowtorch.bijectors as bijectors
+import flowtorch.bijectors as bij
+import flowtorch.distributions as dist
 import matplotlib.pyplot as plt
 import seaborn as sns
 ```
 A variety of bijective transformations live in the `flowtorch.bijectors` module, and the classes to define transformed distributions live in `flowtorch.distributions`. We first create the base distribution of $X$ and the class encapsulating the transform $\text{exp}(\cdot)$:
 ```python
-dist_x = dist.Normal(torch.zeros(2), torch.ones(2))
-flow = bijectors.Exp()
+dist_x = torch.distributions.Independent(
+  torch.distributions.Normal(torch.zeros(1), torch.ones(1)), 
+  1
+)
+bijector = bij.Exp()
 ```
-The class `bijectors.Exp` derives from `flowtorch.bijectors.Bijector` and defines the forward, inverse, and log-absolute-derivative operations for this transform,
+The class `bij.Exp` derives from `bij.Fixed` and defines the forward, inverse, and log-absolute-derivative operations for this transform,
 
 $$
 \begin{aligned}
@@ -79,11 +78,11 @@ $$
 \end{aligned}
 $$
 
-In general, a `Bijector` class defines these three operations, from which it is sufficient to perform sampling and scoring. *We should think of a `Bijector` as a plan to construct a normalizing flow rather than the normalizing flow itself* - it requires being instantiated with a concrete base distribution supplying the relevant shape information,
+In general, a bijector class defines these three operations, from which it is sufficient to perform sampling and scoring. *We should think of a bijector as a plan to construct a normalizing flow rather than the normalizing flow itself* - it requires being instantiated with a concrete base distribution supplying the relevant shape information,
 ```python
-dist_y, _ = flow(dist_x)
+dist_y = dist.Flow(dist_x, bijector)
 ```
-This statement returns the object `dist_y` of type `flowtorch.distributions.TransformedDistribution` representing an object that has an interface compatible with `torch.distributions.Distribution`. For the moment, we ignore the second argument returned. We are able to sample and score from `dist_y` object using its methods `.sample`, `.rsample`, and `.log_prob`.
+This statement returns the object `dist_y` of type `flowtorch.distributions.Flow` representing an object that has an interface compatible with `torch.distributions.Distribution`. We are able to sample and score from `dist_y` object using its methods `.sample`, `.rsample`, and `.log_prob`.
 
 Now, plotting samples from both the base and transformed distributions to verify that we that have produced the log-normal distribution:
 ```python
@@ -109,11 +108,10 @@ $$
 
 or rather, $Y\sim\text{LogNormal}(\mu,\sigma^2)$. In FlowTorch this is accomplished, e.g. for $\mu=3, \sigma=0.5$, as follows:
 ```python
-dist_x = dist.Normal(torch.zeros(1), torch.ones(1))
-flow = bijectors.Compose([
-     bijectors.Affine(loc=3, scale=0.5),
-     bijectors.Exp()])
-dist_y, _ = flow(dist_x)
+bijectors = bij.Compose([
+     bij.AffineFixed(loc=3, scale=0.5),
+     bij.Exp()])
+dist_y = dist.Flow(dist_x, bijector)
 
 plt.subplot(1, 2, 1)
 plt.hist(dist_x.sample([1000]).numpy(), bins=50)
@@ -127,7 +125,7 @@ plt.show()
 <img src="/img/normalizing_flows_i_11_0.png" />
 </p>
 
-The class `bijectors.Compose` combines multiple `Bijector`s with [function composition](https://en.wikipedia.org/wiki/Function_composition) to produce a single *plan* for a Normalizing Flow, which is then intiated in the regular way. There are other ways to combine multiple flows - see [here](/users/composing). For the forward operation, transformations are applied in the order of the list. In this case, first `Affine` is applied to the base distribution and then `Exp`.
+The class `bij.Compose` combines multiple `Bijector`s with [function composition](https://en.wikipedia.org/wiki/Function_composition) to produce a single *plan* for a Normalizing Flow, which is then intiated in the regular way. For the forward operation, transformations are applied in the order of the list. In this case, first `AffineFixed` is applied to the base distribution and then `Exp`.
 
 ## Learnable Univariate `Bijector`s
 Having introduced the interface for bijections and transformed distributions, we now show how to represent *learnable* transforms and use them for density estimation. Our dataset in this section and the next will comprise samples along two concentric circles. Examining the joint and marginal distributions:
@@ -171,20 +169,21 @@ plt.show()
 <img src="/img/normalizing_flows_i_14_1.png" />
 </p>
 
-We will learn the marginals of the above distribution using a learnable transform, `bijectors.Spline`, defined on a two-dimensional input:
+We will learn the marginals of the above distribution using a learnable transform, `bij.Spline`, defined on a two-dimensional input:
 
 ```python
-dist_x = dist.Normal(torch.zeros(2), torch.ones(2))
-flow = bijectors.Spline()
-dist_y, params = flow(dist_x)
+dist_x = torch.distributions.Independent(
+  torch.distributions.Normal(torch.zeros(2), torch.ones(2)), 
+  1
+)
+bijector = bij.Spline()
+dist_y = dist.Flow(dist_x, bijector)
 ```
 
-The main difference between this section and the previous is that we make use of the second argument, `params`, returned from instantiating the flow. `params` is a `torch.nn.Module` that when called with a value for `x` returns a tuple of parameters for the `Bijector`.
-
-`bijectors.Spline` passes each dimension of its input through a separate monotonically increasing function known as a spline. From a high-level, a spline is a complex parametrizable curve for which we can define specific points known as knots that it passes through and the derivatives at the knots. The knots and their derivatives are parameters that can be learnt, e.g., through stochastic gradient descent on a maximum likelihood objective, as we now demonstrate:
+`bij.Spline` passes each dimension of its input through a separate monotonically increasing function known as a spline. From a high-level, a spline is a complex parametrizable curve for which we can define specific points known as knots that it passes through and the derivatives at the knots. The knots and their derivatives are parameters that can be learnt, e.g., through stochastic gradient descent on a maximum likelihood objective, as we now demonstrate:
 
 ```python
-optimizer = torch.optim.Adam(params.parameters(), lr=1e-2)
+optimizer = torch.optim.Adam(dist_y.parameters(), lr=1e-2)
 for step in range(steps):
     optimizer.zero_grad()
     loss = -dist_y.log_prob(X).mean()
@@ -206,7 +205,7 @@ step: 1000, loss: 1.2545257806777954
 
 Plotting samples drawn from the transformed distribution after learning:
 ```python
-X_flow = flow_dist.sample(torch.Size([1000,])).detach().numpy()
+X_flow = dist_y.sample(torch.Size([1000,])).detach().numpy()
 plt.title(r'Joint Distribution')
 plt.xlabel(r'$x_1$')
 plt.ylabel(r'$x_2$')
@@ -252,4 +251,4 @@ plt.show()
 <img src="/img/normalizing_flows_i_20_1.png" />
 </p>
 
-As we can see, we have learnt close approximations to the marginal distributions, $p(x_1),p(x_2)$. It would have been challenging to fit the irregularly shaped marginals with standard methods, for example, a mixture of normal distributions. As expected, since there is a dependency between the two dimensions, we do not learn a good representation of the joint, $p(x_1,x_2)$. In the next section, we explain how to learn multivariate distributions whose dimensions are not independent.
+As we can see, we have learnt close approximations to the marginal distributions, $p(x_1),p(x_2)$. *It would have been challenging to fit the irregularly shaped marginals with standard methods, for example, a mixture of normal distributions*. As expected, since there is a dependency between the two dimensions, we do not learn a good representation of the joint, $p(x_1,x_2)$. In the next section, we explain how to learn multivariate distributions whose dimensions are not independent.

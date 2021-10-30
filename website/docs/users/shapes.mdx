@@ -29,9 +29,9 @@ assert d.batch_shape == torch.Size([])
 assert d.sample(sample_shape).shape == torch.Size([])
 ```
 
-In this example, we have a single scalar normal distribution from which we draw a scalar sample. Since it is a scalar distribution, the `event_shape = torch.Size([])`. Since it is a single distribution, `batch_shape = torch.Size([])`. And we draw a scalar sample since `sample_shape = torch.Size([])`.
+In this example, we have a single scalar normal distribution from which we draw a scalar sample. Since it is a scalar distribution, the `event_shape == torch.Size([])`. Since it is a single distribution, `batch_shape == torch.Size([])`. And we draw a scalar sample since `sample_shape == torch.Size([])`.
 
-Note that the event shape and batch shape are properties of the distribution itself, whereas the sample shape depends on the size argument passed to [`Distribution.sample`](https://pytorch.org/docs/stable/distributions.html#torch.distributions.distribution.Distribution.sample) or [`Distribution.rsample`](https://pytorch.org/docs/stable/distributions.html#torch.distributions.distribution.Distribution.rsample). Also, the shape of `d.sample(sample_shape)` is the concatenation of the `sample_shape`, `batch_shape`, and `event_shape`, in that order.
+Note that *the event shape and batch shape are properties of the distribution itself*, whereas the sample shape depends on the size argument passed to [`Distribution.sample`](https://pytorch.org/docs/stable/distributions.html#torch.distributions.distribution.Distribution.sample) or [`Distribution.rsample`](https://pytorch.org/docs/stable/distributions.html#torch.distributions.distribution.Distribution.rsample). Also, the shape of `d.sample(sample_shape)` is the concatenation of the `sample_shape`, `batch_shape`, and `event_shape`, in that order.
 
 Let's look at another example:
 

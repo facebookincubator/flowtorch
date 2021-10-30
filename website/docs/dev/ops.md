@@ -7,13 +7,13 @@ sidebar_label: Continuous Integration
 Please do not feel intimidated by the thought of having to make your code pass the CI tests! The core developer team is happy to work closely with contributors to integrate their code and merge PRs.
 :::
 
-FlowTorch uses [GitHub Actions](https://docs.github.com/en/actions) to run code quality tests on pushes or pull requests to the `main` branch, a process known as [continuous integration](https://en.wikipedia.org/wiki/Continuous_integration) (CI). The tests are run for Python versions 3.7, 3.7, and 3.9, and must be successful for a PR to be merged into `main`. All workflow runs can be viewed [here](https://github.com/facebookincubator/flowtorch/actions), or else viewed from the link at the bottom of the [PR](https://github.com/facebookincubator/flowtorch/pulls) in question.
+FlowTorch uses [GitHub Actions](https://docs.github.com/en/actions) to run code quality tests on pushes or pull requests to the `main` branch, a process known as [continuous integration](https://en.wikipedia.org/wiki/Continuous_integration) (CI). The tests are run for Python versions 3.7, 3.8, and 3.9, and must be successful for a PR to be merged into `main`. All workflow runs can be viewed [here](https://github.com/facebookincubator/flowtorch/actions), or else viewed from the link at the bottom of the [PR](https://github.com/facebookincubator/flowtorch/pulls) in question.
 
 
 ## Workflow Steps
 The definition of the steps performed in the build workflow is found [here](https://github.com/facebookincubator/flowtorch/blob/main/.github/workflows/python-package.yml) and is as follows:
 
-1. The version of Python (3.7, 3.7, or 3.9) is installed along with the developer dependencies of FlowTorch;
+1. The version of Python (3.7, 3.8, or 3.9) is installed along with the developer dependencies of FlowTorch;
 ```bash
 python -m pip install --upgrade pip
 python -m pip install flake8 black usort pytest mypy
@@ -22,30 +22,35 @@ pip install --pre torch torchvision torchaudio
 pip install -e .[dev]
 ```
 
-2. The formatting of the Python code in the [library](https://github.com/facebookincubator/flowtorch/tree/main/flowtorch) and [tests](https://github.com/facebookincubator/flowtorch/tree/main/tests) is checked to ensure it follows a standard using [`black`](https://black.readthedocs.io/en/stable/);
+2. Each Python source is checked for containing the mandatory copyright header by a [custom script](https://github.com/facebookincubator/flowtorch/blob/main/scripts/copyright_headers.py):
+```bash
+python scripts/copyright_headers.py --check flowtorch tests scripts examples
+```
+
+3. The formatting of the Python code in the [library](https://github.com/facebookincubator/flowtorch/tree/main/flowtorch) and [tests](https://github.com/facebookincubator/flowtorch/tree/main/tests) is checked to ensure it follows a standard using [`black`](https://black.readthedocs.io/en/stable/);
 ```bash
 black --check flowtorch tests
 ```
-3. Likewise, the order and formatting of Python `import` statements in the same folders is checked to ensure it follows a standard using [`usort`](https://usort.readthedocs.io/en/stable/);
+4. Likewise, the order and formatting of Python `import` statements in the same folders is checked to ensure it follows a standard using [`usort`](https://usort.readthedocs.io/en/stable/);
 ```bash
 usort check flowtorch tests
 ```
-4. A [static code analysis](https://en.wikipedia.org/wiki/Static_program_analysis), or rather, linting, is performed by [`flake8`](https://flake8.pycqa.org/en/latest/) to find potential bugs;
+5. A [static code analysis](https://en.wikipedia.org/wiki/Static_program_analysis), or rather, linting, is performed by [`flake8`](https://flake8.pycqa.org/en/latest/) to find potential bugs;
 ```bash
 flake8 . tests --count --show-source --statistics
 ```
-5. FlowTorch makes use of type hints, which we consider mandatory for all contributed code, and static types are checked with [`mypy`](https://github.com/python/mypy);
+6. FlowTorch makes use of type hints, which we consider mandatory for all contributed code, and static types are checked with [`mypy`](https://github.com/python/mypy);
 ```bash
 mypy --disallow-untyped-defs flowtorch
 ```
-6. Unit tests
+7. Unit tests:
 
 pytest + XML coverage report
 ```bash
 pytest --cov=tests --cov-report=xml -W ignore::DeprecationWarning tests/
 ```
 
-7. The coverage report is uploaded to [Codecov](https://about.codecov.io/) with a [GitHub Action](https://github.com/codecov/codecov-action). This allows us to analyze the results and produce the percentage of code covered badge.
+8. The coverage report is uploaded to [Codecov](https://about.codecov.io/) with a [GitHub Action](https://github.com/codecov/codecov-action). This allows us to analyze the results and produce the percentage of code covered badge.
 
 If any step fails, the workflow fails and you will not be able to merge the PR into `main`.
 
