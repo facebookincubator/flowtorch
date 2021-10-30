@@ -22,6 +22,7 @@ class LeakyReLU(Fixed):
     def _inverse(
         self,
         y: torch.Tensor,
+        x: Optional[torch.Tensor] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return F.leaky_relu(y, negative_slope=100.0)

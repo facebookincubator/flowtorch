@@ -19,22 +19,41 @@ All Rights Reserved
 SPDX-License-Identifier: MIT"""
 
 
+def classname(cls: type) -> str:
+    return ".".join([cls.__module__, cls.__name__])
+
+
+def issubclass_byname(cls: type, test_cls: type) -> bool:
+    """
+    Test whether a class is a subclass of another by class names, in contrast
+    to the built-in issubclass that does it by instance.
+    """
+    return classname(test_cls) in [classname(c) for c in cls.__mro__]
+
+
 def isderivedclass(cls: type, base_cls: type) -> bool:
-    return inspect.isclass(cls) and issubclass(cls, base_cls)
+    # NOTE issubclass won't always do what we want here if base_cls is imported
+    # inside the module of cls. I.e. issubclass returns False if cls inherits
+    # from a base_cls with a different instance.
+    return inspect.isclass(cls) and issubclass_byname(cls, base_cls)
 
 
 def list_bijectors() -> Sequence[Tuple[str, Bijector]]:
-    return _walk_packages("bijectors", partial(isderivedclass, base_cls=Bijector))
+    ans = _walk_packages("bijectors", partial(isderivedclass, base_cls=Bijector))
+    ans = [a for a in ans if ".ops." not in a[1].__module__]
+    return list({classname(cls[1]): cls for cls in ans}.values())
 
 
 def list_parameters() -> Sequence[Tuple[str, Parameters]]:
-    return _walk_packages("parameters", partial(isderivedclass, base_cls=Parameters))
+    ans = _walk_packages("parameters", partial(isderivedclass, base_cls=Parameters))
+    return list({classname(cls[1]): cls for cls in ans}.values())
 
 
 def list_distributions() -> Sequence[Tuple[str, Parameters]]:
-    return _walk_packages(
+    ans = _walk_packages(
         "distributions", partial(isderivedclass, base_cls=Distribution)
     )
+    return list({classname(cls[1]): cls for cls in ans}.values())
 
 
 def _walk_packages(
@@ -64,9 +83,19 @@ def _walk_packages(
 
         if finder is not None:
             module = finder.load_module(this_modname)
+
+        else:
+            raise Exception("Finder is none")
+
         if module is not None:
             this_classes = inspect.getmembers(module, filter)
             classes.extend(this_classes)
+
+            del module
+            del finder
+
+        else:
+            raise Exception("Module is none")
 
     return classes
 

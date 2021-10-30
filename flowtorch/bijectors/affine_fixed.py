@@ -40,6 +40,7 @@ class AffineFixed(Fixed):
     def _inverse(
         self,
         y: torch.Tensor,
+        x: Optional[torch.Tensor] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return (y - self.loc) / self.scale
