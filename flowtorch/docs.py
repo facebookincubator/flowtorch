@@ -118,7 +118,8 @@ slug: "/api"
 
 :::info
 
-These API stubs are generated from Python via a custom script and will filled out in the future.
+These API stubs are generated from Python via a custom script and will filled
+out in the future.
 
 :::
 
