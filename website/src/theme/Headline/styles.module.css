@@ -1,0 +1,28 @@
+.headline {
+  margin-top: 2rem;
+}
+
+.category {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: var(--ifm-color-primary-light);
+}
+
+.title {
+  max-width: 500px;
+  font-size: 2rem;
+  line-height: initial;
+  word-spacing: -0.25rem;
+
+  @media screen and (min-width: 576px) {
+    font-size: 2.4rem;
+  }
+}
+
+.subtitle {
+  margin-top: 2rem;
+  color: var(--ifm-color-emphasis-600);
+}
