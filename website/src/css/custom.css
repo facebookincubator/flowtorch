@@ -33,6 +33,15 @@ div[class^='announcementBarContent'] {
   color: var(--ifm-font-color-base);
 }
 
+div[id^='/api'] {
+  font-size: 85%;
+   
+}
+
+div[id^='docpage/api'] header {
+  display: none;
+}
+
 html[data-theme="dark"] {
   --ifm-color-primary: #ffcf5d;
   --ifm-color-primary-dark: #ffc53a;
