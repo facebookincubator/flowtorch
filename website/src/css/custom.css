@@ -97,6 +97,17 @@ html[data-theme="dark"] .hero__buttons .button--primary:hover {
   padding-top: 0rem;
 }
 
+/* Flip colors for images inside content */
+html[data-theme="dark"] .container img {
+  filter: invert(100%);
+}
+
+/* Remove icon for external links */
+/* TODO: Same for footer! */
+.navbar svg {
+  display: none;
+}
+
 .hero__buttons {
   padding-top: 2rem;
 }
@@ -132,21 +143,11 @@ a {
   transition: none;
 }
 
-.navbar__item.navbar__link[href*="users"] {
-  display: flex;
-  padding: 0px 12px;
-  padding-right: 12px;
-}
-.navbar__item.navbar__link[href*="users"]:before {
-  mask: url('/img/user-astronaut-solid.svg');
-  mask-size: cover;
-  display: inline-block;
-  content: '';
-  background-color: black;
-  width: 0.875rem;
-  height: 1rem;
-  margin-top: 0.3rem;
-  margin-right: 0.5rem;
+/*
+  Glowing navbar title
+*/
+.navbar__title {
+  overflow: unset;
 }
 
 .navbar__title:hover {
@@ -166,72 +167,79 @@ a {
   }
 }
 
-html[data-theme="dark"] .navbar__item.navbar__link[href*="users"]:before {
-  background-color: white;
-}
-
-html[data-theme="dark"] .navbar__item.navbar__link[href*="users"]:hover:before {
-  background-color: var(--ifm-navbar-link-hover-color);
-}
-
-.navbar__item.navbar__link[href*="users"]:hover:before {
-  background-color: var(--ifm-navbar-link-hover-color);
-}
-
-.navbar__item.navbar__link[href*="dev"] {
+/*
+  Common to all navbar items
+*/
+.navbar__item.navbar__link {
   display: flex;
-  padding: 0px 12px;
+  padding: 0px 0px;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
 }
-.navbar__item.navbar__link[href*="dev"]:before {
-  mask: url("/img/hat-wizard-solid.svg");
-  mask-size: cover;
+
+.navbar__item.navbar__link:before {
+  opacity:0;
   display: inline-block;
   content: '';
-  background-color: black;
-  width: 1rem;
-  height: 1rem;
+  opacity:1;
   margin-top: 0.3rem;
   margin-right: 0.5rem;
 }
 
-.navbar__item.navbar__link[href*="dev"]:hover:before {
-  background-color: var(--ifm-navbar-link-hover-color);
-}
-
-html[data-theme="dark"] .navbar__item.navbar__link[href*="dev"]:before {
-  background-color: white;
-}
-
-html[data-theme="dark"] .navbar__item.navbar__link[href*="dev"]:hover:before {
-  background-color: var(--ifm-navbar-link-hover-color);
-}
-
-.navbar__item.navbar__link[href*="api"]   {
-  display: flex;
-  padding: 0px 12px;
-}
-.navbar__item.navbar__link[href*="api"]:before {
-  mask: url("/img/book-solid.svg");
+.navbar__item.navbar__link:hover:before {
   mask-size: cover;
-  display: inline-block;
-  content: '';
-  background-color: black;
+  background-color: var(--ifm-navbar-link-hover-color);
+  animation: fadeIn ease 0.25s;
+  -webkit-animation: fadeIn ease 0.25s;
+  -moz-animation: fadeIn ease 0.25s;
+  -o-animation: fadeIn ease 0.25s;
+  -ms-animation: fadeIn ease 0.25s;
+}
+
+/*
+  Icons for navbar icons
+*/
+.navbar__item.navbar__link[href*="users"]:before {
+  mask: url('/img/user-astronaut-solid.svg');
   width: 0.875rem;
   height: 1rem;
-  margin-top: 0.3rem;
-  margin-right: 0.5rem;
 }
 
-.navbar__item.navbar__link[href*="api"]:hover:before {
-  background-color: var(--ifm-navbar-link-hover-color);
+.navbar__item.navbar__link[href*="dev"]:before {
+  mask: url("/img/hat-wizard-solid.svg");
+  width: 1rem;
+  height: 1rem;
 }
 
-html[data-theme="dark"] .navbar__item.navbar__link[href*="api"]:before {
-  background-color: white;
+.navbar__item.navbar__link[href="https://github.com/facebookincubator/flowtorch/discussions"]:before {
+  mask: url("/img/comments-solid.svg");
+  width: 1.125rem;
+  height: 1rem;
 }
 
-html[data-theme="dark"] .navbar__item.navbar__link[href*="api"]:hover:before {
-  background-color: var(--ifm-navbar-link-hover-color);
+.navbar__item.navbar__link[href="https://github.com/facebookincubator/flowtorch"]:before {
+  mask: url("/img/github-brands.svg");
+  width: 0.975rem;
+  height: 1rem;
+}
+
+.navbar__item.navbar__link[href="https://github.com/facebookincubator/flowtorch/releases"]:before {
+  mask: url("/img/tag-solid.svg");
+  width: 0.875rem;
+  height: 1rem;
+}
+
+.navbar__item.navbar__link[href*="api"]:before {
+  mask: url("/img/book-solid.svg");
+  width: 0.875rem;
+  height: 1rem;
+}
+
+/*
+  Footer
+*/
+.footer svg {
+  display: none;
 }
 
 .footer__link-item:before {
@@ -430,20 +438,20 @@ html[data-theme="dark"] .navbar__item.navbar__link[href*="api"]:hover:before {
 }
 
 .footer__link-item[href*="legal/terms"]:before {
-  mask: url("/img/scroll-solid.svg");
+  mask: url("/img/section-solid.svg");
   mask-size: cover;
   display: inline-block;
   content: '';
   background-color: white;
-  width: 1.25rem;
+  width: 0.5rem;
   height: 1rem;
   margin-top: 0.5rem;
   margin-right: 0.5rem;
-  /*margin-left: 0.1875rem;*/
+  margin-left: 0.75rem;
 }
 
 .footer__link-item[href*="legal/privacy"]:before {
-  mask: url("/img/handshake-solid.svg");
+  mask: url("/img/user-secret-solid.svg");
   mask-size: cover;
   display: inline-block;
   content: '';
