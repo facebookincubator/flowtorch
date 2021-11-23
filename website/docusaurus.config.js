@@ -22,6 +22,10 @@ module.exports = {
   ],
   baseUrlIssueBanner: true,
   themeConfig: {
+    gtag: {
+      trackingID: 'G-X921WXL42L',
+      anonymizeIP: true,
+    },
     announcementBar: {
       id: 'supportus',
       content:
