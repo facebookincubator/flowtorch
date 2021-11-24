@@ -114,6 +114,23 @@ div[class='highlight'] p {
   color: black;
 }
 
+.doc-symbol-label {
+  font-variant: small-caps;
+  font-weight: normal;
+}
+
+.doc-symbol-name {
+  font-family: Consolas, monospace;
+}
+
+.doc-symbol-signature {
+  font-family: Consolas, monospace;
+}
+
+.doc-inherits-from {
+  font-size: "85%";
+}
+
 html[data-theme="dark"] .doc-navbar p {
   color: white;
 }

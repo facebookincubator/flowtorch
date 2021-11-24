@@ -56,16 +56,15 @@ def generate_class_markdown(symbol_name: str, entity: Any):
     safe_name = symbol_name.replace('_', r'\_')
 
     # Create top section for class
-#     markdown.append("<PythonClass>\n")
-#     markdown.append("""<div className="doc-class-row">
-# <div className="doc-class-label"><span style={{fontVariant: "small-caps", fontWeight: "normal"}}>class</span></div>
-# <div className="doc-class-signature">\n""")
-
-#     markdown.append(f"""## <span style={{{{fontFamily: "Consolas, monospace"}}}}>{safe_name}</span> {{#class}}""")
-#     markdown.append(f"""<span style={{{{fontSize: "85%"}}}}>Inherits from: <span style={{{{fontFamily: "Consolas, monospace"}}}}>{parents}</span></span>\n""")
-#     #markdown.append(short_summary)
-#     markdown.append("</div>\n</div>\n\n</PythonClass>\n")
-#     markdown.append(f"```\n{docstring}\n```\n")
+    markdown.append("<PythonClass>\n")
+    markdown.append("""<div className="doc-class-row">
+<div className="doc-class-label"><span className="doc-symbol-label">class</span></div>
+<div className="doc-class-signature">\n""")
+    markdown.append(f"""## <span className="doc-symbol-name">{safe_name}</span> {{#class}}""")
+    markdown.append(f"""<span className="doc-inherits-from">Inherits from: <span className="doc-symbol-name">{parents}</span></span>\n""")
+    #markdown.append(short_summary)
+    markdown.append("</div>\n</div>\n\n</PythonClass>\n")
+    markdown.append(f"```\n{docstring}\n```\n")
 
     # Methods for class
     members = inspect.getmembers(entity, predicate=inspect.isroutine)
@@ -87,10 +86,10 @@ def generate_class_markdown(symbol_name: str, entity: Any):
         #for d in decorators:
         #    member_strs.append(d)
 
-#         markdown.append("<PythonMethod>\n")    
-#         markdown.append("""<div className="doc-method-row">
-# <div className="doc-method-label"><span style={{fontVariant: "small-caps", fontWeight: "normal"}}>member</span></div>
-# <div className="doc-method-signature">\n""")
+        markdown.append("<PythonMethod>\n")    
+        markdown.append("""<div className="doc-method-row">
+<div className="doc-method-label"><span className="doc-symbol-label">member</span></div>
+<div className="doc-method-signature">\n""")
 
         # Some built-ins don't have a signature and throw exception...
         try:
@@ -103,13 +102,13 @@ def generate_class_markdown(symbol_name: str, entity: Any):
         
         safe_member_name = member_name.replace('_', r'\_')
         safe_member_id = member_name.replace('_', '-')
-        # markdown.append(f"""###  <span style={{{{fontFamily: "Consolas, monospace"}}}}>{safe_member_name}</span> {{#{safe_member_id}}}\n""")
-        # markdown.append(f"""<span style={{{{fontFamily: "Consolas, monospace"}}}}>{safe_member_signature}</span>\n""")
-        # markdown.append("</div>\n</div>\n\n</PythonMethod>\n")
+        markdown.append(f"""###  <span className="doc-symbol-name">{safe_member_name}</span> {{#{safe_member_id}}}\n""")
+        markdown.append(f"""<span className="doc-symbol-signature">{safe_member_signature}</span>\n""")
+        markdown.append("</div>\n</div>\n\n</PythonMethod>\n")
 
         member_docstring = member_object.__doc__ if member_object.__doc__ is not None else "<empty docstring>"
         member_docstring = '\n'.join(l.strip() for l in member_docstring.splitlines())
-        # markdown.append(f"```\n{member_docstring}\n```\n")
+        markdown.append(f"```\n{member_docstring}\n```\n")
 
     return '\n'.join(markdown)
 
@@ -125,15 +124,15 @@ def generate_module_markdown(symbol_name: str, entity: Any):
     safe_name = symbol_name.replace('_', r'\_')
 
     # Create top section for class
-#     markdown.append("<PythonModule>\n")
-#     markdown.append("""<div className="doc-module-row">
-# <div className="doc-module-label"><span style={{fontVariant: "small-caps", fontWeight: "normal"}}>module</span></div>
-# <div className="doc-module-signature">\n""")
+    markdown.append("<PythonModule>\n")
+    markdown.append("""<div className="doc-module-row">
+<div className="doc-module-label"><span className="doc-symbol-label">module</span></div>
+<div className="doc-module-signature">\n""")
 
-#     markdown.append(f"""## <span style={{{{fontFamily: "Consolas, monospace"}}}}>{safe_name}</span> {{#module}}\n""")
-#     #markdown.append(short_summary)
-#     markdown.append("</div>\n</div>\n\n</PythonModule>\n")
-#     markdown.append(f"```\n{docstring}\n```\n")
+    markdown.append(f"""## <span className="doc-symbol-name">{safe_name}</span> {{#module}}\n""")
+    #markdown.append(short_summary)
+    markdown.append("</div>\n</div>\n\n</PythonModule>\n")
+    markdown.append(f"```\n{docstring}\n```\n")
 
     return '\n'.join(markdown)
 
@@ -167,16 +166,16 @@ def generate_function_markdown(symbol_name: str, entity: Any):
     safe_name = symbol_name.replace('_', r'\_')
     safe_signature = entity_signature.replace('<', '&lt;').replace('>', '&gt;')    
 
-#     markdown.append("<PythonFunction>\n")
-#     markdown.append("""<div className="doc-function-row">
-# <div className="doc-function-label"><span style={{fontVariant: "small-caps", fontWeight: "normal"}}>function</span></div>
-# <div className="doc-function-signature">\n""")
+    markdown.append("<PythonFunction>\n")
+    markdown.append("""<div className="doc-function-row">
+<div className="doc-function-label"><span className="doc-symbol-label">function</span></div>
+<div className="doc-function-signature">\n""")
 
-#     markdown.append(f"""## <span style={{{{fontFamily: "Consolas, monospace"}}}}>{safe_name}</span> {{#function}}\n""")
-#     markdown.append(f"""<span style={{{{fontFamily: "Consolas, monospace"}}}}>{safe_signature}</span>""")
-#     #markdown.append(short_summary)
-#     markdown.append("</div>\n</div>\n\n</PythonFunction>\n")
-#     markdown.append(f"```\n{docstring}\n```\n")
+    markdown.append(f"""## <span className="doc-symbol-name">{safe_name}</span> {{#function}}\n""")
+    markdown.append(f"""<span className="doc-symbol-signature">{safe_signature}</span>""")
+    #markdown.append(short_summary)
+    markdown.append("</div>\n</div>\n\n</PythonFunction>\n")
+    markdown.append(f"```\n{docstring}\n```\n")
     
     return '\n'.join(markdown)
 
