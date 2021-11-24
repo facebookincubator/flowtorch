@@ -16,6 +16,7 @@ DEV_REQUIRES = TEST_REQUIRES + [
     "flake8",
     "flake8-bugbear",
     "mypy",
+    "toml",
     "usort",
 ]
 
