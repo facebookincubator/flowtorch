@@ -164,7 +164,7 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} Facebook, Inc. and its affiliates. All Rights Reserved.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Meta Platforms, Inc`,
       },
       prism: {
         theme: lightCodeTheme,
