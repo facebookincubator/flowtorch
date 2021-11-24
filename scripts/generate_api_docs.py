@@ -26,7 +26,7 @@ import os
 import errno
 from typing import Any, Tuple
 
-from docs import sparse_module_hierarchy, walk_packages, generate_class_markdown, generate_module_markdown, generate_function_markdown
+from flowtorch.docs import sparse_module_hierarchy, walk_packages, generate_class_markdown, generate_module_markdown, generate_function_markdown
 
 def module_sidebar(mod_name, items):
     return f"{{\n  type: 'category',\n  label: '{mod_name}',\n  \
@@ -146,7 +146,7 @@ import PythonNavbar from "@theme/PythonNavbar";
 if __name__ == "__main__":
     # Load and validate configuration file
     import flowtorch
-    config_path = os.path.join(flowtorch.__path__[0], "website/documentation.toml")
+    config_path = os.path.join(flowtorch.__path__[0], "../website/documentation.toml")
     config = toml.load(config_path)
     #print(config)
 
