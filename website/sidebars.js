@@ -9,6 +9,8 @@
  Create as many sidebars as you want.
  */
 
+ var apiSideBar = require('./api.sidebar.js');
+
 // @ts-check
 
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
@@ -23,6 +25,7 @@ const sidebars = {
     "Extending the Library": ['dev/overview', 'dev/ops', 'dev/docs', 'dev/tests'],
     "Resources": ['dev/bibliography'],
   },
+  apiSidebar: apiSideBar,
 };
 
 module.exports = sidebars;

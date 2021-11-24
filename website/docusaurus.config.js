@@ -70,6 +70,12 @@ const config = {
             position: 'left',
           },
           {
+            to: 'api',
+            activeBasePath: 'api',
+            label: 'Reference',
+            position: 'left',
+          },
+          {
             href: 'https://github.com/facebookincubator/flowtorch/discussions',
             label: 'Discussions',
             position: 'right',
@@ -100,10 +106,10 @@ const config = {
                 label: 'Developers Guide',
                 to: 'dev',
               },
-              /*{
+              {
                 label: 'API Reference',
                 to: 'api',
-              },*/
+              },
               {
                 label: 'Roadmap',
                 href: 'https://github.com/facebookincubator/flowtorch/projects',
