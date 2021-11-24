@@ -5,7 +5,7 @@
  * work well for content-centric websites.
  */
 
-/* You can override the default Infima variables here. */
+/* Global settings */
 :root {
   --ifm-background-color: #fff;
   --ifm-background-surface-color: #f2f6fa;
@@ -45,6 +45,7 @@ html[data-theme="dark"] {
   --ifm-hero-text-color: white;
 }
 
+/* Formatting of Hero banner */
 .hero__subtitle {
   font-size: 3.75rem;
   text-align: left;
@@ -100,6 +101,132 @@ html[data-theme="dark"] .hero__buttons .button--primary:hover {
 /* Flip colors for images inside content */
 html[data-theme="dark"] .container img {
   filter: invert(100%);
+}
+
+
+/* Modifying the formatting of API docs */
+div[class='highlight'] p {
+  margin-bottom: 0;
+}
+
+.doc-navbar p {
+  margin-bottom: 0;
+  color: black;
+}
+
+html[data-theme="dark"] .doc-navbar p {
+  color: white;
+}
+
+div[class='doc-class'] p {
+  margin-bottom: 0.35rem;
+}
+
+div[class='doc-module'] p {
+  margin-bottom: 0.35rem;
+}
+
+div[class='doc-method'] p {
+  margin-bottom: 0.35rem;
+}
+
+div[class='doc-class'] h2, h3 {
+  font-weight: normal;
+  margin-bottom: 0.35rem;
+}
+
+div[class='doc-module'] h2, h3 {
+  font-weight: normal;
+  margin-bottom: 0.35rem;
+}
+
+div[id^='/api'] {
+  font-size: 85%;
+   
+}
+
+div[id^='docpage/api'] header {
+  display: none;
+}
+
+div[id^='docpage/api'] .padding-vert--lg, .container {
+  padding-top: 0.75rem !important;
+}
+
+div[id^='docpage/api'] .margin-vert--xl {
+  display: none;
+}
+
+.doc-navbar {
+  display: flex;
+}
+
+.doc-navbar-links svg {
+  color: #bbbbbb;
+}
+
+.doc-navbar-url {
+  flex: "flex-shrink";
+}
+
+.doc-navbar-links {
+  flex: auto;
+}
+
+.doc-method-row {
+  display: flex;
+  
+}
+
+.doc-method-label {
+  flex: flex-shrink;
+  margin-right: 1rem;
+}
+
+.doc-method-signature {
+  flex: flex-shrink;
+}
+
+.doc-function-row {
+  display: flex;
+  
+}
+
+.doc-function-label {
+  flex: flex-shrink;
+  margin-right: 1rem;
+}
+
+.doc-function-signature {
+  flex: flex-shrink;
+}
+
+.doc-class-row {
+  display: flex;
+  
+}
+
+.doc-class-label {
+  flex: flex-shrink;
+  margin-right: 1rem;
+}
+
+.doc-class-signature {
+  flex: flex-shrink;
+}
+
+.doc-module-row {
+  display: flex;
+  
+}
+
+.doc-module-label {
+  flex: flex-shrink;
+  margin-right: 1rem;
+}
+
+.doc-module-signature {
+  flex: flex-shrink;
 }
 
 /* Remove icon for external links */
