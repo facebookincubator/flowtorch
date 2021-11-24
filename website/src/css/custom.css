@@ -159,7 +159,6 @@ div[class='doc-module'] h2, h3 {
 
 div[id^='/api'] {
   font-size: 85%;
-   
 }
 
 div[id^='docpage/api'] header {
@@ -192,7 +191,6 @@ div[id^='docpage/api'] .margin-vert--xl {
 
 .doc-method-row {
   display: flex;
-  
 }
 
 .doc-method-label {
@@ -206,7 +204,6 @@ div[id^='docpage/api'] .margin-vert--xl {
 
 .doc-function-row {
   display: flex;
-  
 }
 
 .doc-function-label {
@@ -220,7 +217,6 @@ div[id^='docpage/api'] .margin-vert--xl {
 
 .doc-class-row {
   display: flex;
-  
 }
 
 .doc-class-label {
@@ -234,7 +230,6 @@ div[id^='docpage/api'] .margin-vert--xl {
 
 .doc-module-row {
   display: flex;
-  
 }
 
 .doc-module-label {
