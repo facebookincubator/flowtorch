@@ -263,6 +263,7 @@ def construct_article_list(modules_and_symbols):
 if __name__ == "__main__":
     # Load and validate configuration file
     import flowtorch
+
     config_path = os.path.join(flowtorch.__path__[0], "../website/documentation.toml")
     config = toml.load(config_path)
 

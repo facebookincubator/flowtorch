@@ -10,7 +10,7 @@ from types import ModuleType
 from typing import Dict, Mapping, Sequence, Tuple, Callable, Optional, Any
 
 
-def get_decorators(function):
+def get_decorators(function: Callable) -> Sequence[str]:
     """Returns list of decorators names
 
     Args:
@@ -40,14 +40,14 @@ def get_decorators(function):
     ]
 
 
-def generate_class_markdown(symbol_name: str, entity: Any):
+def generate_class_markdown(symbol_name: str, entity: Any) -> str:
     markdown = []
 
     # Parents (for classes, this is like signature)
     parents = []
     for b in entity.__bases__:
         parents.append(b.__module__ + "." + b.__name__)
-    parents = ", ".join(parents)
+    parents_str = ", ".join(parents)
 
     # Docstring
     # TODO: Parse docstring and extract short summary
@@ -69,7 +69,7 @@ def generate_class_markdown(symbol_name: str, entity: Any):
     )
     markdown.append(
         f"""<span className="doc-inherits-from">Inherits from: <span className=\
-"doc-symbol-name">{parents}</span></span>\n"""
+"doc-symbol-name">{parents_str}</span></span>\n"""
     )
     # markdown.append(short_summary)
     markdown.append("</div>\n</div>\n\n</PythonClass>\n")
@@ -140,7 +140,7 @@ def generate_class_markdown(symbol_name: str, entity: Any):
     return "\n".join(markdown)
 
 
-def generate_module_markdown(symbol_name: str, entity: Any):
+def generate_module_markdown(symbol_name: str, entity: Any) -> str:
     markdown = []
 
     # Docstring
@@ -169,7 +169,7 @@ def generate_module_markdown(symbol_name: str, entity: Any):
     return "\n".join(markdown)
 
 
-def generate_function_markdown(symbol_name: str, entity: Any):
+def generate_function_markdown(symbol_name: str, entity: Any) -> str:
     markdown = []
 
     # Docstring
@@ -305,18 +305,3 @@ def sparse_module_hierarchy(mod_names: Sequence[str]) -> Mapping[str, Any]:
         this_dict.setdefault(module, {})
 
     return results
-
-
-"""
-module_hierarchy = _module_hierarchy()
-documentable_modules = _documentable_modules()
-sorted_entity_names, name_entity_mapping = _documentable_entities()
-
-__all__ = [
-    "documentable_modules",
-    "generate_markdown",
-    "module_hierarchy",
-    "name_entity_mapping",
-    "sorted_entity_names",
-]
-"""
