@@ -17,7 +17,7 @@ jobs:
           python-version: 3.8
       - uses: actions/setup-node@v2
         with:
-          node-version: '17.x'
+          node-version: '17.1.0'
       - name: Test Build
         working-directory: ./website
         run: |
@@ -42,7 +42,7 @@ jobs:
           python-version: 3.8
       - uses: actions/setup-node@v2
         with:
-          node-version: '12.x'
+          node-version: '17.1.0'
       - uses: webfactory/ssh-agent@v0.5.0
         with:
           ssh-private-key: ${{ secrets.GH_PAGES_DEPLOY }}
