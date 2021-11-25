@@ -2,7 +2,7 @@
 
 [![](https://github.com/facebookincubator/flowtorch/workflows/Python%20package/badge.svg)](https://github.com/facebookincubator/flowtorch/actions?query=workflow%3A%22Python+package%22)
 
-Copyright (c) FlowTorch Development Team.
+Copyright © 2021 Meta Platforms, Inc
 
 This source code is licensed under the MIT license found in the
 [LICENSE.txt](https://github.com/facebookincubator/flowtorch/blob/main/LICENSE.txt) file in the root directory of this source tree.

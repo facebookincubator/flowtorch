@@ -16,10 +16,6 @@
   font-size: 2rem;
   line-height: initial;
   word-spacing: -0.25rem;
-
-  @media screen and (min-width: 576px) {
-    font-size: 2.4rem;
-  }
 }
 
 .subtitle {
