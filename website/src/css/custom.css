@@ -5,7 +5,7 @@
  * work well for content-centric websites.
  */
 
-/* You can override the default Infima variables here. */
+/* Global settings */
 :root {
   --ifm-background-color: #fff;
   --ifm-background-surface-color: #f2f6fa;
@@ -45,6 +45,7 @@ html[data-theme="dark"] {
   --ifm-hero-text-color: white;
 }
 
+/* Formatting of Hero banner */
 .hero__subtitle {
   font-size: 3.75rem;
   text-align: left;
@@ -91,10 +92,159 @@ html[data-theme="dark"] .hero__buttons .button--primary:hover {
 
 .hero__img {
   float: right;
-  max-width: 200px;
-  padding-left: 40px;
-  padding-right: 6rem;
-  padding-top: 1.1rem;
+  max-width: 15%;
+  padding-left: 0rem;
+  padding-right: 0.5rem;
+  padding-top: 0rem;
+}
+
+/* Flip colors for images inside content */
+html[data-theme="dark"] .container img {
+  filter: invert(100%);
+}
+
+
+/* Modifying the formatting of API docs */
+div[class='highlight'] p {
+  margin-bottom: 0;
+}
+
+.doc-navbar p {
+  margin-bottom: 0;
+  color: black;
+}
+
+.doc-symbol-label {
+  font-variant: small-caps;
+  font-weight: normal;
+}
+
+.doc-symbol-name {
+  font-family: Consolas, monospace;
+}
+
+.doc-symbol-signature {
+  font-family: Consolas, monospace;
+}
+
+.doc-inherits-from {
+  font-size: "85%";
+}
+
+html[data-theme="dark"] .doc-navbar p {
+  color: white;
+}
+
+div[class='doc-class'] p {
+  margin-bottom: 0.35rem;
+}
+
+div[class='doc-module'] p {
+  margin-bottom: 0.35rem;
+}
+
+div[class='doc-method'] p {
+  margin-bottom: 0.35rem;
+}
+
+div[class='doc-class'] h2, h3 {
+  font-weight: normal;
+  margin-bottom: 0.35rem;
+}
+
+div[class='doc-module'] h2, h3 {
+  font-weight: normal;
+  margin-bottom: 0.35rem;
+}
+
+div[id^='/api'] {
+  font-size: 85%;
+}
+
+div[id^='docpage/api'] header {
+  display: none;
+}
+
+div[id^='docpage/api'] .padding-vert--lg, .container {
+  padding-top: 0.75rem !important;
+}
+
+div[id^='docpage/api'] .margin-vert--xl {
+  display: none;
+}
+
+.doc-navbar {
+  display: flex;
+}
+
+.doc-navbar-links svg {
+  color: #bbbbbb;
+}
+
+.doc-navbar-url {
+  flex: "flex-shrink";
+}
+
+.doc-navbar-links {
+  flex: auto;
+}
+
+.doc-method-row {
+  display: flex;
+}
+
+.doc-method-label {
+  flex: flex-shrink;
+  margin-right: 1rem;
+}
+
+.doc-method-signature {
+  flex: flex-shrink;
+}
+
+.doc-function-row {
+  display: flex;
+}
+
+.doc-function-label {
+  flex: flex-shrink;
+  margin-right: 1rem;
+}
+
+.doc-function-signature {
+  flex: flex-shrink;
+}
+
+.doc-class-row {
+  display: flex;
+}
+
+.doc-class-label {
+  flex: flex-shrink;
+  margin-right: 1rem;
+}
+
+.doc-class-signature {
+  flex: flex-shrink;
+}
+
+.doc-module-row {
+  display: flex;
+}
+
+.doc-module-label {
+  flex: flex-shrink;
+  margin-right: 1rem;
+}
+
+.doc-module-signature {
+  flex: flex-shrink;
+}
+
+/* Remove icon for external links */
+/* TODO: Same for footer! */
+.navbar svg {
+  display: none;
 }
 
 .hero__buttons {
@@ -132,21 +282,11 @@ a {
   transition: none;
 }
 
-.navbar__item.navbar__link[href*="users"] {
-  display: flex;
-  padding: 0px 12px;
-  padding-right: 12px;
-}
-.navbar__item.navbar__link[href*="users"]:before {
-  mask: url('/img/user-astronaut-solid.svg');
-  mask-size: cover;
-  display: inline-block;
-  content: '';
-  background-color: black;
-  width: 0.875rem;
-  height: 1rem;
-  margin-top: 0.3rem;
-  margin-right: 0.5rem;
+/*
+  Glowing navbar title
+*/
+.navbar__title {
+  overflow: unset;
 }
 
 .navbar__title:hover {
@@ -166,72 +306,79 @@ a {
   }
 }
 
-html[data-theme="dark"] .navbar__item.navbar__link[href*="users"]:before {
-  background-color: white;
-}
-
-html[data-theme="dark"] .navbar__item.navbar__link[href*="users"]:hover:before {
-  background-color: var(--ifm-navbar-link-hover-color);
-}
-
-.navbar__item.navbar__link[href*="users"]:hover:before {
-  background-color: var(--ifm-navbar-link-hover-color);
-}
-
-.navbar__item.navbar__link[href*="dev"] {
+/*
+  Common to all navbar items
+*/
+.navbar__item.navbar__link {
   display: flex;
-  padding: 0px 12px;
+  padding: 0px 0px;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
 }
-.navbar__item.navbar__link[href*="dev"]:before {
-  mask: url("/img/hat-wizard-solid.svg");
-  mask-size: cover;
+
+.navbar__item.navbar__link:before {
+  opacity:0;
   display: inline-block;
   content: '';
-  background-color: black;
-  width: 1rem;
-  height: 1rem;
+  opacity:1;
   margin-top: 0.3rem;
   margin-right: 0.5rem;
 }
 
-.navbar__item.navbar__link[href*="dev"]:hover:before {
-  background-color: var(--ifm-navbar-link-hover-color);
-}
-
-html[data-theme="dark"] .navbar__item.navbar__link[href*="dev"]:before {
-  background-color: white;
-}
-
-html[data-theme="dark"] .navbar__item.navbar__link[href*="dev"]:hover:before {
-  background-color: var(--ifm-navbar-link-hover-color);
-}
-
-.navbar__item.navbar__link[href*="api"]   {
-  display: flex;
-  padding: 0px 12px;
-}
-.navbar__item.navbar__link[href*="api"]:before {
-  mask: url("/img/book-solid.svg");
+.navbar__item.navbar__link:hover:before {
   mask-size: cover;
-  display: inline-block;
-  content: '';
-  background-color: black;
+  background-color: var(--ifm-navbar-link-hover-color);
+  animation: fadeIn ease 0.25s;
+  -webkit-animation: fadeIn ease 0.25s;
+  -moz-animation: fadeIn ease 0.25s;
+  -o-animation: fadeIn ease 0.25s;
+  -ms-animation: fadeIn ease 0.25s;
+}
+
+/*
+  Icons for navbar icons
+*/
+.navbar__item.navbar__link[href*="users"]:before {
+  mask: url('/img/user-astronaut-solid.svg');
   width: 0.875rem;
   height: 1rem;
-  margin-top: 0.3rem;
-  margin-right: 0.5rem;
 }
 
-.navbar__item.navbar__link[href*="api"]:hover:before {
-  background-color: var(--ifm-navbar-link-hover-color);
+.navbar__item.navbar__link[href*="dev"]:before {
+  mask: url("/img/hat-wizard-solid.svg");
+  width: 1rem;
+  height: 1rem;
 }
 
-html[data-theme="dark"] .navbar__item.navbar__link[href*="api"]:before {
-  background-color: white;
+.navbar__item.navbar__link[href="https://github.com/facebookincubator/flowtorch/discussions"]:before {
+  mask: url("/img/comments-solid.svg");
+  width: 1.125rem;
+  height: 1rem;
 }
 
-html[data-theme="dark"] .navbar__item.navbar__link[href*="api"]:hover:before {
-  background-color: var(--ifm-navbar-link-hover-color);
+.navbar__item.navbar__link[href="https://github.com/facebookincubator/flowtorch"]:before {
+  mask: url("/img/github-brands.svg");
+  width: 0.975rem;
+  height: 1rem;
+}
+
+.navbar__item.navbar__link[href="https://github.com/facebookincubator/flowtorch/releases"]:before {
+  mask: url("/img/tag-solid.svg");
+  width: 0.875rem;
+  height: 1rem;
+}
+
+.navbar__item.navbar__link[href*="api"]:before {
+  mask: url("/img/book-solid.svg");
+  width: 0.875rem;
+  height: 1rem;
+}
+
+/*
+  Footer
+*/
+.footer svg {
+  display: none;
 }
 
 .footer__link-item:before {
@@ -430,20 +577,20 @@ html[data-theme="dark"] .navbar__item.navbar__link[href*="api"]:hover:before {
 }
 
 .footer__link-item[href*="legal/terms"]:before {
-  mask: url("/img/scroll-solid.svg");
+  mask: url("/img/section-solid.svg");
   mask-size: cover;
   display: inline-block;
   content: '';
   background-color: white;
-  width: 1.25rem;
+  width: 0.5rem;
   height: 1rem;
   margin-top: 0.5rem;
   margin-right: 0.5rem;
-  /*margin-left: 0.1875rem;*/
+  margin-left: 0.75rem;
 }
 
 .footer__link-item[href*="legal/privacy"]:before {
-  mask: url("/img/handshake-solid.svg");
+  mask: url("/img/user-secret-solid.svg");
   mask-size: cover;
   display: inline-block;
   content: '';

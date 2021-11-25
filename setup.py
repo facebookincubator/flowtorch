@@ -1,4 +1,4 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
+# Copyright (c) Meta Platforms, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
 import os
@@ -16,6 +16,7 @@ DEV_REQUIRES = TEST_REQUIRES + [
     "flake8",
     "flake8-bugbear",
     "mypy",
+    "toml",
     "usort",
 ]
 
