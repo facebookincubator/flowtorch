@@ -1,4 +1,4 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
+# Copyright (c) Meta Platforms, Inc. and its affiliates. All Rights Reserved
 # SPDX-License-Identifier: MIT
 
 import argparse
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     # Parse command line arguments
     # Example usage: python scripts/copyright_headers.py --check flowtorch tests scripts
     parser = argparse.ArgumentParser(
-        description="Checks and adds the Facebook Incubator copyright header"
+        description="Checks and adds the Meta Incubator copyright header"
     )
     parser.add_argument(
         "-c",

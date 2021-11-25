@@ -22,13 +22,19 @@ yarn start
 
 This command starts a local development server and open up a browser window. Most changes are reflected live without having to restart the server.
 
-## Build
+## Build and Serve
 
 ```console
 yarn build
 ```
 
 This command generates static content into the `website/build` directory, which is deployed by copying into the [gh-pages](https://github.com/facebookincubator/flowtorch/tree/gh-pages) branch.
+
+You can view the output with:
+
+```console
+yarn serve
+```
 
 ## Deployment
 
