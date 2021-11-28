@@ -52,10 +52,10 @@ jobs:
           GIT_USER: git
         working-directory: ./website
         run: |
-          git config --global user.email "feynmanl@fb.com"
-          git config --global user.name "Feynman Liang"
+          git config --global user.email "stefanwebb@fb.com"
+          git config --global user.name "Stefan Webb"
           python -m pip install --upgrade pip
-          pip install -e ..
+          pip install -e ..[dev]
           python ../scripts/generate_api_docs.py
           if [ -e yarn.lock ]; then
           yarn install --frozen-lockfile
