@@ -2,12 +2,10 @@
 
 [![](https://github.com/facebookincubator/flowtorch/workflows/Python%20package/badge.svg)](https://github.com/facebookincubator/flowtorch/actions?query=workflow%3A%22Python+package%22)
 
-Copyright © 2021 Meta Platforms, Inc
+Copyright © Meta Platforms, Inc
 
 This source code is licensed under the MIT license found in the
 [LICENSE.txt](https://github.com/facebookincubator/flowtorch/blob/main/LICENSE.txt) file in the root directory of this source tree.
-
-> :boom: **FlowTorch is currently in pre-release and many of its planned features and documentation are incomplete!** You may wish to wait until the first release planned for **8/03/2021**.
 
 # Overview
 

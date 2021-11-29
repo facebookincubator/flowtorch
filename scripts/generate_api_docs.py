@@ -1,5 +1,4 @@
-# Copyright (c) Meta Platforms, Inc. and its affiliates. All Rights Reserved
-# SPDX-License-Identifier: MIT
+# Copyright (c) Meta Platforms, Inc
 
 """
 Generates MDX (Markdown + JSX, see https://mdxjs.com/) files and sidebar
