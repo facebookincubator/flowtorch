@@ -8,6 +8,8 @@ from inspect import isclass, isfunction, signature
 from types import ModuleType
 from typing import Dict, Mapping, Sequence, Tuple, Callable, Optional, Any
 
+from flowtorch.docs.docstring import Docstring
+
 
 def get_decorators(function: Callable) -> Sequence[str]:
     """Returns list of decorators names
@@ -50,10 +52,10 @@ def generate_class_markdown(symbol_name: str, entity: Any) -> str:
 
     # Docstring
     # TODO: Parse docstring and extract short summary
-    docstring = entity.__doc__ if entity.__doc__ is not None else "empty docstring"
-    docstring = "\n".join(line.strip() for line in docstring.splitlines())
+    docstring = entity.__doc__ if entity.__doc__ is not None else "(empty docstring)"
+    parsed_docstring = Docstring(docstring)
 
-    # short_summary = "```short summary```\n"
+    short_summary = parsed_docstring._sections['short_description']
     safe_name = symbol_name.replace("_", r"\_")
 
     # Create top section for class
@@ -70,7 +72,7 @@ def generate_class_markdown(symbol_name: str, entity: Any) -> str:
         f"""<span className="doc-inherits-from">Inherits from: <span className=\
 "doc-symbol-name">{parents_str}</span></span>\n"""
     )
-    # markdown.append(short_summary)
+    markdown.append(short_summary)
     markdown.append("</div>\n</div>\n\n</PythonClass>\n")
     markdown.append(f"```\n{docstring}\n```\n")
 
@@ -129,7 +131,7 @@ def generate_class_markdown(symbol_name: str, entity: Any) -> str:
         member_docstring = (
             member_object.__doc__
             if member_object.__doc__ is not None
-            else "<empty docstring>"
+            else "(empty docstring)"
         )
         member_docstring = "\n".join(
             line.strip() for line in member_docstring.splitlines()
