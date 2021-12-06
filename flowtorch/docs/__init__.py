@@ -55,7 +55,7 @@ def generate_class_markdown(symbol_name: str, entity: Any) -> str:
     docstring = entity.__doc__ if entity.__doc__ is not None else "(empty docstring)"
     parsed_docstring = Docstring(docstring)
 
-    short_summary = parsed_docstring._sections['short_description']
+    short_summary = parsed_docstring._sections["short_description"]
     safe_name = symbol_name.replace("_", r"\_")
 
     # Create top section for class

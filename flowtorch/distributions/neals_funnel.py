@@ -8,8 +8,14 @@ from torch.distributions.utils import _standard_normal
 
 
 class NealsFunnel(dist.Distribution):
-    """
-    Neal's funnel, that is, the distribution, $p(x,y) = \mathcal{N}(y|0,3) \mathcal{N}(x|0,exp(y/2))$.
+    r"""
+    Neal's funnel, a useful distribution for testing inference quality.
+
+    In two dimensions, $p(x,y) = \mathcal{N}(y|0,3) \mathcal{N}(x|0,exp(y/2))$.
+
+    Note:
+        Currently, only a bivariate Neal's funnel is available.
+
     """
 
     support = constraints.real
