@@ -91,6 +91,9 @@ def join_blocks(blocks: Sequence[str]) -> str:
             if line.startswith(indentation):
                 new_lines.append(line[len(indentation) :])
             else:
+                # DEBUG
+                print(blocks)
+
                 raise ValueError(f"Invalid indentation on line:\n{line}")
         new_blocks.append("\n".join(new_lines))
 

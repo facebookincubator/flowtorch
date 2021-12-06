@@ -2,7 +2,7 @@
 import re
 from typing import Tuple
 
-re_argument = re.compile(r"^((\w+( \(\w+\))?)|(\*args)|(\*\*kwargs)):")
+re_argument = re.compile(r"^((\w+( \(.+\))?)|(\*args)|(\*\*kwargs)):")
 re_identation = re.compile(r"^\s*")
 re_return_type = re.compile(r"^\w+:")
 
@@ -54,6 +54,8 @@ def args(content: str) -> Tuple[str, str]:
         else:
             # ...it's an error if we haven't started recording
             if this_arg is None:
+                print("Debug")
+                print(content)
                 raise ValueError(f"Invalid argument: {line}")
 
             # ...otherwise, try and add this line to argument

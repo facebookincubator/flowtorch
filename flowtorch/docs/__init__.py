@@ -51,7 +51,6 @@ def generate_class_markdown(symbol_name: str, entity: Any) -> str:
     parents_str = ", ".join(parents)
 
     # Docstring
-    # TODO: Parse docstring and extract short summary
     docstring = entity.__doc__ if entity.__doc__ is not None else "(empty docstring)"
     parsed_docstring = Docstring(docstring)
 
@@ -74,7 +73,7 @@ def generate_class_markdown(symbol_name: str, entity: Any) -> str:
     )
     markdown.append(short_summary)
     markdown.append("</div>\n</div>\n\n</PythonClass>\n")
-    markdown.append(f"```\n{docstring}\n```\n")
+    markdown.append(f"```\n{parsed_docstring.to_mdx()}\n```\n")
 
     # Methods for class
     members = inspect.getmembers(entity, predicate=inspect.isroutine)
@@ -115,6 +114,13 @@ def generate_class_markdown(symbol_name: str, entity: Any) -> str:
             ">", "&#62;"
         )
         # safe_member_signature = safe_member_signature.replace("'", "\'")
+        member_docstring = (
+            member_object.__doc__
+            if member_object.__doc__ is not None
+            else "(empty docstring)"
+        )
+        parsed_member_docstring = Docstring(member_docstring)
+        short_summary = parsed_member_docstring._sections["short_description"]
 
         safe_member_name = member_name.replace("_", r"\_")
         safe_member_id = member_name.replace("_", "-")
@@ -126,17 +132,9 @@ def generate_class_markdown(symbol_name: str, entity: Any) -> str:
             f"""<span className="doc-symbol-signature">{safe_member_signature}\
 </span>\n"""
         )
+        markdown.append(short_summary)
         markdown.append("</div>\n</div>\n\n</PythonMethod>\n")
-
-        member_docstring = (
-            member_object.__doc__
-            if member_object.__doc__ is not None
-            else "(empty docstring)"
-        )
-        member_docstring = "\n".join(
-            line.strip() for line in member_docstring.splitlines()
-        )
-        markdown.append(f"```\n{member_docstring}\n```\n")
+        markdown.append(f"```\n{parsed_member_docstring.to_mdx()}\n```\n")
 
     return "\n".join(markdown)
 
