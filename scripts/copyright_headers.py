@@ -1,5 +1,4 @@
-# Copyright (c) Meta Platforms, Inc. and its affiliates. All Rights Reserved
-# SPDX-License-Identifier: MIT
+# Copyright (c) Meta Platforms, Inc
 
 import argparse
 import os
@@ -126,7 +125,7 @@ if __name__ == "__main__":
         # Replace if it's not equal, starts with empty space, or is not a comment
         if (
             header != copyright_header
-            or line_idx != 2
+            or line_idx != 1
             or not state == ReadState.COMMENT
         ):
             count_changed += 1

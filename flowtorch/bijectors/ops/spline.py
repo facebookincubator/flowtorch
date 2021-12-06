@@ -1,5 +1,4 @@
-# Copyright (c) Meta Platforms, Inc. and its affiliates. All Rights Reserved
-# SPDX-License-Identifier: MIT
+# Copyright (c) Meta Platforms, Inc
 
 # This implementation is adapted in part from:
 # * https://github.com/tonyduan/normalizing-flows/blob/master/nf/flows.py;

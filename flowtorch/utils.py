@@ -1,5 +1,4 @@
-# Copyright (c) Meta Platforms, Inc. and its affiliates. All Rights Reserved
-# SPDX-License-Identifier: MIT
+# Copyright (c) Meta Platforms, Inc
 
 import importlib
 import inspect
@@ -14,9 +13,7 @@ from flowtorch.parameters.base import Parameters
 from torch.distributions import Distribution
 
 
-copyright_header = """Copyright (c) Meta Platforms, Inc. and its affiliates. \
-All Rights Reserved
-SPDX-License-Identifier: MIT"""
+copyright_header = """Copyright (c) Meta Platforms, Inc"""
 
 
 def classname(cls: type) -> str:
