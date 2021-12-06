@@ -9,8 +9,7 @@ from torch.distributions.utils import _standard_normal
 
 class NealsFunnel(dist.Distribution):
     """
-    Neal's funnel.
-    p(x,y) = N(y|0,3) N(x|0,exp(y/2))
+    Neal's funnel, that is, the distribution, $p(x,y) = \mathcal{N}(y|0,3) \mathcal{N}(x|0,exp(y/2))$.
     """
 
     support = constraints.real

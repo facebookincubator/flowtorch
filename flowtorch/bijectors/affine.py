@@ -10,8 +10,8 @@ from flowtorch.bijectors.ops.affine import Affine as AffineOp
 
 class Affine(AffineOp, Elementwise):
     r"""
-    Elementwise bijector via the affine mapping :math:`\mathbf{y} = \mu +
-    \sigma \otimes \mathbf{x}` where $\mu$ and $\sigma$ are learnable parameters.
+    Elementwise bijector via the affine mapping $\mathbf{y} = \mu +
+    \sigma \otimes \mathbf{x}$ where $\mu$ and $\sigma$ are learnable parameters.
     """
 
     def __init__(
