@@ -196,6 +196,8 @@ def search_symbols(config):
     # Read in all modules and symbols
     search = config["settings"]["search"]
     search = [search] if type(search) is str else search
+
+    # TODO: Here's where we need to modify
     modules_and_symbols = {}
     for modname in set(search):
         modules_and_symbols = {**modules_and_symbols, **walk_packages(modname)}
@@ -266,7 +268,9 @@ if __name__ == "__main__":
     config_path = os.path.join(flowtorch.__path__[0], "../website/documentation.toml")
     config = toml.load(config_path)
 
-    modules_and_symbols = search_symbols(config)
+    search_symbols(config)
+    
+    """
     articles, symbol_to_article = construct_article_list(modules_and_symbols)
 
     # Generate sidebar
@@ -322,4 +326,4 @@ if __name__ == "__main__":
         ) as file:
             print(
                 generate_markdown(article_name, symbol_name, symbol_object), file=file
-            )
+            )"""
