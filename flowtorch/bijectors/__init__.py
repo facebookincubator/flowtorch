@@ -88,6 +88,7 @@ for bij_name, cls in standard_bijectors:
     else:
         invertible_bijectors.append((bij_name, cls))
 
+del cls
 
 __all__ = ["standard_bijectors", "meta_bijectors", "invertible_bijectors"] + [
     cls

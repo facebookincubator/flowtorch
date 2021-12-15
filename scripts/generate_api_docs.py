@@ -268,9 +268,38 @@ if __name__ == "__main__":
     config_path = os.path.join(flowtorch.__path__[0], "../website/documentation.toml")
     config = toml.load(config_path)
 
-    # DEBUG: Produce all Symbol objects and symbol hierarchy
+    # Produce mappings from symbol name and canonical name to Symbol object
     symbols = generate_symbols(config)
+    canonical_symbols = {}
+    for _, s in symbols.items():
+        canonical_symbols.setdefault(s._canonical_name, []).append(s)
+    
+    # Check for symbol duplicates (excepting inherited methods)
+    duplicates = []
+    for name, syms in canonical_symbols.items():
+        if len(syms) > 1 and syms[0]._type.name != 'METHOD':
+            duplicates.append((name, [s._name for s in syms]))
 
+    if len(duplicates):
+        duplicates_str = '\n  '.join([f'{n}: {s}' for n,s in duplicates])
+        error_msg = 'Duplicate symbols found:\n  ' + duplicates_str
+        raise Exception(error_msg)
+
+    # Build implicit hierarchy (mapping from symbol name to other names under it)
+    contains = {}
+    for name, symbol in symbols.items():
+        if symbol._type.name == 'METHOD':
+            class_name = '.'.join(symbol._name.split('.')[:-1])
+            contains.setdefault(class_name, []).append(symbol._name)
+        else:
+            contains.setdefault(symbol._module, []).append(symbol._name)
+
+    #print(contains)
+
+    
+
+    # DEBUG
+    """
     for name, symbol in symbols.items():
         print('Symbol', name)
         print('  name:', symbol._name)
@@ -283,6 +312,7 @@ if __name__ == "__main__":
         print('  file:', symbol._file)
         print('  canonical file:', symbol._canonical_file)
         print('')
+    """
 
     #search_symbols(config)
     

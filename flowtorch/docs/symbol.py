@@ -80,7 +80,8 @@ class Symbol:
             if module is not None:
                 self._module = self._canonical_module = module.__name__
             else:
-                self._module = self._canonical_module = ""
+                last_module_name = '.'.join(name.split('.')[:-1])
+                self._module = self._canonical_module = last_module_name
 
         elif self._type in [SymbolType.CLASS, SymbolType.FUNCTION, SymbolType.METHOD]:
             self._canonical_name = object.__module__ + '.' + object.__qualname__
