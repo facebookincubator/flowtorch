@@ -25,11 +25,11 @@ from typing import Any
 
 import toml
 from flowtorch.docs import (
-    sparse_module_hierarchy,
-    walk_packages,
-    generate_class_markdown,
-    generate_module_markdown,
-    generate_function_markdown,
+    #sparse_module_hierarchy,
+    generate_symbols,
+    #generate_class_markdown,
+    #generate_module_markdown,
+    #generate_function_markdown,
 )
 
 
@@ -268,7 +268,23 @@ if __name__ == "__main__":
     config_path = os.path.join(flowtorch.__path__[0], "../website/documentation.toml")
     config = toml.load(config_path)
 
-    search_symbols(config)
+    # DEBUG: Produce all Symbol objects and symbol hierarchy
+    symbols = generate_symbols(config)
+
+    for name, symbol in symbols.items():
+        print('Symbol', name)
+        print('  name:', symbol._name)
+        print('  canonical name:', symbol._canonical_name)
+        print('  type:', symbol._type)
+        print('  module:', symbol._module)
+        print('  canonical module:', symbol._canonical_module)
+        print('  signature:', str(symbol._signature) if symbol._signature is not None else None)
+        print('  bases:', symbol._bases)
+        print('  file:', symbol._file)
+        print('  canonical file:', symbol._canonical_file)
+        print('')
+
+    #search_symbols(config)
     
     """
     articles, symbol_to_article = construct_article_list(modules_and_symbols)

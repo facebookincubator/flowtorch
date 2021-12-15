@@ -52,6 +52,12 @@ class Symbol:
         # Remove indentation from docstring and store
         self._docstring = inspect.getdoc(object)
 
+        # Get bases for class
+        if self._type is SymbolType.CLASS:
+            self._bases = object.__bases__
+        else:
+            self._bases = None
+
         # TODO: Check for decorators
 
         # Get source file locations
@@ -64,6 +70,8 @@ class Symbol:
         # Get signature
         if self._type in [SymbolType.METHOD, SymbolType.FUNCTION]:
             self._signature = inspect.signature(object)
+        else:
+            self._signature = None
 
         # Get module/name and canonical modulename
         if self._type is SymbolType.MODULE:
@@ -75,15 +83,15 @@ class Symbol:
                 self._module = self._canonical_module = ""
 
         elif self._type in [SymbolType.CLASS, SymbolType.FUNCTION, SymbolType.METHOD]:
-            self._canonical_name = object.__qualname__
+            self._canonical_name = object.__module__ + '.' + object.__qualname__
             self._module = module.__name__
             self._canonical_module = object.__module__
 
         self._name = name
-        got_here = True
-
+        #got_here = True
 
 if __name__ == "__main__":
+    pass 
     # DEBUG
     #import flowtorch
     #import flowtorch.bijectors

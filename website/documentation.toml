@@ -38,4 +38,4 @@ modules = [
     '''flowtorch(\.\w+){2,}''',
     '''flowtorch\.(docs|lazy|utils)(\.\w+)*'''
     ]
-symbols = '''(\w+\.)+_.*'''
+symbols = '''(\w+\.)+_(?!_init__$).*'''
