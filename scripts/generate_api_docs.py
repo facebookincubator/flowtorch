@@ -21,7 +21,7 @@ import inspect
 import os
 import re
 from inspect import ismodule, isclass, isfunction
-from typing import Any
+from typing import Any, Mapping, Sequence
 
 import toml
 from flowtorch.docs import (
@@ -31,6 +31,7 @@ from flowtorch.docs import (
     #generate_module_markdown,
     #generate_function_markdown,
 )
+from flowtorch.docs.page import Page
 
 
 def module_sidebar(mod_name, items):
@@ -223,16 +224,17 @@ def search_symbols(config):
     return tmp
 
 
-def construct_article_list(modules_and_symbols):
+# hierarchy: Mapping[str, Sequence[str]]
+def construct_article_list(symbols):
     # Construct list of articles (converting symbols to lower-case and collating)
     # NOTE: Webservers and Windows machines can't seem to distinguish addresses by
     # case...
     articles = {}
     symbol_to_article = {}
 
-    for mod_name, (module, symbols) in modules_and_symbols.items():
-        if len(symbols):
-            article_name = mod_name.lower()
+    for name, symbol in symbols.items():
+        if symbol._type.name in ["MODULE", "CLASS", "FUNCTION"]:
+            article_name = symbol._name.lower()
             # Find a unique name
             if article_name in articles:
                 suffix = 1
@@ -240,23 +242,8 @@ def construct_article_list(modules_and_symbols):
                     suffix += 1
                 article_name = article_name + str(suffix)
 
-            articles[article_name] = (mod_name, module)
-            symbol_to_article[mod_name] = article_name
-
-            suffix = 0
-            for symbol_name, symbol in symbols:
-                full_name = mod_name + "." + symbol_name
-                article_name = full_name.lower()
-
-                # Find a unique name
-                if article_name in articles:
-                    suffix += 1
-                    while article_name + str(suffix) in articles:
-                        suffix += 1
-                    article_name = article_name + str(suffix)
-
-                articles[article_name] = (full_name, symbol)
-                symbol_to_article[full_name] = article_name
+            articles[article_name] = symbol
+            symbol_to_article[symbol._name] = article_name
 
     return articles, symbol_to_article
 
@@ -286,17 +273,33 @@ if __name__ == "__main__":
         raise Exception(error_msg)
 
     # Build implicit hierarchy (mapping from symbol name to other names under it)
-    contains = {}
+    hierarchy = {}
     for name, symbol in symbols.items():
         if symbol._type.name == 'METHOD':
             class_name = '.'.join(symbol._name.split('.')[:-1])
-            contains.setdefault(class_name, []).append(symbol._name)
+            hierarchy.setdefault(class_name, []).append(symbol._name)
         else:
-            contains.setdefault(symbol._module, []).append(symbol._name)
+            hierarchy.setdefault(symbol._module, []).append(symbol._name)
 
-    #print(contains)
+    # Build article list
+    articles, symbol_to_article = construct_article_list(symbols)
 
-    
+    # DEBUG
+    #for x, y in symbol_to_article.items():
+    #    print(x, '->', y)
+
+    # Convert symbols to MDX and save
+    for page_name, symbol in articles.items():
+        page = Page(symbol, symbols, hierarchy)
+        print("Symbol", symbol._name)
+        print(page)
+        print('')
+
+    # At this point, (symbols, hierarchy, articles) defines everything we need
+    # to construct the MDX files and navigation sidebar
+
+
+    # Build 
 
     # DEBUG
     """

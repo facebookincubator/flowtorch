@@ -3,6 +3,7 @@ from enum import Enum, unique
 import inspect
 from typing import Any, Optional
 
+
 @unique
 class SymbolType(Enum):
     UNDEFINED = 0
@@ -28,6 +29,16 @@ class Symbol:
             object: an object corresponding to the symbol.
         """
         assert inspect.ismodule(module) is True or module is None
+
+        # # TODO: Check for decorators
+        # # Try to unwrap class method and fetch decorators
+        # # decorators = []
+        # try:
+        #     if hasattr(member_object, "__wrapped__"):
+        #         # decorators = get_decorators(member_object)
+        #         member_object = member_object.__wrapped__
+        # except Exception:
+        #     pass
 
         # Test for built-in
         if inspect.isbuiltin(object):
@@ -57,8 +68,6 @@ class Symbol:
             self._bases = object.__bases__
         else:
             self._bases = None
-
-        # TODO: Check for decorators
 
         # Get source file locations
         if module is not None:
