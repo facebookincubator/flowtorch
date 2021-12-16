@@ -67,6 +67,16 @@ class LazyMeta(type):
 class Lazy(metaclass=LazyMeta):
     """
     Represents delayed instantiation of a class.
+
+    Represents delayed instantiation of a class using metaclasses.
+
+    Example:
+        ```python title="test_lazy.py"
+        x = Lazy(flowtorch.bijectors.Bijector)
+        class X(object):
+            pass
+        ```
+
     """
 
     def __init__(

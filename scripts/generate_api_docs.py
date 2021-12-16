@@ -17,28 +17,19 @@ any working directory.
 
 import errno
 import importlib
-import inspect
 import os
-import re
-from inspect import ismodule, isclass, isfunction
+import toml
 from typing import Any, Mapping, Sequence
 
-import toml
-from flowtorch.docs import (
-    #sparse_module_hierarchy,
-    generate_symbols,
-    #generate_class_markdown,
-    #generate_module_markdown,
-    #generate_function_markdown,
-)
+from flowtorch.docs import generate_symbols
 from flowtorch.docs.page import Page
 
-
+"""
 def module_sidebar(mod_name, items):
     return f"{{\n  type: 'category',\n  label: '{mod_name}',\n  \
 collapsed: {'true'},\
   items: [{', '.join(items)}],\n}}"
-
+"""
 
 def fullname(key, item):
     return key + "." + item
@@ -140,60 +131,59 @@ if __name__ == "__main__":
     # Build article list
     articles, symbol_to_article = construct_article_list(symbols)
 
-    # DEBUG
-    #for x, y in symbol_to_article.items():
-    #    print(x, '->', y)
+    #s = symbols['flowtorch.bijectors.Affine.forward']
+    #t = symbols['flowtorch.bijectors.Affine.__init__']
+    #got_here = True
+
+    # At this point, (symbols, hierarchy, articles) defines everything we need
+    # to construct the MDX files and navigation sidebar
 
     # Convert symbols to MDX and save
     for page_name, symbol in articles.items():
         github = config["settings"]["github"]
         page = Page(page_name, symbol, symbols, hierarchy, symbol_to_article, github)
 
-        with open(
-                os.path.join(
-                    main_path, config["paths"]["markdown"], page_name + ".mdx"
-                )
-            ,
-            "w",
-        ) as file:
-            print(
-                page, file=file
-            )
+        with open(os.path.join(main_path, config["paths"]["markdown"], page_name + ".mdx"), "w") as file:
+            print(page, file=file)    
 
-    # At this point, (symbols, hierarchy, articles) defines everything we need
-    # to construct the MDX files and navigation sidebar
+#     # Create .js sidebar
+#     def module_sidebar(name='') -> Sequence[str]:
+#         # Next elements in hierarchy
+#         # TODO: Sort so that goes classes, functions, modules
+#         if name in hierarchy:
+#             new = hierarchy[name]
+#             new = list(sorted(new))
+#         else:
+#             new = []
 
-    # Build 
+#         # Base condition
+#         if name == '':
+#             items = []
+#             for item_name in new:
+#                 items = items + module_sidebar(item_name)
+#             return ["module.exports = [\n'api/overview',", *items, "];"]
+#         else:
+#             if symbols[name]._type.name in ['CLASS', 'FUNCTION']:
+#                 return [f'"api/{symbol_to_article[name]}", ']
+#             elif symbols[name]._type.name in ['MODULE']:
+#                 # TODO: Fill collapsed from a filter in config
+#                 items = []
+#                 for item_name in new:
+#                     items = items + module_sidebar(item_name)
 
-    # DEBUG
-    """
-    for name, symbol in symbols.items():
-        print('Symbol', name)
-        print('  name:', symbol._name)
-        print('  canonical name:', symbol._canonical_name)
-        print('  type:', symbol._type)
-        print('  module:', symbol._module)
-        print('  canonical module:', symbol._canonical_module)
-        print('  signature:', str(symbol._signature) if symbol._signature is not None else None)
-        print('  bases:', symbol._bases)
-        print('  file:', symbol._file)
-        print('  canonical file:', symbol._canonical_file)
-        print('')
-    """
+#                 return [f"""{{
+#   type: 'category',
+#   label: '{name}',
+#   collapsed: true,
+#   items: ["api/{symbol_to_article[name]}",""", *items, "],\n},"]
 
-    """
-    # Create .js sidebar
-    with open(
-        os.path.join(
-            os.path.join(
-                main_path,
-                config["paths"]["sidebar"],
-                config["paths"]["sidebar_filename"],
-            )
-        ),
-        "w",
-    ) as file:
-        print("module.exports = [\n'api/overview',", file=file)
-        print(",".join(dfs(hierarchy)), file=file)
-        print("];", file=file)
-    """
+#     with open(
+#             os.path.join(
+#                 main_path,
+#                 config["paths"]["sidebar"],
+#                 config["paths"]["sidebar_filename"],
+#             ),
+#         "w",
+#     ) as file:
+#         sidebar_str = '\n'.join(module_sidebar())
+#         print(sidebar_str, file=file)

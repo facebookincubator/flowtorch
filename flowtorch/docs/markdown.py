@@ -41,16 +41,20 @@ def generate_class_markdown(symbol: Symbol, symbols: Mapping[str, Symbol], hiera
 
     mdx_docstring = parsed_docstring.to_mdx()
     if len(mdx_docstring):
-        markdown.append(f"```\n{mdx_docstring}\n```\n")
+        markdown.append(f"\n{mdx_docstring}\n\n")
 
     # Methods for class
     if symbol._name in hierarchy:
         member_names = hierarchy[symbol._name]
-
-        # TODO: Filter out methods that are inherited
-
+        
         for member_name in member_names:
-            member = symbols[member_name]        
+            member = symbols[member_name]
+
+            # Filter out methods that are inherited
+            # TODO: Make this a config option!
+            reconstructed_name = symbol._canonical_name + '.' + '.'.join(member._name.split('.')[-1:])
+            if member._canonical_name != reconstructed_name:
+                continue
 
             markdown.append("<PythonMethod>\n")
             markdown.append(
@@ -73,9 +77,9 @@ def generate_class_markdown(symbol: Symbol, symbols: Mapping[str, Symbol], hiera
 
             safe_member_name = member._name.replace("_", r"\_")
             safe_member_id = member._name.replace("_", "-")
+            # {{#{safe_member_id}}}\n"""
             markdown.append(
-                f"""###  <span className="doc-symbol-name">{safe_member_name}</span>\
-    {{#{safe_member_id}}}\n"""
+                f"""###  <span className="doc-symbol-name">{safe_member_name}</span>\n"""
             )
             markdown.append(
                 f"""<span className="doc-symbol-signature">{safe_member_signature}\
@@ -86,7 +90,7 @@ def generate_class_markdown(symbol: Symbol, symbols: Mapping[str, Symbol], hiera
 
             mdx_member_docstring = parsed_member_docstring.to_mdx()
             if len(mdx_member_docstring):
-                markdown.append(f"```\n{parsed_member_docstring.to_mdx()}\n```\n")
+                markdown.append(f"\n{parsed_member_docstring.to_mdx()}\n\n")
 
     return "\n".join(markdown)
 
