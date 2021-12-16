@@ -63,167 +63,6 @@ def dfs(dict):
     return sidebar_items
 
 
-# Generate article markdown files
-def generate_markdown(article_name: str, symbol_name: str, entity: Any) -> str:
-    """
-    TODO: Method that inputs an object, extracts signature/docstring,
-    and formats as markdown
-    TODO: Method that build index markdown for overview files
-    The overview for the entire API is a special case
-    """
-
-    if symbol_name == "":
-        header = """---
-id: overview
-sidebar_label: "Overview"
-slug: "/api"
----
-
-:::info
-
-These API stubs are generated from Python via a custom script and will filled
-out in the future.
-
-:::
-
-"""
-        return header
-
-    # Regular modules/functions
-    item = {
-        "id": article_name,
-        "sidebar_label": "Overview" if ismodule(entity) else symbol_name.split(".")[-1],
-        "slug": f"/api/{article_name}",
-        "ref": entity,
-    }
-
-    header = f"""---
-id: {item['id']}
-sidebar_label: {item['sidebar_label']}
----"""
-
-    # Convert symbol to MDX
-
-    # Imports for custom styling components
-    markdown = [
-        """import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faAngleDoubleRight } from '@fortawesome/free-solid-svg-icons'
-import PythonClass from "@theme/PythonClass";
-import PythonFunction from "@theme/PythonFunction";
-import PythonMethod from "@theme/PythonMethod";
-import PythonModule from "@theme/PythonModule";
-import PythonNavbar from "@theme/PythonNavbar";
-"""
-    ]
-
-    # Make URL
-    entity_file = (
-        entity.__file__ if ismodule(entity) else inspect.getmodule(entity).__file__
-    )
-    url = (
-        config["settings"]["github"]
-        + "flowtorch/"
-        + entity_file[(len(main_path) + 1) :].replace("\\", "/")
-    )
-
-    # Make navigation bar
-    markdown.append(f"<PythonNavbar url='{url}'>\n")
-    navigation = []
-    symbol_splits = symbol_name.split(".")
-    for idx in range(len(symbol_splits)):
-        partial_symbol_name = ".".join(symbol_splits[0 : (idx + 1)])
-        if idx == len(symbol_splits) - 1:
-            navigation.append(f"*{symbol_splits[idx]}*")
-        elif partial_symbol_name in symbol_to_article:
-            navigation.append(
-                f"[{symbol_splits[idx]}](/api/{symbol_to_article[partial_symbol_name]})"
-            )
-        else:
-            navigation.append(f"{symbol_splits[idx]}")
-
-    markdown.append(
-        ' <FontAwesomeIcon icon={faAngleDoubleRight} size="sm" /> '.join(navigation)
-    )
-    markdown.append("\n</PythonNavbar>\n")
-
-    # Handle known symbol types
-    if isclass(entity):
-        markdown.append(generate_class_markdown(symbol_name, entity))
-        return "\n".join([header] + markdown)
-
-    elif ismodule(entity):
-        markdown.append(generate_module_markdown(symbol_name, entity))
-        return "\n".join([header] + markdown)
-
-    # Signature for function
-    elif isfunction(entity):
-        markdown.append(generate_function_markdown(symbol_name, entity))
-        return "\n".join([header] + markdown)
-
-    # Unknown symbol type
-    else:
-        raise ValueError(f"Symbol {symbol_name} has unknown type {type(symbol_object)}")
-
-
-def search_symbols(config):
-    # Validate module name to document
-    assert (
-        "settings" in config
-        and "search" in config["settings"]
-        and (
-            type(config["settings"]["search"]) is str
-            or type(config["settings"]["search"]) is list
-        )
-    )
-
-    # TODO: Try to import module, more validation, etc.
-
-    # Construct regular expressions for includes and excludes
-    # Default include/exclude rules
-    patterns = {
-        "include": {"modules": re.compile(r".+"), "symbols": re.compile(r".+")},
-        "exclude": {"modules": re.compile(r""), "symbols": re.compile(r"")},
-    }
-
-    # Override rules based on configuration file
-    if "filters" in config:
-        filters = config["filters"]
-        for clude, rules in filters.items():
-            for rule, pattern in rules.items():
-                if type(pattern) is list:
-                    pattern = "|".join(pattern)
-                patterns[clude][rule] = re.compile(pattern)
-
-    # Read in all modules and symbols
-    search = config["settings"]["search"]
-    search = [search] if type(search) is str else search
-
-    # TODO: Here's where we need to modify
-    modules_and_symbols = {}
-    for modname in set(search):
-        modules_and_symbols = {**modules_and_symbols, **walk_packages(modname)}
-
-    # Apply filtering
-    # TODO: Would be slightly faster if we applied module filtering inside walk_packages
-    tmp = {}
-    for x, y in modules_and_symbols.items():
-        if (
-            patterns["include"]["modules"].fullmatch(x) is not None
-            and patterns["exclude"]["modules"].fullmatch(x) is None
-        ):
-
-            new_y1 = [
-                (a, b)
-                for a, b in y[1]
-                if patterns["include"]["symbols"].fullmatch(x + "." + a) is not None
-                and patterns["exclude"]["symbols"].fullmatch(x + "." + a) is None
-            ]
-
-            tmp[x] = (y[0], new_y1)
-
-    return tmp
-
-
 # hierarchy: Mapping[str, Sequence[str]]
 def construct_article_list(symbols):
     # Construct list of articles (converting symbols to lower-case and collating)
@@ -248,12 +87,29 @@ def construct_article_list(symbols):
     return articles, symbol_to_article
 
 
+def create_paths(path: str) -> None:
+        try:
+            os.makedirs(path)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+
+
 if __name__ == "__main__":
     # Load and validate configuration file
     import flowtorch
-
     config_path = os.path.join(flowtorch.__path__[0], "../website/documentation.toml")
     config = toml.load(config_path)
+
+    # Create directories if they don't exist
+    search = config["settings"]["search"]
+    search = [search] if type(search) is str else search
+    main_module = importlib.import_module(search[0])
+    main_path = main_module.__path__[0]
+    sidebar_path = os.path.join(main_path, config["paths"]["sidebar"])
+    markdown_path = os.path.join(main_path, config["paths"]["markdown"])
+    create_paths(sidebar_path)
+    create_paths(markdown_path)
 
     # Produce mappings from symbol name and canonical name to Symbol object
     symbols = generate_symbols(config)
@@ -290,14 +146,22 @@ if __name__ == "__main__":
 
     # Convert symbols to MDX and save
     for page_name, symbol in articles.items():
-        page = Page(symbol, symbols, hierarchy)
-        print("Symbol", symbol._name)
-        print(page)
-        print('')
+        github = config["settings"]["github"]
+        page = Page(page_name, symbol, symbols, hierarchy, symbol_to_article, github)
+
+        with open(
+                os.path.join(
+                    main_path, config["paths"]["markdown"], page_name + ".mdx"
+                )
+            ,
+            "w",
+        ) as file:
+            print(
+                page, file=file
+            )
 
     # At this point, (symbols, hierarchy, articles) defines everything we need
     # to construct the MDX files and navigation sidebar
-
 
     # Build 
 
@@ -317,33 +181,8 @@ if __name__ == "__main__":
         print('')
     """
 
-    #search_symbols(config)
-    
     """
-    articles, symbol_to_article = construct_article_list(modules_and_symbols)
-
-    # Generate sidebar
-    # Build hierarchy of modules
-    hierarchy = sparse_module_hierarchy(modules_and_symbols.keys())
-
-    # Create directories if they don't exist
-    search = config["settings"]["search"]
-    search = [search] if type(search) is str else search
-    main_module = importlib.import_module(search[0])
-    main_path = main_module.__path__[0]
-    sidebar_path = os.path.join(main_path, config["paths"]["sidebar"])
-    markdown_path = os.path.join(main_path, config["paths"]["markdown"])
-
-    def create_paths(path: str) -> None:
-        try:
-            os.makedirs(path)
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                raise
-
-    create_paths(sidebar_path)
-    create_paths(markdown_path)
-
+    # Create .js sidebar
     with open(
         os.path.join(
             os.path.join(
@@ -357,22 +196,4 @@ if __name__ == "__main__":
         print("module.exports = [\n'api/overview',", file=file)
         print(",".join(dfs(hierarchy)), file=file)
         print("];", file=file)
-
-    # For each article, convert the symbols to markdown, etc.
-
-    # TODO: How to handle when there is a symbol called overview?
-    # Maybe add a key for None instead of "overview"?
-    articles["overview"] = ("", None)
-
-    for article_name, (symbol_name, symbol_object) in articles.items():
-        with open(
-            os.path.join(
-                os.path.join(
-                    main_path, config["paths"]["markdown"], article_name + ".mdx"
-                )
-            ),
-            "w",
-        ) as file:
-            print(
-                generate_markdown(article_name, symbol_name, symbol_object), file=file
-            )"""
+    """
