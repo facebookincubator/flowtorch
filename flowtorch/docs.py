@@ -6,7 +6,7 @@ import pkgutil
 from collections import OrderedDict
 from inspect import isclass, isfunction, signature
 from types import ModuleType
-from typing import Dict, Mapping, Sequence, Tuple, Callable, Optional, Any
+from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple
 
 
 def get_decorators(function: Callable) -> Sequence[str]:

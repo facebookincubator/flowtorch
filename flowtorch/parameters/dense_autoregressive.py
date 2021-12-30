@@ -5,7 +5,7 @@ from typing import Callable, Optional, Sequence
 
 import torch
 import torch.nn as nn
-from flowtorch.nn.made import MaskedLinear, create_mask
+from flowtorch.nn.made import create_mask, MaskedLinear
 from flowtorch.parameters.base import Parameters
 
 

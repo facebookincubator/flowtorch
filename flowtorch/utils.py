@@ -5,7 +5,7 @@ import inspect
 import os
 import pkgutil
 from functools import partial
-from typing import Sequence, Tuple, Callable, Optional, Any
+from typing import Any, Callable, Optional, Sequence, Tuple
 
 import flowtorch
 from flowtorch.bijectors.base import Bijector

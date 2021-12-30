@@ -20,16 +20,16 @@ import importlib
 import inspect
 import os
 import re
-from inspect import ismodule, isclass, isfunction
+from inspect import isclass, isfunction, ismodule
 from typing import Any
 
 import toml
 from flowtorch.docs import (
+    generate_class_markdown,
+    generate_function_markdown,
+    generate_module_markdown,
     sparse_module_hierarchy,
     walk_packages,
-    generate_class_markdown,
-    generate_module_markdown,
-    generate_function_markdown,
 )
 
 
