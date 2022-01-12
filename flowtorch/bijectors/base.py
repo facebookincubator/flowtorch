@@ -1,13 +1,14 @@
 # Copyright (c) Meta Platforms, Inc
 from typing import Optional, Sequence, Union
 
-import flowtorch
-import flowtorch.distributions
-import flowtorch.parameters
 import torch
 import torch.distributions
-from flowtorch.parameters import Parameters
 from torch.distributions import constraints
+
+import flowtorch.parameters
+from flowtorch.bijectors.bijective_tensor import to_bijective_tensor, BijectiveTensor
+from flowtorch.bijectors.utils import is_record_flow_graph_enabled
+from flowtorch.parameters import Parameters
 
 
 class Bijector(metaclass=flowtorch.LazyMeta):
@@ -18,18 +19,18 @@ class Bijector(metaclass=flowtorch.LazyMeta):
     _params: Optional[Union[Parameters, torch.nn.ModuleList]] = None
 
     def __init__(
-        self,
-        params: Optional[flowtorch.Lazy] = None,
-        *,
-        shape: torch.Size,
-        context_shape: Optional[torch.Size] = None,
+            self,
+            params: Optional[flowtorch.Lazy] = None,
+            *,
+            shape: torch.Size,
+            context_shape: Optional[torch.Size] = None,
     ) -> None:
         # Prevent "meta bijectors" from being initialized
         # NOTE: We define a "standard bijector" as one that inherits from a
         # subclass of Bijector, hence why we need to test the length of the MRO
         if (
-            self.__class__.__module__ == "flowtorch.bijectors.base"
-            or len(self.__class__.__mro__) <= 3
+                self.__class__.__module__ == "flowtorch.bijectors.base"
+                or len(self.__class__.__mro__) <= 3
         ):
             raise TypeError("Only standard bijectors can be initialized.")
 
@@ -52,18 +53,24 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         self._params = value
 
     def forward(
-        self,
-        x: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+            self,
+            x: torch.Tensor,
+            context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         # TODO: Allow that context can have a batch shape
         assert context is None  # or context.shape == (self._context_size,)
-        return self._forward(x, context)
+        if isinstance(x, BijectiveTensor) and x.from_inverse() and x.check_layer(self):
+            return x.parent
+
+        y = self._forward(x, context)
+        if is_record_flow_graph_enabled():
+            y = to_bijective_tensor(x, y, self, mode="forward")
+        return y
 
     def _forward(
-        self,
-        x: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+            self,
+            x: torch.Tensor,
+            context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
         Abstract method to compute forward transformation.
@@ -71,20 +78,25 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         raise NotImplementedError
 
     def inverse(
-        self,
-        y: torch.Tensor,
-        x: Optional[torch.Tensor] = None,
-        context: Optional[torch.Tensor] = None,
+            self,
+            y: torch.Tensor,
+            x: Optional[torch.Tensor] = None,
+            context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         # TODO: Allow that context can have a batch shape
         assert context is None  # or context.shape == (self._context_size,)
-        return self._inverse(y, x, context)
+        if isinstance(y, BijectiveTensor) and y.from_forward() and y.check_layer(self):
+            return y.parent
+        x = self._inverse(y, x, context)
+        if is_record_flow_graph_enabled():
+            x = to_bijective_tensor(x, y, self, mode="inverse")
+        return x
 
     def _inverse(
-        self,
-        y: torch.Tensor,
-        x: Optional[torch.Tensor] = None,
-        context: Optional[torch.Tensor] = None,
+            self,
+            y: torch.Tensor,
+            x: Optional[torch.Tensor] = None,
+            context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
         Abstract method to compute inverse transformation.
@@ -92,10 +104,10 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         raise NotImplementedError
 
     def log_abs_det_jacobian(
-        self,
-        x: torch.Tensor,
-        y: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+            self,
+            x: torch.Tensor,
+            y: torch.Tensor,
+            context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.
@@ -104,10 +116,10 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         return self._log_abs_det_jacobian(x, y, context)
 
     def _log_abs_det_jacobian(
-        self,
-        x: torch.Tensor,
-        y: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+            self,
+            x: torch.Tensor,
+            y: torch.Tensor,
+            context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.

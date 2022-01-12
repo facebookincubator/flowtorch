@@ -7,6 +7,8 @@ import flowtorch.parameters
 import torch
 import torch.distributions.constraints as constraints
 from flowtorch.bijectors.base import Bijector
+from flowtorch.bijectors.bijective_tensor import BijectiveTensor, to_bijective_tensor
+from flowtorch.bijectors.utils import is_record_flow_graph_enabled
 from flowtorch.parameters.dense_autoregressive import DenseAutoregressive
 
 
@@ -47,6 +49,8 @@ class Autoregressive(Bijector):
         assert context is None  # or context.shape == (self._context_size,)
         params = self.params
         assert params is not None
+        if isinstance(y, BijectiveTensor) and y.from_forward() and y.check_layer(self):
+            return y.parent
 
         x_new = torch.zeros_like(y)
         # NOTE: Inversion is an expensive operation that scales in the
@@ -57,6 +61,9 @@ class Autoregressive(Bijector):
         # TODO: Make permutation, inverse work for other event shapes
         for idx in cast(torch.LongTensor, permutation):
             x_new[..., idx] = self._inverse(y, x_new.clone(), context)[..., idx]
+
+        if is_record_flow_graph_enabled():
+            x_new = to_bijective_tensor(x_new, y, self, mode="inverse")
 
         return x_new
 

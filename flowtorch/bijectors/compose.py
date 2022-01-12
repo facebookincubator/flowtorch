@@ -1,22 +1,22 @@
 # Copyright (c) Meta Platforms, Inc
-
 from typing import Optional, Sequence
 
-import flowtorch
-import flowtorch.parameters
 import torch
 import torch.distributions
-from flowtorch.bijectors.base import Bijector
 from torch.distributions.utils import _sum_rightmost
+
+import flowtorch.parameters
+from flowtorch.bijectors.base import Bijector
+from flowtorch.bijectors.bijective_tensor import BijectiveTensor
 
 
 class Compose(Bijector):
     def __init__(
-        self,
-        bijectors: Sequence[flowtorch.Lazy],
-        *,
-        shape: torch.Size,
-        context_shape: Optional[torch.Size] = None,
+            self,
+            bijectors: Sequence[flowtorch.Lazy],
+            *,
+            shape: torch.Size,
+            context_shape: Optional[torch.Size] = None,
     ):
         assert len(bijectors) > 0
 
@@ -51,10 +51,10 @@ class Compose(Bijector):
         return x
 
     def inverse(
-        self,
-        y: torch.Tensor,
-        x: Optional[torch.Tensor] = None,
-        context: Optional[torch.Tensor] = None,
+            self,
+            y: torch.Tensor,
+            x: Optional[torch.Tensor] = None,
+            context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         for bijector in reversed(self.bijectors):
             y = bijector.inverse(y, x, context)  # type: ignore
@@ -62,7 +62,7 @@ class Compose(Bijector):
         return y
 
     def log_abs_det_jacobian(
-        self, x: torch.Tensor, y: torch.Tensor, context: torch.Tensor = None
+            self, x: torch.Tensor, y: torch.Tensor, context: torch.Tensor = None
     ) -> torch.Tensor:
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.
@@ -72,8 +72,23 @@ class Compose(Bijector):
             torch.zeros_like(y),
             self.domain.event_dim,
         )
+
+        if isinstance(x, BijectiveTensor) and x.has_ancestor(y):
+            # If x is a BijectiveTensor and has y as ancestor, then the inversion flow.inverse(y) = x has already
+            # been computed and we can recover the chain of parents instead of re-computing it.
+            _use_cached = True
+            parents = []
+            while isinstance(x, BijectiveTensor) and x is not y:
+                parents.append(x)
+                x = x.parent
+        else:
+            _use_cached = False
+
         for bijector in reversed(self.bijectors):
-            y_inv = bijector.inverse(y, context)  # type: ignore
+            if not _use_cached:
+                y_inv = bijector.inverse(y, context)  # type: ignore
+            else:
+                y_inv = parents.pop()
             ldj += bijector.log_abs_det_jacobian(y_inv, y, context)  # type: ignore
             y = y_inv
         return ldj
