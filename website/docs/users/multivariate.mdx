@@ -58,7 +58,7 @@ Similarly to before, we train this distribution on the toy dataset and plot the 
 
 ```python
 dataset = torch.tensor(X, dtype=torch.float)
-optimizer = torch.optim.Adam(spline_transform.parameters(), lr=5e-3)
+optimizer = torch.optim.Adam(dist_y.parameters(), lr=5e-3)
 for step in range(steps):
     optimizer.zero_grad()
     loss = -dist_y.log_prob(dataset).mean()
