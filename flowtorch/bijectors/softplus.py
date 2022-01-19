@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Optional
+from typing import Optional, Sequence
 
 import flowtorch.ops
 import torch
@@ -18,15 +18,14 @@ class Softplus(Fixed):
     def _forward(
         self,
         x: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+        params: Optional[Sequence[torch.Tensor]]
     ) -> torch.Tensor:
         return F.softplus(x)
 
     def _inverse(
         self,
         y: torch.Tensor,
-        x: Optional[torch.Tensor] = None,
-        context: Optional[torch.Tensor] = None,
+        params: Optional[Sequence[torch.Tensor]]
     ) -> torch.Tensor:
         return flowtorch.ops.softplus_inv(y)
 
@@ -34,6 +33,6 @@ class Softplus(Fixed):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+        params: Optional[Sequence[torch.Tensor]]
     ) -> torch.Tensor:
         return -F.softplus(-x)

@@ -1,5 +1,5 @@
 # Copyright (c) Meta Platforms, Inc
-from typing import Optional, Sequence, Union
+from typing import Optional, Sequence, Tuple, Union
 
 import torch
 import torch.distributions
@@ -59,19 +59,20 @@ class Bijector(metaclass=flowtorch.LazyMeta):
     ) -> torch.Tensor:
         # TODO: Allow that context can have a batch shape
         assert context is None  # or context.shape == (self._context_size,)
-        if isinstance(x, BijectiveTensor) and x.from_inverse() and x.check_layer(self):
+        if isinstance(x, BijectiveTensor) and x.from_inverse() and x.check_bijector(self) and x.check_context(context):
             return x.parent
 
-        y = self._forward(x, context)
+        params = self.params(x)
+        y, log_detJ = self._forward(x, params)
         if is_record_flow_graph_enabled():
-            y = to_bijective_tensor(x, y, self, mode="forward")
+            y = to_bijective_tensor(x, y, context, self, log_detJ, mode="forward")
         return y
 
     def _forward(
             self,
             x: torch.Tensor,
-            context: Optional[torch.Tensor] = None,
-    ) -> torch.Tensor:
+            params: Optional[Sequence[torch.Tensor]],
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Abstract method to compute forward transformation.
         """
@@ -85,19 +86,22 @@ class Bijector(metaclass=flowtorch.LazyMeta):
     ) -> torch.Tensor:
         # TODO: Allow that context can have a batch shape
         assert context is None  # or context.shape == (self._context_size,)
-        if isinstance(y, BijectiveTensor) and y.from_forward() and y.check_layer(self):
+        if isinstance(y, BijectiveTensor) and y.from_forward() and y.check_bijector(self) and y.check_context(context):
             return y.parent
-        x = self._inverse(y, x, context)
+
+        # TODO: What to do in this line?
+        params = self.params(x)
+        x, log_detJ = self._inverse(y, params)
+
         if is_record_flow_graph_enabled():
-            x = to_bijective_tensor(x, y, self, mode="inverse")
+            x = to_bijective_tensor(x, y, context, self, log_detJ, mode="inverse")
         return x
 
     def _inverse(
             self,
             y: torch.Tensor,
-            x: Optional[torch.Tensor] = None,
-            context: Optional[torch.Tensor] = None,
-    ) -> torch.Tensor:
+            params: Optional[Sequence[torch.Tensor]],
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Abstract method to compute inverse transformation.
         """
@@ -113,13 +117,21 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         Computes the log det jacobian `log |dy/dx|` given input and output.
         By default, assumes a volume preserving bijection.
         """
+        # TODO: Allow that context can have a batch shape
+        assert context is None  # or context.shape == (self._context_size,)
+        if isinstance(y, BijectiveTensor) and y.from_forward() and y.check_bijector(self) and y.check_context(context):
+            return y.log_detJ
+        elif isinstance(x, BijectiveTensor) and x.from_inverse() and x.check_bijector(self) and x.check_context(context):
+            return x.log_detJ
+
+        params = self.params(x)
         return self._log_abs_det_jacobian(x, y, context)
 
     def _log_abs_det_jacobian(
             self,
             x: torch.Tensor,
             y: torch.Tensor,
-            context: Optional[torch.Tensor] = None,
+            params: Optional[Sequence[torch.Tensor]],
     ) -> torch.Tensor:
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.

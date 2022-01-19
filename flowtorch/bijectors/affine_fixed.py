@@ -1,7 +1,7 @@
 # Copyright (c) Meta Platforms, Inc
 
 import math
-from typing import Optional
+from typing import Optional, Sequence, Tuple
 
 import flowtorch
 import torch
@@ -32,22 +32,23 @@ class AffineFixed(Fixed):
     def _forward(
         self,
         x: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
-    ) -> torch.Tensor:
-        return self.loc + self.scale * x
+        params: Optional[Sequence[torch.Tensor]],
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        y = self.loc + self.scale * x
+        return y, self._log_abs_det_jacobian(x, y, params)
 
     def _inverse(
         self,
         y: torch.Tensor,
-        x: Optional[torch.Tensor] = None,
-        context: Optional[torch.Tensor] = None,
-    ) -> torch.Tensor:
-        return (y - self.loc) / self.scale
+        params: Optional[Sequence[torch.Tensor]]
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        x = (y - self.loc) / self.scale
+        return x, self._log_abs_det_jacobian(x, y, params)
 
     def _log_abs_det_jacobian(
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+        params: Optional[Sequence[torch.Tensor]]
     ) -> torch.Tensor:
         return torch.full_like(x, math.log(abs(self.scale)))

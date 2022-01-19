@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Optional
+from typing import Optional, Sequence
 
 import flowtorch
 import torch
@@ -29,7 +29,7 @@ class Permute(Fixed, VolumePreserving):
     def _forward(
         self,
         x: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+        params: Optional[Sequence[torch.Tensor]]
     ) -> torch.Tensor:
         if self.permutation is None:
             self.permutation = torch.randperm(x.shape[-1])
@@ -39,8 +39,7 @@ class Permute(Fixed, VolumePreserving):
     def _inverse(
         self,
         y: torch.Tensor,
-        x: Optional[torch.Tensor] = None,
-        context: Optional[torch.Tensor] = None,
+        params: Optional[Sequence[torch.Tensor]]
     ) -> torch.Tensor:
         if self.permutation is None:
             self.permutation = torch.randperm(y.shape[-1])

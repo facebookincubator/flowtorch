@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Optional
+from typing import Optional, Sequence
 
 import torch
 import torch.distributions.constraints as constraints
@@ -16,15 +16,14 @@ class Exp(Fixed):
     def _forward(
         self,
         x: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+        params: Optional[Sequence[torch.Tensor]]
     ) -> torch.Tensor:
         return torch.exp(x)
 
     def _inverse(
         self,
         y: torch.Tensor,
-        x: Optional[torch.Tensor] = None,
-        context: Optional[torch.Tensor] = None,
+        params: Optional[Sequence[torch.Tensor]]
     ) -> torch.Tensor:
         return y.log()
 
@@ -32,6 +31,6 @@ class Exp(Fixed):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+        params: Optional[Sequence[torch.Tensor]]
     ) -> torch.Tensor:
         return x

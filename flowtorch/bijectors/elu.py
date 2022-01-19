@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Optional
+from typing import Optional, Sequence
 
 import torch
 import torch.distributions.constraints as constraints
@@ -17,15 +17,14 @@ class ELU(Fixed):
     def _forward(
         self,
         x: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+        params: Optional[Sequence[torch.Tensor]]
     ) -> torch.Tensor:
         return F.elu(x)
 
     def _inverse(
         self,
         y: torch.Tensor,
-        x: Optional[torch.Tensor] = None,
-        context: Optional[torch.Tensor] = None,
+        params: Optional[Sequence[torch.Tensor]]
     ) -> torch.Tensor:
         return torch.max(y, torch.zeros_like(y)) + torch.min(
             torch.log1p(y + eps), torch.zeros_like(y)
@@ -35,6 +34,6 @@ class ELU(Fixed):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+        params: Optional[Sequence[torch.Tensor]]
     ) -> torch.Tensor:
         return -F.relu(-x)

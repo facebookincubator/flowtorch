@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Optional
+from typing import Optional, Sequence
 
 import flowtorch
 import torch
@@ -30,7 +30,7 @@ class Power(Fixed):
     def _forward(
         self,
         x: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+        params: Optional[Sequence[torch.Tensor]]
     ) -> torch.Tensor:
         return x.pow(self.exponent)
 

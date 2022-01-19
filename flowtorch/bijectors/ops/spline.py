@@ -46,45 +46,45 @@ class Spline(Bijector):
     def _forward(
         self,
         x: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
-    ) -> torch.Tensor:
-        y, _ = self._op(x, x, context)
-        return y
+        params: Optional[Sequence[torch.Tensor]]
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        y, log_detJ = self._op(x, params)
+        return y, _sum_rightmost(log_detJ, self.domain.event_dim)
 
     def _inverse(
         self,
         y: torch.Tensor,
-        x: Optional[torch.Tensor] = None,
-        context: Optional[torch.Tensor] = None,
-    ) -> torch.Tensor:
-        x_new, _ = self._op(y, x, context=context, inverse=True)
-        return x_new
+        params: Optional[Sequence[torch.Tensor]]
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        x_new, log_detJ = self._op(y, params, inverse=True)
+
+        # TODO: Should I invert the sign of log_detJ?
+        # TODO: A unit test that compares log_detJ from _forward and _inverse
+        return x_new, _sum_rightmost(log_detJ, self.domain.event_dim)
 
     def _log_abs_det_jacobian(
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+        params: Optional[Sequence[torch.Tensor]],
     ) -> torch.Tensor:
-        _, log_detJ = self._op(x, x, context)
+        _, log_detJ = self._op(x, params)
         return _sum_rightmost(log_detJ, self.domain.event_dim)
 
     def _op(
         self,
         input: torch.Tensor,
-        x: Optional[torch.Tensor] = None,
-        context: Optional[torch.Tensor] = None,
+        params: Optional[Sequence[torch.Tensor]],
         inverse: bool = False,
         **kwargs: Any
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        params = self.params
         assert params is not None
 
         if self.order == "linear":
-            widths, heights, derivatives, lambdas = params(x, context=context)
+            widths, heights, derivatives, lambdas = params
             lambdas = torch.sigmoid(lambdas)
         else:
-            widths, heights, derivatives = params(x, context=context)
+            widths, heights, derivatives = params
             lambdas = None
 
         # Constrain parameters

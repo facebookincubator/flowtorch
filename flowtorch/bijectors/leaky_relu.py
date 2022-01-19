@@ -1,7 +1,7 @@
 # Copyright (c) Meta Platforms, Inc
 
 import math
-from typing import Optional
+from typing import Optional, Sequence
 
 import torch
 import torch.nn.functional as F
@@ -14,15 +14,14 @@ class LeakyReLU(Fixed):
     def _forward(
         self,
         x: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+        params: Optional[Sequence[torch.Tensor]]
     ) -> torch.Tensor:
         return F.leaky_relu(x)
 
     def _inverse(
         self,
         y: torch.Tensor,
-        x: Optional[torch.Tensor] = None,
-        context: Optional[torch.Tensor] = None,
+        params: Optional[Sequence[torch.Tensor]]
     ) -> torch.Tensor:
         return F.leaky_relu(y, negative_slope=100.0)
 
@@ -30,7 +29,7 @@ class LeakyReLU(Fixed):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+        params: Optional[Sequence[torch.Tensor]]
     ) -> torch.Tensor:
         return torch.where(
             x >= 0.0, torch.zeros_like(x), torch.ones_like(x) * math.log(0.01)

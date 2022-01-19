@@ -1,4 +1,5 @@
-from typing import Callable
+# Copyright (c) Meta Platforms, Inc
+from typing import Callable, Optional
 
 from torch import Tensor
 
@@ -8,30 +9,39 @@ class BijectiveTensor(Tensor):
         r_str = super(BijectiveTensor, self).__repr__().replace("tensor", "bijective_tensor")
         return r_str
 
-    def register_layer(
+    def register(
             self,
-            layer: Callable,
             input: Tensor,
-            output: Tensor
+            output: Tensor,
+            context: Optional[Tensor],
+            bijector: Callable,
+            log_detJ: Tensor,
     ):
-        self._input_tensor = input
-        self._output_tensor = output
+        self._input = input
+        self._output = output
+        self._context = context
+        self._bijector = bijector
+        self._log_detJ = log_detJ
+
         if not (self.from_forward() or self.from_inverse()):
             raise RuntimeError("BijectiveTensor input or output must be self")
-        self._layer = layer
+        
         return self
 
-    def check_layer(self, layer):
-        return self._layer is layer
+    def check_bijector(self, bijector):
+        return self._bijector is bijector
+
+    def check_context(self, context):
+        return self._context is context
 
     def from_forward(self) -> bool:
-        return self._output_tensor is self
+        return self._output is self
 
     def from_inverse(self) -> bool:
-        return self._input_tensor is self
+        return self._input is self
 
     def detach_from_flow(self):
-        detached_tensor = self._output_tensor if self.from_forward() else self._input_tensor
+        detached_tensor = self._output if self.from_forward() else self._input
         # if self.from_forward() and isinstance(self._input_tensor, BijectiveTensor):
         #     self._input_tensor.detach_from_flow()
         # elif self.from_inverse() and isinstance(self._output_tensor, BijectiveTensor):
@@ -41,24 +51,30 @@ class BijectiveTensor(Tensor):
     def has_ancestor(self, tensor):
         if tensor is self:
             return False  # self is no parent of self
-        elif self.from_forward() and self._input_tensor is tensor:
+        elif self.from_forward() and self._input is tensor:
             return True
-        elif self.from_inverse() and self._output_tensor is tensor:
+        elif self.from_inverse() and self._output is tensor:
             return True
-        elif self.from_forward() and isinstance(self._input_tensor, BijectiveTensor):
-            return self._input_tensor.has_ancestor(tensor)
-        elif self.from_inverse() and isinstance(self._output_tensor, BijectiveTensor):
-            return self._output_tensor.has_ancestor(tensor)
+        elif self.from_forward() and isinstance(self._input, BijectiveTensor):
+            return self._input.has_ancestor(tensor)
+        elif self.from_inverse() and isinstance(self._output, BijectiveTensor):
+            return self._output.has_ancestor(tensor)
         else:
             return False
 
     @property
+    def log_detJ(self):
+        return self._log_detJ
+
+    @property
     def parent(self):
         if self.from_forward():
-            return self._input_tensor
+            return self._input
         else:
-            return self._output_tensor
+            return self._output
 
+    # TODO: How to adjust this?
+    """
     def log_abs_det_jacobian(self, tensor):
         if self.from_forward() and self.has_ancestor(tensor):
             x = tensor
@@ -76,16 +92,17 @@ class BijectiveTensor(Tensor):
             raise RuntimeError("Called bijective_tensor.log_abs_det_jacobian(tensor) on a tensor that was not"
                                "part of the flow graph.")
         return ldj
+    """
 
 
-def to_bijective_tensor(x: Tensor, y: Tensor, layer: Callable, mode: str = "forward"):
+def to_bijective_tensor(x: Tensor, y: Tensor, context: Optional[Tensor], bijector: Callable, log_detJ: Tensor, mode: str = "forward"):
     if mode == "inverse":
         x = BijectiveTensor(x)
-        x.register_layer(layer, x, y)
+        x.register(bijector, x, y, context, bijector, log_detJ)
         return x
     elif mode == "forward":
         y = BijectiveTensor(y)
-        y.register_layer(layer, x, y)
+        y.register(bijector, x, y, context, bijector, log_detJ)
         return y
     else:
         raise NotImplementedError(f"mode {mode} is not supported, must be one of 'forward' or 'inverse'.")

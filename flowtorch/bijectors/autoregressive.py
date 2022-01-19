@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Any, cast, Optional
+from typing import Any, cast, Optional, Sequence
 
 import flowtorch
 import flowtorch.parameters
@@ -71,6 +71,6 @@ class Autoregressive(Bijector):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+        params: Optional[Sequence[torch.Tensor]]
     ) -> torch.Tensor:
         raise NotImplementedError
