@@ -19,7 +19,7 @@ class Autoregressive(Bijector):
 
     def __init__(
         self,
-        params: Optional[flowtorch.Lazy] = None,
+        hypernet: Optional[flowtorch.Lazy] = None,
         *,
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None,
@@ -30,14 +30,14 @@ class Autoregressive(Bijector):
         self.codomain = constraints.independent(constraints.real, len(shape))
 
         # currently only DenseAutoregressive has a `permutation` buffer
-        if not params:
-            params = DenseAutoregressive()  # type: ignore
+        if not hypernet:
+            hypernet = DenseAutoregressive()  # type: ignore
 
         # TODO: Replace P.DenseAutoregressive with P.Autoregressive
         # In the future there will be other autoregressive parameter classes
-        assert params is not None and issubclass(params.cls, DenseAutoregressive)
+        assert hypernet is not None and issubclass(hypernet.cls, DenseAutoregressive)
 
-        super().__init__(params, shape=shape, context_shape=context_shape)
+        super().__init__(hypernet, shape=shape, context_shape=context_shape)
 
     def inverse(
         self,
@@ -47,9 +47,9 @@ class Autoregressive(Bijector):
     ) -> torch.Tensor:
         # TODO: Allow that context can have a batch shape
         assert context is None  # or context.shape == (self._context_size,)
-        params = self.params
+        params = self.hypernet
         assert params is not None
-        if isinstance(y, BijectiveTensor) and y.from_forward() and y.check_layer(self):
+        if isinstance(y, BijectiveTensor) and y.from_forward() and y.check_bijector(self):
             return y.parent
 
         x_new = torch.zeros_like(y)
@@ -59,11 +59,16 @@ class Autoregressive(Bijector):
             params.permutation
         )  # TODO: type-safe named buffer (e.g. "permutation") access
         # TODO: Make permutation, inverse work for other event shapes
+        log_detJ = 0.0
         for idx in cast(torch.LongTensor, permutation):
-            x_new[..., idx] = self._inverse(y, x_new.clone(), context)[..., idx]
+            _params = params(x_new, context=context)
+            out = self._inverse(y, params=_params)
+            x_new[..., idx] = out[0][..., idx]
+            _log_detJ = out[1]
+            log_detJ += _log_detJ
 
         if is_record_flow_graph_enabled():
-            x_new = to_bijective_tensor(x_new, y, self, mode="inverse")
+            x_new = to_bijective_tensor(x_new, y, context=context, bijector=self, mode="inverse", log_detJ=log_detJ)
 
         return x_new
 

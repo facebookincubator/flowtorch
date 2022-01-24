@@ -1,5 +1,5 @@
 # Copyright (c) Meta Platforms, Inc
-from typing import Optional, Sequence, Tuple, Union
+from typing import Optional, Sequence, Tuple, Union, Callable, Iterator
 
 import torch
 import torch.distributions
@@ -16,11 +16,11 @@ class Bijector(metaclass=flowtorch.LazyMeta):
     domain: constraints.Constraint = constraints.real
     _shape: torch.Size
     _context_shape: Optional[torch.Size]
-    _params: Optional[Union[Parameters, torch.nn.ModuleList]] = None
+    _hypernet: Callable[[Optional[torch.Tensor]], Optional[Union[Parameters, torch.nn.ModuleList]]] = lambda *x: None
 
     def __init__(
             self,
-            params: Optional[flowtorch.Lazy] = None,
+            hypernet: Optional[flowtorch.Lazy] = None,
             *,
             shape: torch.Size,
             context_shape: Optional[torch.Size] = None,
@@ -38,19 +38,24 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         self._context_shape = context_shape
 
         # Instantiate parameters (tensor, hypernets, etc.)
-        if params is not None:
+        if hypernet is not None:
             param_shapes = self.param_shapes(shape)
-            self._params = params(  # type: ignore
+            self._hypernet = hypernet(  # type: ignore
                 param_shapes, self._shape, self._context_shape
             )
 
     @property
-    def params(self) -> Optional[Union[Parameters, torch.nn.ModuleList]]:
-        return self._params
+    def hypernet(self) -> Callable[[Optional[torch.Tensor]], Optional[Union[Parameters, torch.nn.ModuleList]]]:
+        return self._hypernet
 
-    @params.setter
-    def params(self, value: Optional[Union[Parameters, torch.nn.ModuleList]]) -> None:
-        self._params = value
+    @hypernet.setter
+    def hypernet(self, value: Optional[Union[Parameters, torch.nn.ModuleList]]) -> None:
+        self._hypernet = value
+
+    def parameters(self) -> Iterator[torch.Tensor]:
+        if hasattr(self._hypernet, 'parameters'):
+            for param in self._hypernet.parameters():
+                yield param
 
     def forward(
             self,
@@ -62,8 +67,11 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         if isinstance(x, BijectiveTensor) and x.from_inverse() and x.check_bijector(self) and x.check_context(context):
             return x.parent
 
-        params = self.params(x)
+        params = self.hypernet(x)
+        # try:
         y, log_detJ = self._forward(x, params)
+        # except:
+        #     print(type(self))
         if is_record_flow_graph_enabled():
             y = to_bijective_tensor(x, y, context, self, log_detJ, mode="forward")
         return y
@@ -72,7 +80,7 @@ class Bijector(metaclass=flowtorch.LazyMeta):
             self,
             x: torch.Tensor,
             params: Optional[Sequence[torch.Tensor]],
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         """
         Abstract method to compute forward transformation.
         """
@@ -90,8 +98,11 @@ class Bijector(metaclass=flowtorch.LazyMeta):
             return y.parent
 
         # TODO: What to do in this line?
-        params = self.params(x)
-        x, log_detJ = self._inverse(y, params)
+        params = self.hypernet(x)
+        try:
+            x, log_detJ = self._inverse(y, params)
+        except:
+            print(type(self))
 
         if is_record_flow_graph_enabled():
             x = to_bijective_tensor(x, y, context, self, log_detJ, mode="inverse")
@@ -101,7 +112,7 @@ class Bijector(metaclass=flowtorch.LazyMeta):
             self,
             y: torch.Tensor,
             params: Optional[Sequence[torch.Tensor]],
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         """
         Abstract method to compute inverse transformation.
         """
@@ -119,13 +130,15 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         """
         # TODO: Allow that context can have a batch shape
         assert context is None  # or context.shape == (self._context_size,)
+        ladj = None
         if isinstance(y, BijectiveTensor) and y.from_forward() and y.check_bijector(self) and y.check_context(context):
-            return y.log_detJ
-        elif isinstance(x, BijectiveTensor) and x.from_inverse() and x.check_bijector(self) and x.check_context(context):
-            return x.log_detJ
-
-        params = self.params(x)
-        return self._log_abs_det_jacobian(x, y, context)
+            ladj = y.log_detJ
+        elif isinstance(x, BijectiveTensor) and x.from_inverse() and x.check_bijector(self) and x.check_context(
+                context):
+            ladj = x.log_detJ
+        if ladj is None:
+            return self._log_abs_det_jacobian(x, y, context)
+        return ladj
 
     def _log_abs_det_jacobian(
             self,

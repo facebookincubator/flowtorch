@@ -1,5 +1,5 @@
 # Copyright (c) Meta Platforms, Inc
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Tuple, Iterator
 
 import torch
 import torch.distributions
@@ -8,6 +8,7 @@ from torch.distributions.utils import _sum_rightmost
 import flowtorch.parameters
 from flowtorch.bijectors.base import Bijector
 from flowtorch.bijectors.bijective_tensor import BijectiveTensor
+from flowtorch.bijectors.utils import is_record_flow_graph_enabled, requires_log_detJ
 
 
 class Compose(Bijector):
@@ -31,35 +32,39 @@ class Compose(Bijector):
         self.domain = self.bijectors[0].domain  # type: ignore
         self.codomain = self.bijectors[-1].codomain  # type: ignore
 
-        # Make parameters accessible to dist.Flow
-        self._params = torch.nn.ModuleList(
-            [
-                b._params  # type: ignore
-                for b in self.bijectors
-                if isinstance(b._params, torch.nn.Module)  # type: ignore
-            ]
-        )
-
         self._context_shape = context_shape
 
-    # NOTE: We overwrite forward rather than _forward so that the composed
-    # bijectors can handle the caching separately!
-    def forward(self, x: torch.Tensor, context: torch.Tensor = None) -> torch.Tensor:
+    def parameters(self) -> Iterator[torch.Tensor]:
+        for b in self.bijectors:
+            for param in b.parameters():
+                yield param
+
+    def _forward(
+            self,
+            x: torch.Tensor,
+            context: Optional[torch.Tensor] = None
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        log_detJ = None
         for bijector in self.bijectors:
             x = bijector.forward(x, context)  # type: ignore
+            if is_record_flow_graph_enabled() and requires_log_detJ():
+                _log_detJ = x._log_detJ
+                log_detJ = log_detJ + _log_detJ if log_detJ is not None else _log_detJ
 
-        return x
+        return x, log_detJ
 
-    def inverse(
+    def _inverse(
             self,
             y: torch.Tensor,
-            x: Optional[torch.Tensor] = None,
-            context: Optional[torch.Tensor] = None,
-    ) -> torch.Tensor:
+            context: Optional[torch.Tensor] = None
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        log_detJ = None
         for bijector in reversed(self.bijectors):
-            y = bijector.inverse(y, x, context)  # type: ignore
-
-        return y
+            y = bijector.inverse(y, context)  # type: ignore
+            if is_record_flow_graph_enabled() and requires_log_detJ():
+                _log_detJ = y._log_detJ
+                log_detJ = log_detJ + _log_detJ if log_detJ is not None else _log_detJ
+        return y, log_detJ
 
     def log_abs_det_jacobian(
             self, x: torch.Tensor, y: torch.Tensor, context: torch.Tensor = None

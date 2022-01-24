@@ -12,7 +12,7 @@ from flowtorch.bijectors.ops.affine import Affine as AffineOp
 class AffineAutoregressive(AffineOp, Autoregressive):
     def __init__(
         self,
-        params: Optional[flowtorch.Lazy] = None,
+        hypernet: Optional[flowtorch.Lazy] = None,
         *,
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None,
@@ -21,7 +21,7 @@ class AffineAutoregressive(AffineOp, Autoregressive):
         sigmoid_bias: float = 2.0,
     ) -> None:
         super().__init__(
-            params,
+            hypernet,
             shape=shape,
             context_shape=context_shape,
         )

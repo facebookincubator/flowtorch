@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Tuple
 
 import torch
 import torch.distributions.constraints as constraints
@@ -17,15 +17,19 @@ class Exp(Fixed):
         self,
         x: torch.Tensor,
         params: Optional[Sequence[torch.Tensor]]
-    ) -> torch.Tensor:
-        return torch.exp(x)
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        y = torch.exp(x)
+        ladj = self._log_abs_det_jacobian(x, y, params)
+        return y, ladj
 
     def _inverse(
         self,
         y: torch.Tensor,
         params: Optional[Sequence[torch.Tensor]]
-    ) -> torch.Tensor:
-        return y.log()
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        x = y.log()
+        ladj = self._log_abs_det_jacobian(x, y, params)
+        return x, ladj
 
     def _log_abs_det_jacobian(
         self,

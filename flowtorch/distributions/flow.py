@@ -26,7 +26,7 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         self.bijector = bijector(shape=base_dist.event_shape)
 
         # Required so that parameters are registered with nn.Module
-        self.params = self.bijector._params  # type: ignore
+        self.params = self.bijector.parameters()  # type: ignore
 
         # TODO: Confirm that the following logic works. Shouldn't it use
         # .domain and .codomain?? Infer shape from constructed self.bijector

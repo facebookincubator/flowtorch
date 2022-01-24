@@ -1,7 +1,7 @@
 # Copyright (c) Meta Platforms, Inc
 
 import math
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Tuple
 
 import torch
 import torch.distributions.constraints as constraints
@@ -18,16 +18,20 @@ class Tanh(Fixed):
     def _forward(
         self,
         x: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
-    ) -> torch.Tensor:
-        return torch.tanh(x)
+        params: Optional[Sequence[torch.Tensor]]
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        y = torch.tanh(x)
+        ladj = self._log_abs_det_jacobian(x, y, params)
+        return y, ladj
 
     def _inverse(
         self,
         y: torch.Tensor,
         params: Optional[Sequence[torch.Tensor]]
-    ) -> torch.Tensor:
-        return torch.atanh(y)
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        x = torch.atanh(y)
+        ladj = self._log_abs_det_jacobian(x, y, params)
+        return x, ladj
 
     def _log_abs_det_jacobian(
         self,

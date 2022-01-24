@@ -29,7 +29,7 @@ def test_tdist_standalone():
 def test_neals_funnel_vi():
     torch.manual_seed(42)
     nf = dist.NealsFunnel()
-    bijector = bijs.AffineAutoregressive(params=params.DenseAutoregressive())
+    bijector = bijs.AffineAutoregressive(hypernet=params.DenseAutoregressive())
 
     base_dist = torch.distributions.Independent(
         torch.distributions.Normal(torch.zeros(2), torch.ones(2)), 1

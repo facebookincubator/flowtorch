@@ -11,15 +11,15 @@ from flowtorch.parameters.tensor import Tensor
 class Elementwise(Bijector):
     def __init__(
         self,
-        params: Optional[flowtorch.Lazy] = None,
+        hypernet: Optional[flowtorch.Lazy] = None,
         *,
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None,
         **kwargs: Any
     ) -> None:
-        if not params:
-            params = Tensor()  # type: ignore
+        if not hypernet:
+            hypernet = Tensor()  # type: ignore
 
-        assert params is None or issubclass(params.cls, Tensor)
+        assert hypernet is None or issubclass(hypernet.cls, Tensor)
 
-        super().__init__(params, shape=shape, context_shape=context_shape)
+        super().__init__(hypernet, shape=shape, context_shape=context_shape)

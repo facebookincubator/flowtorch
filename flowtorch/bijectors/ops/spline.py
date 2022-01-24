@@ -21,7 +21,7 @@ from torch.distributions.utils import _sum_rightmost
 class Spline(Bijector):
     def __init__(
         self,
-        params: Optional[flowtorch.Lazy] = None,
+        hypernet: Optional[flowtorch.Lazy] = None,
         *,
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None,
@@ -41,7 +41,7 @@ class Spline(Bijector):
         self.bound = bound
         self.order = order
 
-        super().__init__(params, shape=shape, context_shape=context_shape)
+        super().__init__(hypernet, shape=shape, context_shape=context_shape)
 
     def _forward(
         self,

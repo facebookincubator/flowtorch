@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Tuple
 
 import flowtorch
 import torch
@@ -18,29 +18,33 @@ class Power(Fixed):
     # TODO: Tensor valued exponents and corresponding determination of event_dim
     def __init__(
         self,
-        params: Optional[flowtorch.Lazy] = None,
+        hypernet: Optional[flowtorch.Lazy] = None,
         *,
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None,
         exponent: float = 2.0,
     ) -> None:
-        super().__init__(params, shape=shape, context_shape=context_shape)
+        super().__init__(hypernet, shape=shape, context_shape=context_shape)
         self.exponent = exponent
 
     def _forward(
         self,
         x: torch.Tensor,
         params: Optional[Sequence[torch.Tensor]]
-    ) -> torch.Tensor:
-        return x.pow(self.exponent)
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        y = x.pow(self.exponent)
+        ladj = self._log_abs_det_jacobian(x, y, params)
+        return y, ladj
 
     def _inverse(
         self,
         y: torch.Tensor,
         x: Optional[torch.Tensor] = None,
-        context: Optional[torch.Tensor] = None,
-    ) -> torch.Tensor:
-        return y.pow(1 / self.exponent)
+        params: Optional[Sequence[torch.Tensor]]=None,
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        x = y.pow(1 / self.exponent)
+        ladj = self._log_abs_det_jacobian(x, y, params)
+        return x, ladj
 
     def _log_abs_det_jacobian(
         self,

@@ -1,7 +1,7 @@
 # Copyright (c) Meta Platforms, Inc
 
 import math
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Tuple
 
 import torch
 import torch.nn.functional as F
@@ -15,15 +15,19 @@ class LeakyReLU(Fixed):
         self,
         x: torch.Tensor,
         params: Optional[Sequence[torch.Tensor]]
-    ) -> torch.Tensor:
-        return F.leaky_relu(x)
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        y = F.leaky_relu(x)
+        ladj = self._log_abs_det_jacobian(x, y, params)
+        return y, ladj
 
     def _inverse(
         self,
         y: torch.Tensor,
         params: Optional[Sequence[torch.Tensor]]
-    ) -> torch.Tensor:
-        return F.leaky_relu(y, negative_slope=100.0)
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        x = F.leaky_relu(y, negative_slope=100.0)
+        ladj = self._log_abs_det_jacobian(x, y, params)
+        return x, ladj
 
     def _log_abs_det_jacobian(
         self,

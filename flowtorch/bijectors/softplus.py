@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Tuple
 
 import flowtorch.ops
 import torch
@@ -19,15 +19,19 @@ class Softplus(Fixed):
         self,
         x: torch.Tensor,
         params: Optional[Sequence[torch.Tensor]]
-    ) -> torch.Tensor:
-        return F.softplus(x)
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        y = F.softplus(x)
+        ladj = self._log_abs_det_jacobian(x, y, params)
+        return y, ladj
 
     def _inverse(
         self,
         y: torch.Tensor,
         params: Optional[Sequence[torch.Tensor]]
-    ) -> torch.Tensor:
-        return flowtorch.ops.softplus_inv(y)
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        x =flowtorch.ops.softplus_inv(y)
+        ladj = self._log_abs_det_jacobian(x, y, params)
+        return x, ladj
 
     def _log_abs_det_jacobian(
         self,

@@ -25,7 +25,7 @@ class BijectiveTensor(Tensor):
 
         if not (self.from_forward() or self.from_inverse()):
             raise RuntimeError("BijectiveTensor input or output must be self")
-        
+
         return self
 
     def check_bijector(self, bijector):
@@ -95,14 +95,21 @@ class BijectiveTensor(Tensor):
     """
 
 
-def to_bijective_tensor(x: Tensor, y: Tensor, context: Optional[Tensor], bijector: Callable, log_detJ: Tensor, mode: str = "forward"):
+def to_bijective_tensor(
+        x: Tensor,
+        y: Tensor,
+        context: Optional[Tensor],
+        bijector: Callable,
+        log_detJ: Optional[Tensor],
+        mode: str = "forward"
+) -> BijectiveTensor:
     if mode == "inverse":
         x = BijectiveTensor(x)
-        x.register(bijector, x, y, context, bijector, log_detJ)
+        x.register(x, y, context, bijector, log_detJ)
         return x
     elif mode == "forward":
         y = BijectiveTensor(y)
-        y.register(bijector, x, y, context, bijector, log_detJ)
+        y.register(x, y, context, bijector, log_detJ)
         return y
     else:
         raise NotImplementedError(f"mode {mode} is not supported, must be one of 'forward' or 'inverse'.")

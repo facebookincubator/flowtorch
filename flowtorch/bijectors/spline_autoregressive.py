@@ -12,7 +12,7 @@ from flowtorch.bijectors.ops.spline import Spline as SplineOp
 class SplineAutoregressive(SplineOp, Autoregressive):
     def __init__(
         self,
-        params: Optional[flowtorch.Lazy] = None,
+        hypernet: Optional[flowtorch.Lazy] = None,
         *,
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None,
@@ -21,7 +21,7 @@ class SplineAutoregressive(SplineOp, Autoregressive):
         order: str = "linear"
     ) -> None:
         super().__init__(
-            params,
+            hypernet,
             shape=shape,
             context_shape=context_shape,
             count_bins=count_bins,

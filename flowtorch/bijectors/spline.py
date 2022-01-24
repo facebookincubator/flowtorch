@@ -11,7 +11,7 @@ from flowtorch.bijectors.ops.spline import Spline as SplineOp
 class Spline(SplineOp, Elementwise):
     def __init__(
         self,
-        params: Optional[flowtorch.Lazy] = None,
+        hypernet: Optional[flowtorch.Lazy] = None,
         *,
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None,
@@ -20,7 +20,7 @@ class Spline(SplineOp, Elementwise):
         order: str = "linear"
     ) -> None:
         super().__init__(
-            params,
+            hypernet,
             shape=shape,
             context_shape=context_shape,
             count_bins=count_bins,
