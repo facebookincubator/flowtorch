@@ -38,7 +38,7 @@ class BijectiveTensor(Tensor):
         types = tuple(Tensor if _type is BijectiveTensor else _type for _type in types)
         return Tensor.__torch_function__(func, types, args, kwargs)
 
-    def check_bijector(self, bijector):
+    def check_bijector(self, bijector: "Bijector") -> bool:
         is_bijector = bijector in tuple(self.bijectors())
         return is_bijector
 
@@ -48,7 +48,7 @@ class BijectiveTensor(Tensor):
             if isinstance(parent, BijectiveTensor):
                 yield parent._bijector
 
-    def get_parent_from_bijector(self, bijector):
+    def get_parent_from_bijector(self, bijector: "Bijector") -> Tensor:
         if self._bijector is bijector:
             return self.parent
         for parent in self.parents():
@@ -58,7 +58,7 @@ class BijectiveTensor(Tensor):
                 return parent.parent
         raise RuntimeError("bijector not found in flow")
 
-    def check_context(self, context):
+    def check_context(self, context: Optional[Tensor]) -> bool:
         return self._context is context
 
     def from_forward(self) -> bool:
@@ -67,13 +67,13 @@ class BijectiveTensor(Tensor):
     def from_inverse(self) -> bool:
         return self._mode == "inverse"
 
-    def detach_from_flow(self):
+    def detach_from_flow(self) -> Tensor:
         detached_tensor = self._output if self.from_forward() else self._input
         if isinstance(detached_tensor, BijectiveTensor):
             raise RuntimeError("the detached tensor is an instance of BijectiveTensor.")
         return detached_tensor
 
-    def has_ancestor(self, tensor):
+    def has_ancestor(self, tensor: Tensor) -> bool:
         if tensor is self:
             return False  # self is no parent of self
         elif self.from_forward() and self._input is tensor:
@@ -88,11 +88,11 @@ class BijectiveTensor(Tensor):
             return False
 
     @property
-    def log_detJ(self):
+    def log_detJ(self) -> Optional[Tensor]:
         return self._log_detJ
 
     @property
-    def parent(self):
+    def parent(self) -> Tensor:
         if self.from_forward():
             return self._input
         else:
