@@ -3,13 +3,13 @@ const snippets = [
     label: "Bivariate Normal",
     code: 
 `import torch
-import flowtorch.bijectors as bij
-import flowtorch.distributions as dist
-import flowtorch.parameters as params
+import flowtorch.bijectors as B
+import flowtorch.distributions as D
+import flowtorch.parameters as P
 
 # Lazily instantiated flow plus base and target distributions
-params = params.DenseAutoregressive(hidden_dims=(32,))
-bijectors = bij.AffineAutoregressive(params=params)
+params_fn = P.DenseAutoregressive(hidden_dims=(32,))
+bijectors = B.AffineAutoregressive(params_fn=params_fn)
 base_dist = torch.distributions.Independent(
   torch.distributions.Normal(torch.zeros(2), torch.ones(2)), 
   1
@@ -20,7 +20,7 @@ target_dist = torch.distributions.Independent(
 )
 
 # Instantiate transformed distribution and parameters
-flow = dist.Flow(base_dist, bijectors)
+flow = D.Flow(base_dist, bijectors)
 
 # Training loop
 opt = torch.optim.Adam(flow.parameters(), lr=5e-3)

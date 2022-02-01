@@ -31,7 +31,7 @@ def flow(request):
 def test_jacobian(flow, epsilon=1e-2):
     # Instantiate transformed distribution and parameters
     bij = flow.bijector
-    params = bij.params_fn
+    params = bij._params_fn
 
     # Calculate auto-diff Jacobian
     x = torch.randn(*flow.event_shape)

@@ -7,12 +7,12 @@ import torch
 from flowtorch.bijectors import AffineAutoregressive, Compose
 from flowtorch.bijectors.utils import set_record_flow_graph
 
+dim_x = 32
+
 
 def get_net() -> AffineAutoregressive:
     ar = Compose(
         [
-            AffineAutoregressive(params.DenseAutoregressive()),
-            AffineAutoregressive(params.DenseAutoregressive()),
             AffineAutoregressive(params.DenseAutoregressive()),
             AffineAutoregressive(params.DenseAutoregressive()),
             AffineAutoregressive(params.DenseAutoregressive()),
@@ -21,7 +21,7 @@ def get_net() -> AffineAutoregressive:
     ar = ar(
         shape=torch.Size(
             [
-                100,
+                dim_x,
             ]
         )
     )
@@ -30,7 +30,7 @@ def get_net() -> AffineAutoregressive:
 
 def test_forward():
     ar = get_net()
-    x = torch.randn(50, 100, requires_grad=True)
+    x = torch.randn(50, dim_x, requires_grad=True)
     y = ar.forward(x)
     assert ar.inverse(y) is x
     assert ar.forward(y) is not x
@@ -43,7 +43,7 @@ def test_forward():
 
 def test_backward():
     ar = get_net()
-    x = torch.randn(50, 100, requires_grad=True)
+    x = torch.randn(50, dim_x, requires_grad=True)
     y = ar.inverse(x)
     assert ar.forward(y) is x
     assert ar.inverse(y) is not x
@@ -61,7 +61,7 @@ def test_gradient_matching(mode):
     print("test with bijective tensor")
     t0 = time.time()
     with set_record_flow_graph(True):
-        x = torch.randn(50, 100, requires_grad=True)
+        x = torch.randn(50, dim_x, requires_grad=True)
         t1 = time.time()
         if mode == "forward":
             y = ar.forward(x)

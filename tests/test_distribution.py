@@ -41,8 +41,8 @@ def test_neals_funnel_vi():
     num_elbo_mc_samples = 200
     for _ in range(100):
         z0 = flow.base_dist.rsample(sample_shape=(num_elbo_mc_samples,))
-        zk = bijector._forward(z0)
-        ldj = bijector._log_abs_det_jacobian(z0, zk)
+        zk = bijector.forward(z0)
+        ldj = zk._log_detJ
 
         neg_elbo = -nf.log_prob(zk).sum()
         neg_elbo += flow.base_dist.log_prob(z0).sum() - ldj.sum()
