@@ -106,27 +106,6 @@ class BijectiveTensor(Tensor):
             if not isinstance(child, BijectiveTensor):
                 break
 
-    # TODO: How to adjust this?
-    """
-    def log_abs_det_jacobian(self, tensor):
-        if self.from_forward() and self.has_ancestor(tensor):
-            x = tensor
-            parent = self.parent
-            ldj = self.layer.log_abs_det_jacobian(parent, self)
-            if isinstance(parent, BijectiveTensor):
-                ldj = ldj + parent.log_abs_det_jacobian(x)
-        elif self.from_inverse() and self.has_ancestor(tensor):
-            y = tensor
-            parent = self.parent
-            ldj = self.layer.log_abs_det_jacobian(self, y)
-            if isinstance(parent, BijectiveTensor):
-                ldj = ldj + parent.log_abs_det_jacobian(y)
-        else:
-            raise RuntimeError("Called bijective_tensor.log_abs_det_jacobian(tensor) on a tensor that was not"
-                               "part of the flow graph.")
-        return ldj
-    """
-
 
 def to_bijective_tensor(
         x: Tensor,
