@@ -93,16 +93,16 @@ class Compose(Bijector):
         if isinstance(x, BijectiveTensor) and x.has_ancestor(y):
             # If x is a BijectiveTensor and has y as ancestor, then the inversion flow.inverse(y) = x has already
             # been computed and we can recover the chain of parents instead of re-computing it.
-            _use_cached = True
+            _use_cached_inverse = True
             parents = []
             while isinstance(x, BijectiveTensor) and x is not y:
                 parents.append(x)
                 x = x.parent
         else:
-            _use_cached = False
+            _use_cached_inverse = False
 
         for bijector in reversed(self.bijectors):
-            if not _use_cached:
+            if not _use_cached_inverse:
                 y_inv = bijector.inverse(y, context)  # type: ignore
             else:
                 y_inv = parents.pop()
