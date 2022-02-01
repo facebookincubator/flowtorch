@@ -19,7 +19,7 @@ class Autoregressive(Bijector):
 
     def __init__(
         self,
-        hypernet: Optional[flowtorch.Lazy] = None,
+        params_fn: Optional[flowtorch.Lazy] = None,
         *,
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None,
@@ -30,14 +30,14 @@ class Autoregressive(Bijector):
         self.codomain = constraints.independent(constraints.real, len(shape))
 
         # currently only DenseAutoregressive has a `permutation` buffer
-        if not hypernet:
-            hypernet = DenseAutoregressive()  # type: ignore
+        if not params_fn:
+            params_fn = DenseAutoregressive()  # type: ignore
 
         # TODO: Replace P.DenseAutoregressive with P.Autoregressive
         # In the future there will be other autoregressive parameter classes
-        assert hypernet is not None and issubclass(hypernet.cls, DenseAutoregressive)
+        assert params_fn is not None and issubclass(params_fn.cls, DenseAutoregressive)
 
-        super().__init__(hypernet, shape=shape, context_shape=context_shape)
+        super().__init__(params_fn, shape=shape, context_shape=context_shape)
 
     def inverse(
         self,
@@ -47,7 +47,7 @@ class Autoregressive(Bijector):
     ) -> torch.Tensor:
         # TODO: Allow that context can have a batch shape
         assert context is None  # or context.shape == (self._context_size,)
-        params = self.hypernet
+        params = self.params_fn
         assert params is not None
         if isinstance(y, BijectiveTensor) and y.from_forward() and y.check_bijector(self):
             return y.parent

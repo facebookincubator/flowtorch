@@ -20,7 +20,7 @@ class Bijector(metaclass=flowtorch.LazyMeta):
 
     def __init__(
             self,
-            hypernet: Optional[flowtorch.Lazy] = None,
+            params_fn: Optional[flowtorch.Lazy] = None,
             *,
             shape: torch.Size,
             context_shape: Optional[torch.Size] = None,
@@ -38,18 +38,18 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         self._context_shape = context_shape
 
         # Instantiate parameters (tensor, hypernets, etc.)
-        if hypernet is not None:
+        if params_fn is not None:
             param_shapes = self.param_shapes(shape)
-            self._hypernet = hypernet(  # type: ignore
+            self._hypernet = params_fn(  # type: ignore
                 param_shapes, self._shape, self._context_shape
             )
 
     @property
-    def hypernet(self) -> Callable[[Optional[torch.Tensor]], Optional[Union[Parameters, torch.nn.ModuleList]]]:
+    def params_fn(self) -> Callable[[Optional[torch.Tensor]], Optional[Union[Parameters, torch.nn.ModuleList]]]:
         return self._hypernet
 
-    @hypernet.setter
-    def hypernet(self, value: Optional[Union[Parameters, torch.nn.ModuleList]]) -> None:
+    @params_fn.setter
+    def params_fn(self, value: Optional[Union[Parameters, torch.nn.ModuleList]]) -> None:
         self._hypernet = value
 
     def parameters(self) -> Iterator[torch.Tensor]:
@@ -67,7 +67,7 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         if isinstance(x, BijectiveTensor) and x.from_inverse() and x.check_bijector(self) and x.check_context(context):
             return x.parent
 
-        params = self.hypernet(x)
+        params = self.params_fn(x)
         # try:
         y, log_detJ = self._forward(x, params)
         # except:
@@ -98,7 +98,7 @@ class Bijector(metaclass=flowtorch.LazyMeta):
             return y.parent
 
         # TODO: What to do in this line?
-        params = self.hypernet(x)
+        params = self.params_fn(x)
         try:
             x, log_detJ = self._inverse(y, params)
         except:

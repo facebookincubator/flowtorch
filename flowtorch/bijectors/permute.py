@@ -17,13 +17,13 @@ class Permute(Fixed, VolumePreserving):
     # TODO: A new abstraction so can defer construction of permutation
     def __init__(
         self,
-        hypernet: Optional[flowtorch.Lazy] = None,
+        params_fn: Optional[flowtorch.Lazy] = None,
         *,
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None,
         permutation: Optional[torch.Tensor] = None
     ) -> None:
-        super().__init__(hypernet, shape=shape, context_shape=context_shape)
+        super().__init__(params_fn, shape=shape, context_shape=context_shape)
         self.permutation = permutation
 
     def _forward(

@@ -22,7 +22,7 @@ independent but not identical components (see the produced figures).
 def learn_bivariate_normal() -> None:
     # Lazily instantiated flow plus base and target distributions
     bijectors = bij.AffineAutoregressive(
-        hypernet=params.DenseAutoregressive(hidden_dims=(32,))
+        params_fn=params.DenseAutoregressive(hidden_dims=(32,))
     )
     base_dist = torch.distributions.Independent(
         torch.distributions.Normal(torch.zeros(2), torch.ones(2)), 1

@@ -18,7 +18,7 @@ class Affine(Bijector):
 
     def __init__(
         self,
-        hypernet: Optional[flowtorch.Lazy] = None,
+        params_fn: Optional[flowtorch.Lazy] = None,
         *,
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None,
@@ -26,7 +26,7 @@ class Affine(Bijector):
         log_scale_max_clip: float = 3.0,
         sigmoid_bias: float = 2.0,
     ) -> None:
-        super().__init__(hypernet, shape=shape, context_shape=context_shape)
+        super().__init__(params_fn, shape=shape, context_shape=context_shape)
         self.log_scale_min_clip = log_scale_min_clip
         self.log_scale_max_clip = log_scale_max_clip
         self.sigmoid_bias = sigmoid_bias

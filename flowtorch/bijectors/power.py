@@ -18,13 +18,13 @@ class Power(Fixed):
     # TODO: Tensor valued exponents and corresponding determination of event_dim
     def __init__(
         self,
-        hypernet: Optional[flowtorch.Lazy] = None,
+        params_fn: Optional[flowtorch.Lazy] = None,
         *,
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None,
         exponent: float = 2.0,
     ) -> None:
-        super().__init__(hypernet, shape=shape, context_shape=context_shape)
+        super().__init__(params_fn, shape=shape, context_shape=context_shape)
         self.exponent = exponent
 
     def _forward(
