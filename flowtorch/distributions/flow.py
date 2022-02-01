@@ -2,13 +2,12 @@
 
 from typing import Any, Dict, Optional, Union, Iterator
 
-from torch.nn import Parameter
-
 import flowtorch
 import torch
 import torch.distributions as dist
 from torch import Tensor
 from torch.distributions.utils import _sum_rightmost
+from torch.nn import Parameter
 
 
 class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
@@ -48,7 +47,7 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         for p in super().parameters(recurse=recurse):
             yield p
         if recurse:
-            for p in self.bijector.parameters():
+            for p in self.bijector.parameters():  # type: ignore
                 yield p
 
     def condition(self, context: torch.Tensor) -> "Flow":

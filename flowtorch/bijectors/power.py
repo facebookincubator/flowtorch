@@ -28,9 +28,7 @@ class Power(Fixed):
         self.exponent = exponent
 
     def _forward(
-        self,
-        x: torch.Tensor,
-        params: Optional[Sequence[torch.Tensor]]
+        self, x: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         y = x.pow(self.exponent)
         ladj = self._log_abs_det_jacobian(x, y, params)
@@ -39,8 +37,7 @@ class Power(Fixed):
     def _inverse(
         self,
         y: torch.Tensor,
-        x: Optional[torch.Tensor] = None,
-        params: Optional[Sequence[torch.Tensor]]=None,
+        params: Optional[Sequence[torch.Tensor]] = None,
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         x = y.pow(1 / self.exponent)
         ladj = self._log_abs_det_jacobian(x, y, params)
@@ -50,6 +47,6 @@ class Power(Fixed):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+        params: Optional[Sequence[torch.Tensor]],
     ) -> torch.Tensor:
         return torch.abs(self.exponent * y / x).log()

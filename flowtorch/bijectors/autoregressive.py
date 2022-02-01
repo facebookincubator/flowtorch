@@ -47,33 +47,37 @@ class Autoregressive(Bijector):
     ) -> torch.Tensor:
         # TODO: Allow that context can have a batch shape
         assert context is None  # or context.shape == (self._context_size,)
-        params = self.params_fn
-        assert params is not None
+        assert self._params_fn is not None
         if self._check_bijective_y(y, context):
+            assert isinstance(y, BijectiveTensor)
             return y.get_parent_from_bijector(self)
         x_new = torch.empty_like(y)
         # NOTE: Inversion is an expensive operation that scales in the
         # dimension of the input
         permutation = (
-            params.permutation
+            self._params_fn.permutation
         )  # TODO: type-safe named buffer (e.g. "permutation") access
         # TODO: Make permutation, inverse work for other event shapes
-        log_detJ = 0.0
+        log_detJ: Optional[torch.Tensor] = None
         for idx in cast(torch.LongTensor, permutation):
-            _params = params(x_new.clone(), context=context)
-            out = self._inverse(y, params=_params)
-            x_new[..., idx] = out[0][..., idx]
-            _log_detJ = out[1]
-            log_detJ = _log_detJ
+            _params = self._params_fn(x_new.clone(), context=context)
+            x_temp, log_detJ = self._inverse(y, params=_params)
+            x_new[..., idx] = x_temp[..., idx]
+            # _log_detJ = out[1]
+            # log_detJ = _log_detJ
 
         if is_record_flow_graph_enabled():
-            x_new = to_bijective_tensor(x_new, y, context=context, bijector=self, mode="inverse", log_detJ=log_detJ)
+            x_new = to_bijective_tensor(
+                x_new,
+                y,
+                context=context,
+                bijector=self,
+                mode="inverse",
+                log_detJ=log_detJ,
+            )
         return x_new
 
     def _log_abs_det_jacobian(
-        self,
-        x: torch.Tensor,
-        y: torch.Tensor,
-        params: Optional[Sequence[torch.Tensor]]
+        self, x: torch.Tensor, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
     ) -> torch.Tensor:
         raise NotImplementedError

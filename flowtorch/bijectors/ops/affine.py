@@ -32,9 +32,7 @@ class Affine(Bijector):
         self.sigmoid_bias = sigmoid_bias
 
     def _forward(
-        self,
-        x: torch.Tensor,
-        params: Optional[Sequence[torch.Tensor]]
+        self, x: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         assert params is not None
 
@@ -47,9 +45,7 @@ class Affine(Bijector):
         return y, _sum_rightmost(log_scale, self.domain.event_dim)
 
     def _inverse(
-        self,
-        y: torch.Tensor,
-        params: Optional[Sequence[torch.Tensor]]
+        self, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         assert params is not None
 

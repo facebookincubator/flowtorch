@@ -1,23 +1,22 @@
 # Copyright (c) Meta Platforms, Inc
-from typing import Optional, Sequence, Tuple, Iterator
-
-import torch
-import torch.distributions
-from torch.distributions.utils import _sum_rightmost
+from typing import Optional, Sequence, Iterator
 
 import flowtorch.parameters
+import torch
+import torch.distributions
 from flowtorch.bijectors.base import Bijector
-from flowtorch.bijectors.bijective_tensor import BijectiveTensor
+from flowtorch.bijectors.bijective_tensor import to_bijective_tensor, BijectiveTensor
 from flowtorch.bijectors.utils import is_record_flow_graph_enabled, requires_log_detJ
+from torch.distributions.utils import _sum_rightmost
 
 
 class Compose(Bijector):
     def __init__(
-            self,
-            bijectors: Sequence[flowtorch.Lazy],
-            *,
-            shape: torch.Size,
-            context_shape: Optional[torch.Size] = None,
+        self,
+        bijectors: Sequence[flowtorch.Lazy],
+        *,
+        shape: torch.Size,
+        context_shape: Optional[torch.Size] = None,
     ):
         assert len(bijectors) > 0
 
@@ -36,50 +35,73 @@ class Compose(Bijector):
 
     def parameters(self) -> Iterator[torch.Tensor]:
         for b in self.bijectors:
-            for param in b.parameters():
+            for param in b.parameters():  # type: ignore
                 yield param
 
-    def _forward(
-            self,
-            x: torch.Tensor,
-            context: Optional[torch.Tensor] = None
-    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
-        log_detJ = None
+    def forward(
+        self,
+        x: torch.Tensor,
+        context: Optional[torch.Tensor] = None,
+    ) -> torch.Tensor:
+        log_detJ: Optional[torch.Tensor] = None
+        x_temp = x
         for bijector in self.bijectors:
-            y = bijector.forward(x, context)  # type: ignore
+            y = bijector.forward(x_temp, context)  # type: ignore
             if is_record_flow_graph_enabled() and requires_log_detJ():
                 if isinstance(y, BijectiveTensor) and y.from_forward():
                     _log_detJ = y._log_detJ
-                elif isinstance(x, BijectiveTensor) and x.from_inverse():
-                    _log_detJ = x._log_detJ
+                elif isinstance(x_temp, BijectiveTensor) and x_temp.from_inverse():
+                    _log_detJ = x_temp._log_detJ
                 else:
-                    raise RuntimeError("neither of x nor y contains the log-abs-det-jacobian")
+                    raise RuntimeError(
+                        "neither of x nor y contains the log-abs-det-jacobian"
+                    )
                 log_detJ = log_detJ + _log_detJ if log_detJ is not None else _log_detJ
-            x = y
+            x_temp = y
 
-        return x, log_detJ
+        # TODO: Check that this doesn't contain bugs!
+        if (
+            is_record_flow_graph_enabled()
+            and not isinstance(y, BijectiveTensor)
+            and not (isinstance(x, BijectiveTensor) and y in set(x.parents()))
+        ):
+            # we exclude y that are bijective tensors for Compose
+            y = to_bijective_tensor(x, x_temp, context, self, log_detJ, mode="forward")
+        return y
 
-    def _inverse(
-            self,
-            y: torch.Tensor,
-            context: Optional[torch.Tensor] = None
-    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
-        log_detJ = None
+    def inverse(
+        self,
+        y: torch.Tensor,
+        x: Optional[torch.Tensor] = None,
+        context: Optional[torch.Tensor] = None,
+    ) -> torch.Tensor:
+        log_detJ: Optional[torch.Tensor] = None
+        y_temp = y
         for bijector in reversed(self.bijectors):
-            x = bijector.inverse(y, context)  # type: ignore
+            x = bijector.inverse(y_temp, context)  # type: ignore
             if is_record_flow_graph_enabled() and requires_log_detJ():
-                if isinstance(y, BijectiveTensor) and y.from_forward():
-                    _log_detJ = y._log_detJ
+                if isinstance(y_temp, BijectiveTensor) and y_temp.from_forward():
+                    _log_detJ = y_temp._log_detJ
                 elif isinstance(x, BijectiveTensor) and x.from_inverse():
                     _log_detJ = x._log_detJ
                 else:
-                    raise RuntimeError("neither of x nor y contains the log-abs-det-jacobian")
+                    raise RuntimeError(
+                        "neither of x nor y contains the log-abs-det-jacobian"
+                    )
                 log_detJ = log_detJ + _log_detJ if log_detJ is not None else _log_detJ
-            y = x
-        return y, log_detJ
+            y_temp = x  # type: ignore
+
+        # TODO: Check that this doesn't contain bugs!
+        if (
+            is_record_flow_graph_enabled()
+            and not isinstance(x, BijectiveTensor)
+            and not (isinstance(y, BijectiveTensor) and x in set(y.parents()))
+        ):
+            x = to_bijective_tensor(y_temp, y, context, self, log_detJ, mode="inverse")
+        return x  # type: ignore
 
     def log_abs_det_jacobian(
-            self, x: torch.Tensor, y: torch.Tensor, context: torch.Tensor = None
+        self, x: torch.Tensor, y: torch.Tensor, context: torch.Tensor = None
     ) -> torch.Tensor:
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.
@@ -91,8 +113,9 @@ class Compose(Bijector):
         )
 
         if isinstance(x, BijectiveTensor) and x.has_ancestor(y):
-            # If x is a BijectiveTensor and has y as ancestor, then the inversion flow.inverse(y) = x has already
-            # been computed and we can recover the chain of parents instead of re-computing it.
+            # If x is a BijectiveTensor and has y as ancestor, then the
+            # inversion flow.inverse(y) = x has already been computed and
+            # we can recover the chain of parents instead of re-computing it.
             _use_cached_inverse = True
             parents = []
             while isinstance(x, BijectiveTensor) and x is not y:

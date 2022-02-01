@@ -1,10 +1,9 @@
 # Copyright (c) Meta Platforms, Inc
 import time
 
+import flowtorch.parameters as params
 import pytest
 import torch
-
-import flowtorch.parameters as params
 from flowtorch.bijectors import AffineAutoregressive, Compose
 from flowtorch.bijectors.utils import set_record_flow_graph
 
@@ -16,9 +15,16 @@ def get_net() -> AffineAutoregressive:
             AffineAutoregressive(params.DenseAutoregressive()),
             AffineAutoregressive(params.DenseAutoregressive()),
             AffineAutoregressive(params.DenseAutoregressive()),
-            AffineAutoregressive(params.DenseAutoregressive())
-        ])
-    ar = ar(shape=torch.Size([100, ]))
+            AffineAutoregressive(params.DenseAutoregressive()),
+        ]
+    )
+    ar = ar(
+        shape=torch.Size(
+            [
+                100,
+            ]
+        )
+    )
     return ar
 
 
@@ -95,9 +101,10 @@ def test_gradient_matching(mode):
     print("diff between grads: ", (g_bijtensor - g_tensor).norm(2))
     torch.testing.assert_allclose(g_bijtensor, g_tensor)
 
-    # This is flacky and should probably not be merged, but it's a good sanity check locally
+    # This is flacky and should probably not be merged, but it's a good
+    # soundness check locally
     assert bij_time < tensor_time, f"Bijective tensor {mode}+backprop took longer"
 
 
 if __name__ == "__main__":
-    pytest.main([__file__, '--capture', 'no'])
+    pytest.main([__file__, "--capture", "no"])

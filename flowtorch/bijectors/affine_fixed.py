@@ -36,28 +36,21 @@ class AffineFixed(Fixed):
         params: Optional[Sequence[torch.Tensor]],
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         y = self.loc + self.scale * x
+        ladj: Optional[torch.Tensor] = None
         if requires_log_detJ():
             ladj = self._log_abs_det_jacobian(x, y, params)
-        else:
-            ladj = None
         return y, ladj
 
     def _inverse(
-        self,
-        y: torch.Tensor,
-        params: Optional[Sequence[torch.Tensor]]
+        self, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         x = (y - self.loc) / self.scale
+        ladj: Optional[torch.Tensor] = None
         if requires_log_detJ():
             ladj = self._log_abs_det_jacobian(x, y, params)
-        else:
-            ladj = None
         return x, ladj
 
     def _log_abs_det_jacobian(
-        self,
-        x: torch.Tensor,
-        y: torch.Tensor,
-        params: Optional[Sequence[torch.Tensor]]
+        self, x: torch.Tensor, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
     ) -> torch.Tensor:
         return torch.full_like(x, math.log(abs(self.scale)))

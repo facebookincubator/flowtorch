@@ -44,17 +44,13 @@ class Spline(Bijector):
         super().__init__(params_fn, shape=shape, context_shape=context_shape)
 
     def _forward(
-        self,
-        x: torch.Tensor,
-        params: Optional[Sequence[torch.Tensor]]
+        self, x: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         y, log_detJ = self._op(x, params)
         return y, _sum_rightmost(log_detJ, self.domain.event_dim)
 
     def _inverse(
-        self,
-        y: torch.Tensor,
-        params: Optional[Sequence[torch.Tensor]]
+        self, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         x_new, log_detJ = self._op(y, params, inverse=True)
 
@@ -80,12 +76,12 @@ class Spline(Bijector):
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         assert params is not None
 
+        lambdas: Optional[torch.Tensor] = None
         if self.order == "linear":
             widths, heights, derivatives, lambdas = params
             lambdas = torch.sigmoid(lambdas)
         else:
             widths, heights, derivatives = params
-            lambdas = None
 
         # Constrain parameters
         # TODO: Move to flowtorch.ops function?
