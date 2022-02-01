@@ -1,3 +1,4 @@
+# Copyright (c) Meta Platforms, Inc
 import time
 
 import pytest
