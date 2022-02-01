@@ -49,10 +49,9 @@ class Autoregressive(Bijector):
         assert context is None  # or context.shape == (self._context_size,)
         params = self.params_fn
         assert params is not None
-        if isinstance(y, BijectiveTensor) and y.from_forward() and y.check_bijector(self):
-            return y.parent
-
-        x_new = torch.zeros_like(y)
+        if self._check_bijective_y(y, context):
+            return y.get_parent_from_bijector(self)
+        x_new = torch.empty_like(y)
         # NOTE: Inversion is an expensive operation that scales in the
         # dimension of the input
         permutation = (
@@ -61,15 +60,14 @@ class Autoregressive(Bijector):
         # TODO: Make permutation, inverse work for other event shapes
         log_detJ = 0.0
         for idx in cast(torch.LongTensor, permutation):
-            _params = params(x_new, context=context)
+            _params = params(x_new.clone(), context=context)
             out = self._inverse(y, params=_params)
             x_new[..., idx] = out[0][..., idx]
             _log_detJ = out[1]
-            log_detJ += _log_detJ
+            log_detJ = _log_detJ
 
         if is_record_flow_graph_enabled():
             x_new = to_bijective_tensor(x_new, y, context=context, bijector=self, mode="inverse", log_detJ=log_detJ)
-
         return x_new
 
     def _log_abs_det_jacobian(

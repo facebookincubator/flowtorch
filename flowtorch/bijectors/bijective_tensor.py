@@ -1,5 +1,5 @@
 # Copyright (c) Meta Platforms, Inc
-from typing import Callable, Optional
+from typing import Callable, Optional, Iterator
 
 from torch import Tensor
 
@@ -16,36 +16,61 @@ class BijectiveTensor(Tensor):
             context: Optional[Tensor],
             bijector: Callable,
             log_detJ: Tensor,
+            mode: str,
     ):
         self._input = input
         self._output = output
         self._context = context
         self._bijector = bijector
         self._log_detJ = log_detJ
+        self._mode = mode
 
         if not (self.from_forward() or self.from_inverse()):
-            raise RuntimeError("BijectiveTensor input or output must be self")
+            raise RuntimeError(f"BijectiveTensor mode must be either `'forward'` or `'inverse'`. got {self._mode}")
 
         return self
 
+    @classmethod
+    def __torch_function__(cls, func, types, args=(), kwargs=None):
+        if kwargs is None:
+            kwargs = {}
+        # we don't want to create a new BijectiveTensor when summing, calling zeros_like etc.
+        types = tuple(Tensor if _type is BijectiveTensor else _type for _type in types)
+        return Tensor.__torch_function__(func, types, args, kwargs)
+
     def check_bijector(self, bijector):
-        return self._bijector is bijector
+        is_bijector = bijector in tuple(self.bijectors())
+        return is_bijector
+
+    def bijectors(self) -> Iterator["Bijector"]:
+        yield self._bijector
+        for parent in self.parents():
+            if isinstance(parent, BijectiveTensor):
+                yield parent._bijector
+
+    def get_parent_from_bijector(self, bijector):
+        if self._bijector is bijector:
+            return self.parent
+        for parent in self.parents():
+            if not isinstance(parent, BijectiveTensor):
+                break
+            if parent._bijector is bijector:
+                return parent.parent
+        raise RuntimeError("bijector not found in flow")
 
     def check_context(self, context):
         return self._context is context
 
     def from_forward(self) -> bool:
-        return self._output is self
+        return self._mode == "forward"
 
     def from_inverse(self) -> bool:
-        return self._input is self
+        return self._mode == "inverse"
 
     def detach_from_flow(self):
         detached_tensor = self._output if self.from_forward() else self._input
-        # if self.from_forward() and isinstance(self._input_tensor, BijectiveTensor):
-        #     self._input_tensor.detach_from_flow()
-        # elif self.from_inverse() and isinstance(self._output_tensor, BijectiveTensor):
-        #     self._output_tensor.detach_from_flow()
+        if isinstance(detached_tensor, BijectiveTensor):
+            raise RuntimeError("the detached tensor is an instance of BijectiveTensor.")
         return detached_tensor
 
     def has_ancestor(self, tensor):
@@ -73,6 +98,14 @@ class BijectiveTensor(Tensor):
         else:
             return self._output
 
+    def parents(self) -> Iterator[Tensor]:
+        child = self
+        while True:
+            child = parent = child.parent
+            yield parent
+            if not isinstance(child, BijectiveTensor):
+                break
+
     # TODO: How to adjust this?
     """
     def log_abs_det_jacobian(self, tensor):
@@ -99,17 +132,17 @@ def to_bijective_tensor(
         x: Tensor,
         y: Tensor,
         context: Optional[Tensor],
-        bijector: Callable,
+        bijector: "Bijector",
         log_detJ: Optional[Tensor],
         mode: str = "forward"
 ) -> BijectiveTensor:
     if mode == "inverse":
-        x = BijectiveTensor(x)
-        x.register(x, y, context, bijector, log_detJ)
-        return x
+        x_bij = BijectiveTensor(x)
+        x_bij.register(x, y, context, bijector, log_detJ, mode=mode)
+        return x_bij
     elif mode == "forward":
-        y = BijectiveTensor(y)
-        y.register(x, y, context, bijector, log_detJ)
-        return y
+        y_bij = BijectiveTensor(y)
+        y_bij.register(x, y, context, bijector, log_detJ, mode=mode)
+        return y_bij
     else:
         raise NotImplementedError(f"mode {mode} is not supported, must be one of 'forward' or 'inverse'.")

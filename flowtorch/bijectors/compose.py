@@ -46,10 +46,16 @@ class Compose(Bijector):
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         log_detJ = None
         for bijector in self.bijectors:
-            x = bijector.forward(x, context)  # type: ignore
+            y = bijector.forward(x, context)  # type: ignore
             if is_record_flow_graph_enabled() and requires_log_detJ():
-                _log_detJ = x._log_detJ
+                if isinstance(y, BijectiveTensor) and y.from_forward():
+                    _log_detJ = y._log_detJ
+                elif isinstance(x, BijectiveTensor) and x.from_inverse():
+                    _log_detJ = x._log_detJ
+                else:
+                    raise RuntimeError("neither of x nor y contains the log-abs-det-jacobian")
                 log_detJ = log_detJ + _log_detJ if log_detJ is not None else _log_detJ
+            x = y
 
         return x, log_detJ
 
@@ -60,10 +66,16 @@ class Compose(Bijector):
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         log_detJ = None
         for bijector in reversed(self.bijectors):
-            y = bijector.inverse(y, context)  # type: ignore
+            x = bijector.inverse(y, context)  # type: ignore
             if is_record_flow_graph_enabled() and requires_log_detJ():
-                _log_detJ = y._log_detJ
+                if isinstance(y, BijectiveTensor) and y.from_forward():
+                    _log_detJ = y._log_detJ
+                elif isinstance(x, BijectiveTensor) and x.from_inverse():
+                    _log_detJ = x._log_detJ
+                else:
+                    raise RuntimeError("neither of x nor y contains the log-abs-det-jacobian")
                 log_detJ = log_detJ + _log_detJ if log_detJ is not None else _log_detJ
+            y = x
         return y, log_detJ
 
     def log_abs_det_jacobian(

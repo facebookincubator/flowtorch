@@ -1,6 +1,8 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Union, Iterator
+
+from torch.nn import Parameter
 
 import flowtorch
 import torch
@@ -41,6 +43,13 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         dist.Distribution.__init__(
             self, batch_shape, event_shape, validate_args=validate_args
         )
+
+    def parameters(self, recurse: bool = True) -> Iterator[Parameter]:
+        for p in super().parameters(recurse=recurse):
+            yield p
+        if recurse:
+            for p in self.bijector.parameters():
+                yield p
 
     def condition(self, context: torch.Tensor) -> "Flow":
         self._context = context
