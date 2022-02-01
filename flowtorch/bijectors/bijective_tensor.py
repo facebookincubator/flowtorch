@@ -1,7 +1,9 @@
 # Copyright (c) Meta Platforms, Inc
-from typing import Any, Optional, Iterator, Type, Union
+from typing import Any, Optional, Iterator, Type, TYPE_CHECKING, Union
 
-from flowtorch.bijectors.base import Bijector
+if TYPE_CHECKING:
+    from flowtorch.bijectors.base import Bijector
+
 from torch import Tensor
 
 
@@ -19,7 +21,7 @@ class BijectiveTensor(Tensor):
         input: Tensor,
         output: Tensor,
         context: Optional[Tensor],
-        bijector: Bijector,
+        bijector: "Bijector",
         log_detJ: Optional[Tensor],
         mode: str,
     ) -> "BijectiveTensor":
@@ -53,17 +55,17 @@ or `'inverse'`. got {self._mode}"
         types = tuple(Tensor if _type is BijectiveTensor else _type for _type in types)
         return Tensor.__torch_function__(func, types, args, kwargs)
 
-    def check_bijector(self, bijector: Bijector) -> bool:
+    def check_bijector(self, bijector: "Bijector") -> bool:
         is_bijector = bijector in tuple(self.bijectors())
         return is_bijector
 
-    def bijectors(self) -> Iterator[Bijector]:
+    def bijectors(self) -> Iterator["Bijector"]:
         yield self._bijector
         for parent in self.parents():
             if isinstance(parent, BijectiveTensor):
                 yield parent._bijector
 
-    def get_parent_from_bijector(self, bijector: Bijector) -> Tensor:
+    def get_parent_from_bijector(self, bijector: "Bijector") -> Tensor:
         if self._bijector is bijector:
             return self.parent
         for parent in self.parents():
