@@ -51,7 +51,7 @@ class Autoregressive(Bijector):
         if self._check_bijective_y(y, context):
             assert isinstance(y, BijectiveTensor)
             return y.get_parent_from_bijector(self)
-        x_new = torch.empty_like(y)
+        x_new = torch.zeros_like(y)
         # NOTE: Inversion is an expensive operation that scales in the
         # dimension of the input
         permutation = (
