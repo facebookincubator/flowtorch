@@ -86,6 +86,17 @@ class Lazy(metaclass=LazyMeta):
         sig: inspect.Signature,
         bound_sig: inspect.Signature,
     ):
+        """
+        Creates a wrapper around an object representing delayed instantiation.
+
+        Args:
+            cls: The object to be wrapped.
+            bindings: A dictionary of keyword argument to bind to the initializer
+                of the object.
+            sig: The signature of the object's initializer.
+            bound_sig: The modified signature after having bound arguments.
+
+        """
         self.cls = cls
         self.bindings = bindings
         self.sig = sig
