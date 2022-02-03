@@ -23,5 +23,5 @@ class Tensor(Parameters):
 
     def _forward(
         self, x: Optional[torch.Tensor] = None, context: Optional[torch.Tensor] = None
-    ) -> Sequence[torch.Tensor]:
+    ) -> Optional[Sequence[torch.Tensor]]:
         return list(self.params)

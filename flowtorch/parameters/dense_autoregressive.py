@@ -147,7 +147,7 @@ class DenseAutoregressive(Parameters):
         self,
         x: Optional[torch.Tensor] = None,
         context: Optional[torch.Tensor] = None,
-    ) -> Sequence[torch.Tensor]:
+    ) -> Optional[Sequence[torch.Tensor]]:
         assert x is not None
 
         # Flatten x

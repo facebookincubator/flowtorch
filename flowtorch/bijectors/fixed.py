@@ -10,15 +10,15 @@ from flowtorch.bijectors.base import Bijector
 class Fixed(Bijector):
     def __init__(
         self,
-        params: Optional[flowtorch.Lazy] = None,
+        params_fn: Optional[flowtorch.Lazy] = None,
         *,
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None,
     ) -> None:
         # TODO: In the future, make Fixed actually mean that there is no autograd
         # through params
-        super().__init__(params, shape=shape, context_shape=context_shape)
-        assert params is None
+        super().__init__(params_fn, shape=shape, context_shape=context_shape)
+        assert params_fn is None
 
     def param_shapes(self, shape: torch.Size) -> Sequence[torch.Size]:
         """
