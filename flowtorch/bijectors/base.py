@@ -140,3 +140,49 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         Defaults to preserving shape.
         """
         return shape
+
+    def invert(self):
+        return InverseBijector(self)
+
+class InverseBijector(Bijector):
+    """
+    An inverse bijector class.
+    InverseBijector flips a bijector such that forward calls inverse and inverse calls forward.
+    The log-abs-det-Jacobian is updated accordingly.
+
+    Args:
+        bijector (Bijector): layer to be inverted
+
+    Examples:
+
+    """
+    def __init__(self, bijector: Bijector) -> None:
+        self.bijector = bijector
+
+    def _forward(
+        self,
+        x: torch.Tensor,
+        context: Optional[torch.Tensor] = None,
+    ) -> torch.Tensor:
+        return self.bijector._inverse(y=x, x=None, context=context)
+
+    def _inverse(
+        self,
+        y: torch.Tensor,
+        x: Optional[torch.Tensor] = None,
+        context: Optional[torch.Tensor] = None,
+    ) -> torch.Tensor:
+        if x is not None:
+            raise RuntimeError("x must be None when InveserBijector is being called.")
+        return self.bijector._forward(x=y, context=context)
+
+    def _log_abs_det_jacobian(
+        self,
+        x: torch.Tensor,
+        y: torch.Tensor,
+        context: Optional[torch.Tensor] = None,
+    ) -> torch.Tensor:
+        return -self.bijector._log_abs_det_jacobian(y, x, context)
+
+    def invert(self):
+        return self.bijector
