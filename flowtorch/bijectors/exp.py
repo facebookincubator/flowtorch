@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Optional
+from typing import Optional, Sequence, Tuple
 
 import torch
 import torch.distributions.constraints as constraints
@@ -14,24 +14,20 @@ class Exp(Fixed):
     codomain = constraints.positive
 
     def _forward(
-        self,
-        x: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
-    ) -> torch.Tensor:
-        return torch.exp(x)
+        self, x: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        y = torch.exp(x)
+        ladj = self._log_abs_det_jacobian(x, y, params)
+        return y, ladj
 
     def _inverse(
-        self,
-        y: torch.Tensor,
-        x: Optional[torch.Tensor] = None,
-        context: Optional[torch.Tensor] = None,
-    ) -> torch.Tensor:
-        return y.log()
+        self, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        x = y.log()
+        ladj = self._log_abs_det_jacobian(x, y, params)
+        return x, ladj
 
     def _log_abs_det_jacobian(
-        self,
-        x: torch.Tensor,
-        y: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+        self, x: torch.Tensor, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
     ) -> torch.Tensor:
         return x

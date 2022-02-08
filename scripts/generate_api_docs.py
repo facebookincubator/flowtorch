@@ -10,7 +10,7 @@ with Docusaurus because there is no pre-existing robust solution to use
 Sphinx output with Docusaurus.
 
 This script will be run by the "documentation" GitHub workflow on pushes
-and pull requests to the main branch. It will function corrrectly from
+and pull requests to the main branch. It will function correctly from
 any working directory.
 
 """
@@ -107,6 +107,10 @@ if __name__ == "__main__":
     canonical_symbols = {}
     for _, s in symbols.items():
         canonical_symbols.setdefault(s._canonical_name, []).append(s)
+
+    # DEBUG
+    
+    raise Exception()
     
     # Check for symbol duplicates (excepting inherited methods)
     duplicates = []

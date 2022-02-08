@@ -16,8 +16,8 @@ import torch
 from flowtorch.utils import (
     classname,
     copyright_header,
-    list_distributions,
     list_bijectors,
+    list_distributions,
     list_parameters,
 )
 
