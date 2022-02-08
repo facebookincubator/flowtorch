@@ -94,7 +94,7 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         """
         Abstract method to compute forward transformation.
         """
-        raise NotImplementedError
+        raise NotImplementedError(f"layer {self.__class__.__name__} does not have an `_forward` method")
 
     def _check_bijective_y(
         self, y: torch.Tensor, context: Optional[torch.Tensor]
@@ -138,7 +138,7 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         """
         Abstract method to compute inverse transformation.
         """
-        raise NotImplementedError
+        raise NotImplementedError(f"layer {self.__class__.__name__} does not have an `_inverse` method")
 
     def log_abs_det_jacobian(
         self,
@@ -234,30 +234,32 @@ class InverseBijector(Bijector):
     def __init__(self, bijector: Bijector) -> None:
         self.bijector = bijector
 
-    def _forward(
+    def forward(
         self,
         x: torch.Tensor,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        return self.bijector._inverse(y=x, x=None, context=context)
+        y = self.bijector.inverse(x, context=context)
+        return y
 
-    def _inverse(
+    def inverse(
         self,
         y: torch.Tensor,
         x: Optional[torch.Tensor] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         if x is not None:
-            raise RuntimeError("x must be None when InveserBijector is being called.")
-        return self.bijector._forward(x=y, context=context)
+            raise RuntimeError("x must be None when calling InverseBijector.inverse")
+        x = self.bijector.forward(y, context=context)
+        return x
 
-    def _log_abs_det_jacobian(
+    def log_abs_det_jacobian(
         self,
         x: torch.Tensor,
         y: torch.Tensor,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        return -self.bijector._log_abs_det_jacobian(y, x, context)
+        return self.bijector.log_abs_det_jacobian(y, x, context)
 
     def invert(self):
         return self.bijector

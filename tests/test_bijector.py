@@ -1,10 +1,15 @@
 # Copyright (c) Meta Platforms, Inc
+import warnings
+
+import flowtorch.parameters as params
 import flowtorch.bijectors as bijectors
 import numpy as np
 import pytest
 import torch
 import torch.distributions as dist
 import torch.optim
+
+from flowtorch.bijectors import AffineAutoregressive, Compose
 from flowtorch.distributions import Flow
 
 """
@@ -116,6 +121,39 @@ def test_inverse(flow, epsilon=1e-5):
     J_2 = bij.log_abs_det_jacobian(x_calculated, y)
     assert (J_1 - J_2).abs().max().item() < epsilon
 
+
+def get_net() -> AffineAutoregressive:
+    ar = Compose(
+        [
+            AffineAutoregressive(params.DenseAutoregressive()),
+            AffineAutoregressive(params.DenseAutoregressive()),
+            AffineAutoregressive(params.DenseAutoregressive()),
+        ])
+    ar = ar(shape=torch.Size([100, ]))
+    return ar
+
+def test_invert():
+
+    net = get_net()
+
+    assert net.invert().invert() is net
+
+    x = torch.randn(50, 100, requires_grad=True)
+    inv_net = net.invert()
+    torch.testing.assert_allclose(inv_net.forward(x), net.inverse(x))
+
+    y = inv_net.forward(x)
+
+    with warnings.catch_warnings():  # checks that no warning is displayed, which could mean that no cache is used
+        warnings.simplefilter("error")
+        ldj = inv_net.log_abs_det_jacobian(x, y)
+
+    with pytest.warns(UserWarning):
+        y_det = y.detach_from_flow()
+        ldj = inv_net.log_abs_det_jacobian(x, y_det)
+
+    y = y.detach_from_flow()
+    torch.testing.assert_allclose(inv_net.log_abs_det_jacobian(x, y), -net.log_abs_det_jacobian(y, x))
 
 """
 # TODO
