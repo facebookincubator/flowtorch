@@ -26,7 +26,7 @@ class Parameters(torch.nn.Module, metaclass=LazyMeta):
         self,
         x: Optional[torch.Tensor] = None,
         context: Optional[torch.Tensor] = None,
-    ) -> Sequence[torch.Tensor]:
+    ) -> Optional[Sequence[torch.Tensor]]:
         # TODO: Caching etc.
         return self._forward(x, context)
 
@@ -34,7 +34,7 @@ class Parameters(torch.nn.Module, metaclass=LazyMeta):
         self,
         x: Optional[torch.Tensor] = None,
         context: Optional[torch.Tensor] = None,
-    ) -> Sequence[torch.Tensor]:
+    ) -> Optional[Sequence[torch.Tensor]]:
         # I raise an exception rather than using @abstractmethod and
         # metaclass=ABC so that we can reserve the metaclass for lazy
         # evaluation.
