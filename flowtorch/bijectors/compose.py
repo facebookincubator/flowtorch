@@ -125,7 +125,11 @@ class Compose(Bijector):
         else:
             _use_cached_inverse = False
 
-        if is_record_flow_graph_enabled() and not _use_cached_inverse and not isinstance(y, BijectiveTensor):
+        if (
+            is_record_flow_graph_enabled()
+            and not _use_cached_inverse
+            and not isinstance(y, BijectiveTensor)
+        ):
             warnings.warn(
                 "Computing _log_abs_det_jacobian from values and not from cache."
             )

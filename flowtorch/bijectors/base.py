@@ -1,4 +1,5 @@
 # Copyright (c) Meta Platforms, Inc
+from __future__ import annotations
 import warnings
 from typing import Optional, Sequence, Tuple, Union, Callable, Iterator
 
@@ -94,7 +95,9 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         """
         Abstract method to compute forward transformation.
         """
-        raise NotImplementedError(f"layer {self.__class__.__name__} does not have an `_forward` method")
+        raise NotImplementedError(
+            f"layer {self.__class__.__name__} does not have an `_forward` method"
+        )
 
     def _check_bijective_y(
         self, y: torch.Tensor, context: Optional[torch.Tensor]
@@ -138,7 +141,9 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         """
         Abstract method to compute inverse transformation.
         """
-        raise NotImplementedError(f"layer {self.__class__.__name__} does not have an `_inverse` method")
+        raise NotImplementedError(
+            f"layer {self.__class__.__name__} does not have an `_inverse` method"
+        )
 
     def log_abs_det_jacobian(
         self,
@@ -170,7 +175,7 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         if ladj is None:
             if is_record_flow_graph_enabled():
                 warnings.warn(
-                    "Computing _log_abs_det_jacobian from values and not from cache."
+                    "Computing _log_abs_det_jacobian from values and not " "from cache."
                 )
             params = (
                 self._params_fn(x, context) if self._params_fn is not None else None
@@ -216,13 +221,15 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         """
         return shape
 
-    def invert(self):
+    def invert(self) -> Bijector:
         return InverseBijector(self)
+
 
 class InverseBijector(Bijector):
     """
     An inverse bijector class.
-    InverseBijector flips a bijector such that forward calls inverse and inverse calls forward.
+    InverseBijector flips a bijector such that forward calls inverse and
+    inverse calls forward.
     The log-abs-det-Jacobian is updated accordingly.
 
     Args:
@@ -231,6 +238,7 @@ class InverseBijector(Bijector):
     Examples:
 
     """
+
     def __init__(self, bijector: Bijector) -> None:
         self.bijector = bijector
 
@@ -261,5 +269,5 @@ class InverseBijector(Bijector):
     ) -> torch.Tensor:
         return self.bijector.log_abs_det_jacobian(y, x, context)
 
-    def invert(self):
+    def invert(self) -> Bijector:
         return self.bijector

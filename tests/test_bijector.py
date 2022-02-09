@@ -128,9 +128,17 @@ def get_net() -> AffineAutoregressive:
             AffineAutoregressive(params.DenseAutoregressive()),
             AffineAutoregressive(params.DenseAutoregressive()),
             AffineAutoregressive(params.DenseAutoregressive()),
-        ])
-    ar = ar(shape=torch.Size([100, ]))
+        ]
+    )
+    ar = ar(
+        shape=torch.Size(
+            [
+                100,
+            ]
+        )
+    )
     return ar
+
 
 def test_invert():
 
@@ -144,16 +152,20 @@ def test_invert():
 
     y = inv_net.forward(x)
 
-    with warnings.catch_warnings():  # checks that no warning is displayed, which could mean that no cache is used
+    # checks that no warning is displayed, which can happen if no cache is used
+    with warnings.catch_warnings():
         warnings.simplefilter("error")
-        ldj = inv_net.log_abs_det_jacobian(x, y)
+        inv_net.log_abs_det_jacobian(x, y)
 
     with pytest.warns(UserWarning):
         y_det = y.detach_from_flow()
-        ldj = inv_net.log_abs_det_jacobian(x, y_det)
+        inv_net.log_abs_det_jacobian(x, y_det)
 
     y = y.detach_from_flow()
-    torch.testing.assert_allclose(inv_net.log_abs_det_jacobian(x, y), -net.log_abs_det_jacobian(y, x))
+    torch.testing.assert_allclose(
+        inv_net.log_abs_det_jacobian(x, y), -net.log_abs_det_jacobian(y, x)
+    )
+
 
 """
 # TODO
