@@ -1,15 +1,17 @@
 # Copyright (c) Meta Platforms, Inc
 from __future__ import annotations
+
 import warnings
 from typing import Optional, Sequence, Tuple, Union, Callable, Iterator
 
-import flowtorch.parameters
 import torch
 import torch.distributions
+from torch.distributions import constraints
+
+import flowtorch.parameters
 from flowtorch.bijectors.bijective_tensor import to_bijective_tensor, BijectiveTensor
 from flowtorch.bijectors.utils import is_record_flow_graph_enabled
 from flowtorch.parameters import Parameters
-from torch.distributions import constraints
 
 ParamFnType = Callable[
     [Optional[torch.Tensor], Optional[torch.Tensor]], Optional[Sequence[torch.Tensor]]

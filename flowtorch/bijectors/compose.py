@@ -2,13 +2,14 @@
 import warnings
 from typing import Optional, Sequence, Iterator
 
-import flowtorch.parameters
 import torch
 import torch.distributions
+from torch.distributions.utils import _sum_rightmost
+
+import flowtorch.parameters
 from flowtorch.bijectors.base import Bijector
 from flowtorch.bijectors.bijective_tensor import to_bijective_tensor, BijectiveTensor
 from flowtorch.bijectors.utils import is_record_flow_graph_enabled, requires_log_detJ
-from torch.distributions.utils import _sum_rightmost
 
 
 class Compose(Bijector):

@@ -2,12 +2,13 @@
 
 from typing import Any, Dict, Optional, Union, Iterator
 
-import flowtorch
 import torch
 import torch.distributions as dist
 from torch import Tensor
 from torch.distributions.utils import _sum_rightmost
 from torch.nn import Parameter
+
+import flowtorch
 
 
 class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
@@ -37,7 +38,7 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         event_dim = self.bijector.domain.event_dim  # type: ignore
         event_dim = max(event_dim, len(self.base_dist.event_shape))
         batch_shape = shape[: len(shape) - event_dim]
-        event_shape = shape[len(shape) - event_dim :]
+        event_shape = shape[len(shape) - event_dim:]
 
         dist.Distribution.__init__(
             self, batch_shape, event_shape, validate_args=validate_args

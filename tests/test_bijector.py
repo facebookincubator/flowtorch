@@ -1,14 +1,14 @@
 # Copyright (c) Meta Platforms, Inc
 import warnings
 
-import flowtorch.parameters as params
-import flowtorch.bijectors as bijectors
 import numpy as np
 import pytest
 import torch
 import torch.distributions as dist
 import torch.optim
 
+import flowtorch.bijectors as bijectors
+import flowtorch.parameters as params
 from flowtorch.bijectors import AffineAutoregressive, Compose
 from flowtorch.distributions import Flow
 
@@ -66,9 +66,9 @@ def test_jacobian(flow, epsilon=1e-2):
         epsilon_vector[(*idx,)] = epsilon
         # TODO: Use scipy.misc.derivative or another library's function?
         delta = (
-            bij.forward(x + 0.5 * epsilon_vector)
-            - bij.forward(x - 0.5 * epsilon_vector)
-        ) / epsilon
+                    bij.forward(x + 0.5 * epsilon_vector)
+                    - bij.forward(x - 0.5 * epsilon_vector)
+                ) / epsilon
 
         for var_jdx in range(count_vars):
             jdx = [dim_jdx[var_jdx] for dim_jdx in idxs]
@@ -94,7 +94,6 @@ def test_jacobian(flow, epsilon=1e-2):
 
     # Test that lower triangular with non-zero diagonal for autoregressive flows
     if hasattr(params, "permutation"):
-
         def nonzero(x):
             return torch.sign(torch.abs(x))
 
@@ -141,7 +140,6 @@ def get_net() -> AffineAutoregressive:
 
 
 def test_invert():
-
     net = get_net()
 
     assert net.invert().invert() is net
