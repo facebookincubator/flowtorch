@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Any, Dict, Iterator, Optional, Union
+from typing import Any, Dict, Optional, Union, Iterator
 
 import flowtorch
 
