@@ -1,14 +1,14 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Any, Dict, Optional, Union, Iterator
+from typing import Any, Dict, Iterator, Optional, Union
+
+import flowtorch
 
 import torch
 import torch.distributions as dist
 from torch import Tensor
 from torch.distributions.utils import _sum_rightmost
 from torch.nn import Parameter
-
-import flowtorch
 
 
 class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):

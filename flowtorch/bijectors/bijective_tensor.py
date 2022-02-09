@@ -1,5 +1,5 @@
 # Copyright (c) Meta Platforms, Inc
-from typing import Any, Optional, Iterator, Type, TYPE_CHECKING, Union
+from typing import Any, Iterator, Optional, Type, TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
     from flowtorch.bijectors.base import Bijector

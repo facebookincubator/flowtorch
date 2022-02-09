@@ -1,14 +1,14 @@
 # Copyright (c) Meta Platforms, Inc
 import warnings
 
+import flowtorch.bijectors as bijectors
+import flowtorch.parameters as params
+
 import numpy as np
 import pytest
 import torch
 import torch.distributions as dist
 import torch.optim
-
-import flowtorch.bijectors as bijectors
-import flowtorch.parameters as params
 from flowtorch.bijectors import AffineAutoregressive, Compose
 from flowtorch.distributions import Flow
 
