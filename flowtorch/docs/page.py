@@ -34,24 +34,33 @@ class Page:
     """
     Represents a page of MDX markdown for a module, class, or function
     """
-    def __init__(self, page_name:str, symbol: Symbol, symbols: Mapping[str, Symbol], hierarchy: Mapping[str, Sequence[str]], symbol_to_article:Mapping[str, str], github: str):
+
+    def __init__(
+        self,
+        page_name: str,
+        symbol: Symbol,
+        symbols: Mapping[str, Symbol],
+        hierarchy: Mapping[str, Sequence[str]],
+        symbol_to_article: Mapping[str, str],
+        github: str,
+    ):
         # MDX header for Docusaurus v2
+        if symbol._type.name == "MODULE":
+            label = "Overview"
+        else:
+            label = symbol._name.split(".")[-1]
         header = f"""---
 id: {page_name}
-sidebar_label: {"Overview" if symbol._type.name == "MODULE" else symbol._name.split(".")[-1]}
+sidebar_label: {label}
 ---"""
 
         markdown = [header, imports]
 
         # Make URL
         # TODO: Make this generalizable across projects
-        main_path = symbols["flowtorch"]._canonical_file[:-len("__init__.py")]
+        main_path = symbols["flowtorch"]._canonical_file[: -len("__init__.py")]
         symbol_path = symbol._canonical_file
-        url = (
-            github
-            + "flowtorch/"
-            + symbol_path[len(main_path):].replace("\\", "/")
-        )
+        url = github + "flowtorch/" + symbol_path[len(main_path) :].replace("\\", "/")
 
         # Make navigation bar
         # TODO: Factor this out?
@@ -64,7 +73,8 @@ sidebar_label: {"Overview" if symbol._type.name == "MODULE" else symbol._name.sp
                 navigation.append(f"*{symbol_splits[idx]}*")
             elif partial_symbol_name in symbol_to_article:
                 navigation.append(
-                    f"[{symbol_splits[idx]}](/api/{symbol_to_article[partial_symbol_name]})"
+                    f"""[{symbol_splits[idx]}](/api/\
+{symbol_to_article[partial_symbol_name]})"""
                 )
             else:
                 navigation.append(f"{symbol_splits[idx]}")
@@ -86,7 +96,7 @@ sidebar_label: {"Overview" if symbol._type.name == "MODULE" else symbol._name.sp
         else:
             raise Exception("Invalid symbol type for Page object")
 
-        self._mdx = '\n'.join(markdown)
+        self._mdx = "\n".join(markdown)
 
     def __repr__(self) -> str:
         return self._mdx

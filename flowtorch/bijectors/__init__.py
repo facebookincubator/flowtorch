@@ -15,6 +15,7 @@ from flowtorch.bijectors.affine_autoregressive import AffineAutoregressive
 from flowtorch.bijectors.affine_fixed import AffineFixed
 from flowtorch.bijectors.autoregressive import Autoregressive
 from flowtorch.bijectors.base import Bijector
+from flowtorch.bijectors.bijective_tensor import BijectiveTensor
 from flowtorch.bijectors.compose import Compose
 from flowtorch.bijectors.elementwise import Elementwise
 from flowtorch.bijectors.elu import ELU
@@ -55,6 +56,10 @@ meta_bijectors = [
     ("VolumePreserving", VolumePreserving),
 ]
 
+misc = [
+    ("BijectiveTensor", BijectiveTensor),
+]
+
 
 def isbijector(cls: type) -> bool:
     # A class must inherit from flowtorch.Bijector to be considered a valid bijector
@@ -90,7 +95,12 @@ for bij_name, cls in standard_bijectors:
 
 del cls
 
-__all__ = ["standard_bijectors", "meta_bijectors", "invertible_bijectors"] + [
+__all__ = [
+    "BijectiveTensor",
+    "standard_bijectors",
+    "meta_bijectors",
+    "invertible_bijectors",
+] + [
     cls
     for cls, _ in cast(List[Tuple[str, Bijector]], meta_bijectors)
     + cast(List[Tuple[str, Bijector]], standard_bijectors)

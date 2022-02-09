@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
-from enum import Enum, unique
 import inspect
+from enum import Enum, unique
 from typing import Any, Optional
 
 
@@ -15,13 +15,15 @@ class SymbolType(Enum):
     VARIABLE = 6
     BUILTIN = 7
 
+
 class Symbol:
     """
     Represents a documentable entity.
     """
-    def __init__(self, module: Optional[Any], name:str, object: Any) -> None:
+
+    def __init__(self, module: Optional[Any], name: str, object: Any) -> None:
         """
-        Initialize a 
+        Initialize a
 
         Params:
             module: an object corresponding to where the symbol is bound.
@@ -85,38 +87,39 @@ class Symbol:
         # Get module/name and canonical modulename
         if self._type is SymbolType.MODULE:
             self._canonical_name = object.__name__
-            #inspect.getmodulename(object.__file__)
+            # inspect.getmodulename(object.__file__)
             if module is not None:
                 self._module = self._canonical_module = module.__name__
             else:
-                last_module_name = '.'.join(name.split('.')[:-1])
+                last_module_name = ".".join(name.split(".")[:-1])
                 self._module = self._canonical_module = last_module_name
 
         elif self._type in [SymbolType.CLASS, SymbolType.FUNCTION, SymbolType.METHOD]:
-            self._canonical_name = object.__module__ + '.' + object.__qualname__
+            self._canonical_name = object.__module__ + "." + object.__qualname__
             self._module = module.__name__
             self._canonical_module = object.__module__
 
         self._name = name
-        #got_here = True
+        # got_here = True
+
 
 if __name__ == "__main__":
-    pass 
+    pass
     # DEBUG
-    #import flowtorch
-    #import flowtorch.bijectors
+    # import flowtorch
+    # import flowtorch.bijectors
 
     # Example module
-    #s = Symbol(None, "flowtorch", flowtorch)
+    # s = Symbol(None, "flowtorch", flowtorch)
 
     # Example class
-    #s = Symbol(flowtorch, "Lazy", flowtorch.Lazy)
+    # s = Symbol(flowtorch, "Lazy", flowtorch.Lazy)
 
     # Example method
-    #s = Symbol(flowtorch, "Lazy.__init__", flowtorch.Lazy.__init__)
+    # s = Symbol(flowtorch, "Lazy.__init__", flowtorch.Lazy.__init__)
 
     # Example function
-    #s = Symbol(flowtorch.bijectors, "isbijector", flowtorch.bijectors.isbijector)
+    # s = Symbol(flowtorch.bijectors, "isbijector", flowtorch.bijectors.isbijector)
 
     # TODO: Enumerate through all modules and symbols in those modules
     # TODO: At the same time, convert self._docstring's to self.Docstring's

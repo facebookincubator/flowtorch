@@ -2,9 +2,9 @@
 import importlib
 import inspect
 import pkgutil
-from inspect import isclass, isfunction, signature
+from inspect import isclass, isfunction
 from types import ModuleType
-from typing import Dict, Mapping, Sequence, Tuple, Callable, Optional, Any
+from typing import Sequence, Tuple, Callable, Any
 
 
 def module_members(module: ModuleType) -> Sequence[Tuple[str, Any]]:
@@ -21,7 +21,8 @@ def module_members(module: ModuleType) -> Sequence[Tuple[str, Any]]:
 
 def class_members(cls: Any) -> Sequence[Tuple[str, Any]]:
     """
-    Given a class object, returns a list of documentable objects (currently just methods).
+    Given a class object, returns a list of documentable objects (currently
+    just methods).
     """
     assert isclass(cls)
 

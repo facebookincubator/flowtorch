@@ -1,10 +1,15 @@
 # Copyright (c) Meta Platforms, Inc
 from typing import Mapping, Sequence
 
-from flowtorch.docs.symbol import Symbol
 from flowtorch.docs.docstring import Docstring
+from flowtorch.docs.symbol import Symbol
 
-def generate_class_markdown(symbol: Symbol, symbols: Mapping[str, Symbol], hierarchy: Mapping[str, Sequence[str]]) -> str:
+
+def generate_class_markdown(
+    symbol: Symbol,
+    symbols: Mapping[str, Symbol],
+    hierarchy: Mapping[str, Sequence[str]],
+) -> str:
     assert symbol._type.name == "CLASS"
 
     markdown = []
@@ -19,7 +24,7 @@ def generate_class_markdown(symbol: Symbol, symbols: Mapping[str, Symbol], hiera
     parsed_docstring = Docstring(symbol._docstring)
 
     short_summary = parsed_docstring._sections["short_description"]
-    name = symbol._name.split('.')[-1]
+    name = symbol._name.split(".")[-1]
     safe_name = name.replace("_", r"\_")
 
     # Create top section for class
@@ -46,20 +51,23 @@ def generate_class_markdown(symbol: Symbol, symbols: Mapping[str, Symbol], hiera
     # Methods for class
     if symbol._name in hierarchy:
         member_names = hierarchy[symbol._name]
-        
+
         for member_name in member_names:
             member = symbols[member_name]
 
             # Filter out methods that are inherited
             # TODO: Make this a config option!
-            reconstructed_name = symbol._canonical_name + '.' + '.'.join(member._name.split('.')[-1:])
+            reconstructed_name = (
+                symbol._canonical_name + "." + ".".join(member._name.split(".")[-1:])
+            )
             if member._canonical_name != reconstructed_name:
                 continue
 
             markdown.append("<PythonMethod>\n")
             markdown.append(
                 """<div className="doc-method-row">
-    <div className="doc-method-label"><span className="doc-symbol-label">member</span></div>
+    <div className="doc-method-label"><span className="doc-symbol-label">member\
+</span></div>
     <div className="doc-method-signature">\n"""
             )
 
@@ -76,14 +84,15 @@ def generate_class_markdown(symbol: Symbol, symbols: Mapping[str, Symbol], hiera
             short_summary = parsed_member_docstring._sections["short_description"]
 
             safe_member_name = member._name.replace("_", r"\_")
-            safe_member_id = member._name.replace("_", "-")
+            # safe_member_id = member._name.replace("_", "-")
             # {{#{safe_member_id}}}\n"""
             markdown.append(
-                f"""###  <span className="doc-symbol-name">{safe_member_name}</span>\n"""
+                f"""###  <span className="doc-symbol-name">{safe_member_name}\
+</span>\n"""
             )
             markdown.append(
-                f"""<span className="doc-symbol-signature">{safe_member_signature}\
-    </span>\n"""
+                f"""<span className="doc-symbol-signature">\
+{safe_member_signature}</span>\n"""
             )
             markdown.append(short_summary)
             markdown.append("</div>\n</div>\n\n</PythonMethod>\n")
@@ -110,7 +119,8 @@ def generate_class_markdown(symbol: Symbol, symbols: Mapping[str, Symbol], hiera
 #     markdown.append("<PythonModule>\n")
 #     markdown.append(
 #         """<div className="doc-module-row">
-# <div className="doc-module-label"><span className="doc-symbol-label">module</span></div>
+# <div className="doc-module-label"><span className="doc-symbol-label">module\
+# </span></div>
 # <div className="doc-module-signature">\n"""
 #     )
 

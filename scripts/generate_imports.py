@@ -13,6 +13,7 @@ import os
 import black
 import flowtorch
 import torch
+from flowtorch.bijectors.bijective_tensor import BijectiveTensor
 from flowtorch.utils import (
     classname,
     copyright_header,
@@ -68,7 +69,8 @@ for bij_name, cls in standard_bijectors:
 
 del cls
 
-__all__ = ["standard_bijectors", "meta_bijectors", "invertible_bijectors"] + [
+__all__ = ["BijectiveTensor", "standard_bijectors", "meta_bijectors", \
+"invertible_bijectors"] + [
     cls
     for cls, _ in cast(List[Tuple[str, Bijector]], meta_bijectors)
     + cast(List[Tuple[str, Bijector]], standard_bijectors)
@@ -129,7 +131,9 @@ def generate_imports_bijectors(filename):
 
     with io.StringIO() as file:
         # Sort classes by qualified name
-        classes = standard_bijectors + meta_bijectors
+        classes = (
+            standard_bijectors + meta_bijectors + [("BijectiveTensor", BijectiveTensor)]
+        )
         classes = sorted(classes, key=lambda tup: classname(tup[1]))
 
         # Copyright header and warning message
@@ -161,6 +165,14 @@ def generate_imports_bijectors(filename):
         print(
             f"""meta_bijectors = [
     {meta_str}
+]
+""",
+            file=file,
+        )
+
+        print(
+            """misc = [
+    ("BijectiveTensor", BijectiveTensor),
 ]
 """,
             file=file,

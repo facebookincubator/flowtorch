@@ -1,13 +1,14 @@
 # Copyright (c) Meta Platforms, Inc
-from typing import Any, Mapping
 import re
+from typing import Any, Mapping
+
 
 def regexs(config: Any) -> Mapping[str, Any]:
     """
     Given a configuration dictionary, converts the include and exclude strings
     to compiled regular expressions.
     """
-    
+
     # Default include/exclude rules
     patterns = {
         "include": {"modules": re.compile(r".+"), "symbols": re.compile(r".+")},
@@ -25,9 +26,15 @@ def regexs(config: Any) -> Mapping[str, Any]:
 
     # Define filters
     def ismodule(full_name: str) -> bool:
-        return patterns["include"]["modules"].fullmatch(full_name) is not None and patterns["exclude"]["modules"].fullmatch(full_name) is None
+        return (
+            patterns["include"]["modules"].fullmatch(full_name) is not None
+            and patterns["exclude"]["modules"].fullmatch(full_name) is None
+        )
 
     def issymbol(full_name: str) -> bool:
-        return patterns["include"]["symbols"].fullmatch(full_name) is not None and patterns["exclude"]["symbols"].fullmatch(full_name) is None
+        return (
+            patterns["include"]["symbols"].fullmatch(full_name) is not None
+            and patterns["exclude"]["symbols"].fullmatch(full_name) is None
+        )
 
-    return {"module":ismodule, "symbol":issymbol}
+    return {"module": ismodule, "symbol": issymbol}

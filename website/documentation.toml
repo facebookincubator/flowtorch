@@ -31,7 +31,7 @@ modules = [
 # If modules or functions isn't defined then will exclude none by default
 modules = [
     '''flowtorch(\.\w+){2,}''',
-    '''flowtorch\.(docs|lazy|utils)(\.\w+)*'''
+    '''flowtorch\.(docs|lazy|utils|version)(\.\w+)*'''
     ]
 symbols = '''(\w+\.)+_(?!_init__$).*'''
 
