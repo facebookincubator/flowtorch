@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Optional, Sequence, Tuple, Dict, Callable
+from typing import Callable, Dict, Optional, Sequence, Tuple
 
 import flowtorch
 
