@@ -9,7 +9,7 @@ from flowtorch.nn.made import create_mask, MaskedLinear
 from flowtorch.parameters.base import Parameters
 
 
-class DenseAutoregressive(Parameters):
+class DenseCoupling(Parameters):
     autoregressive = True
 
     def __init__(
@@ -45,8 +45,8 @@ class DenseAutoregressive(Parameters):
     ) -> None:
         # Work out flattened input and output shapes
         param_shapes_ = list(param_shapes)
-        # Why not just (sum(input_shape))?
         input_dims = int(torch.sum(torch.tensor(input_shape)).int().item())
+        self.input_dims = input_dims
         if input_dims == 0:
             input_dims = 1  # scalars represented by torch.Size([])
         if permutation is None:
@@ -61,7 +61,6 @@ class DenseAutoregressive(Parameters):
             # The permutation is chosen by the user
             permutation = torch.LongTensor(permutation)
 
-        # why not math.pod(s[len(input_shape):]), where math.prod([])=1?
         self.param_dims = [
             int(max(torch.prod(torch.tensor(s[len(input_shape) :])).item(), 1))
             for s in param_shapes_
@@ -98,53 +97,77 @@ class DenseAutoregressive(Parameters):
         # Implement ispermutation() that sorts permutation and checks whether it
         # has all integers from 0, 1, ..., self.input_dims - 1
         self.register_buffer("permutation", permutation)
+        self.register_buffer("inv_permutation", permutation.argsort())
 
         # Create masks
         hidden_dims = self.hidden_dims
-        masks, mask_skip = create_mask(
-            input_dim=input_dims,
-            context_dim=0,  # context_dims,
-            hidden_dims=hidden_dims,
-            permutation=permutation,
-            output_multiplier=self.output_multiplier,
+
+        # Create masked layers:
+        # input is [x1 ; 0]
+        # output is [0 ; mu2], [0 ; sig2]
+        mask_input = torch.ones(hidden_dims[0], input_dims)
+        self.x1_dim = x1_dim = input_dims // 2
+        mask_input[:, x1_dim:] = 0.0
+
+        out_dims = input_dims * self.output_multiplier
+        mask_output = torch.ones(self.output_multiplier, input_dims, hidden_dims[-1])
+        mask_output[:x1_dim] = 0.0
+        mask_output = mask_output.view(-1, hidden_dims[-1])
+        self._bias = nn.Parameter(
+            torch.zeros(self.output_multiplier, x1_dim, requires_grad=True)
         )
 
-        # Create masked layers
         layers = [
             MaskedLinear(
                 input_dims,  # + context_dims,
                 hidden_dims[0],
-                masks[0],
+                mask_input,
             ),
             self.nonlinearity(),
         ]
         for i in range(1, len(hidden_dims)):
             layers.extend(
                 [
-                    MaskedLinear(hidden_dims[i - 1], hidden_dims[i], masks[i]),
+                    nn.Linear(hidden_dims[i - 1], hidden_dims[i]),
                     self.nonlinearity(),
                 ]
             )
         layers.append(
             MaskedLinear(
                 hidden_dims[-1],
-                input_dims * self.output_multiplier,
-                masks[-1],
+                out_dims,
+                mask_output,
+                bias=False,
             )
         )
 
+        for l in layers[::2]:
+            l.weight.data.normal_(0.0, 1e-3)  # type: ignore
+            if l.bias is not None:
+                l.bias.data.fill_(0.0)  # type: ignore
+
         if self.skip_connections:
-            layers.append(
-                MaskedLinear(
-                    input_dims,  # + context_dims,
-                    input_dims * self.output_multiplier,
-                    mask_skip,
-                    bias=False,
-                )
+            mask_skip = torch.ones(out_dims, input_dims)
+            mask_skip[:, input_dims // 2 :] = 0.0
+            mask_skip[: mask_output // 2] = 0.0
+            self.skip_layer = MaskedLinear(
+                input_dims,  # + context_dims,
+                out_dims,
+                mask_skip,
+                bias=False,
             )
 
-        # Why not using regular sequential?
-        self.layers = nn.ModuleList(layers)
+        self.layers = nn.Sequential(*layers)
+
+    @property
+    def bias(self) -> torch.Tensor:
+        z = torch.zeros(
+            self.output_multiplier,
+            self.input_dims - self.x1_dim,
+            device=self._bias.device,
+            dtype=self._bias.dtype,
+        )
+        return torch.cat([z, self._bias], -1).view(-1)
 
     def _forward(
         self,
@@ -152,38 +175,30 @@ class DenseAutoregressive(Parameters):
         y: Optional[torch.Tensor] = None,
         context: Optional[torch.Tensor] = None,
     ) -> Optional[Sequence[torch.Tensor]]:
-        assert x is not None
-
-        # Flatten x
-        batch_shape = x.shape[: len(x.shape) - len(self.input_shape)]
-        if len(batch_shape) > 0:
-            x = x.reshape(batch_shape + (-1,))
+        if (x is None) and (y is None):
+            raise RuntimeError("Either x or y must be provided.")
+        elif x is None:
+            x = y[..., self.inv_permutation]  # type: ignore
+            inverse = True
+        else:
+            x = x[..., self.permutation]  # type: ignore
+            inverse = False
 
         if context is not None:
-            # TODO: Fix the following!
-            h = torch.cat([context.expand((x.shape[0], -1)), x], dim=-1)
+            x_aug = torch.cat([context.expand((*x.shape[:-1], -1)), x], dim=-1)
         else:
-            h = x
+            x_aug = x
 
-        # Why not using regular sequential?
-        for idx in range(len(self.layers) // 2):
-            h = self.layers[2 * idx + 1](self.layers[2 * idx](h))
-        h = self.layers[-1](h)
+        h = self.layers(x_aug) + self.bias
 
         # TODO: Get skip_layers working again!
-        # if self.skip_layer is not None:
-        #    h = h + self.skip_layer(x)
+        if self.skip_connections:
+            h = h + self.skip_layer(x_aug)
 
         # Shape the output
-        # h ~ (batch_dims * input_dims, total_params_per_dim)
-        h = h.reshape(-1, self.output_multiplier)
+        h = h.view(*x.shape[:-1], self.output_multiplier, -1)
 
-        # result ~ (batch_dims * input_dims, params_per_dim[0]), ...
-        result = h.split(list(self.param_dims), dim=-1)
-
-        # results ~ (batch_shape, param_shapes[0]), ...
-        result = tuple(
-            h_slice.view(batch_shape + p_shape)
-            for h_slice, p_shape in zip(result, list(self.param_shapes))
-        )
+        result = h.unbind(-2)
+        perm = self.inv_permutation if inverse else self.permutation
+        result = tuple(r[..., perm] for r in result)
         return result

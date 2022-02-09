@@ -1,11 +1,11 @@
 # Copyright (c) Meta Platforms, Inc
 import warnings
-from typing import Optional, Sequence, Tuple, Union, Callable, Iterator
+from typing import Callable, Iterator, Optional, Sequence, Tuple, Union
 
 import flowtorch.parameters
 import torch
 import torch.distributions
-from flowtorch.bijectors.bijective_tensor import to_bijective_tensor, BijectiveTensor
+from flowtorch.bijectors.bijective_tensor import BijectiveTensor, to_bijective_tensor
 from flowtorch.bijectors.utils import is_record_flow_graph_enabled
 from flowtorch.parameters import Parameters
 from torch.distributions import constraints
@@ -75,7 +75,9 @@ class Bijector(metaclass=flowtorch.LazyMeta):
             assert isinstance(x, BijectiveTensor)
             return x.get_parent_from_bijector(self)
 
-        params = self._params_fn(x, context) if self._params_fn is not None else None
+        params = (
+            self._params_fn(x, None, context) if self._params_fn is not None else None
+        )
         y, log_detJ = self._forward(x, params)
         if (
             is_record_flow_graph_enabled()
@@ -119,7 +121,7 @@ class Bijector(metaclass=flowtorch.LazyMeta):
             return y.get_parent_from_bijector(self)
 
         # TODO: What to do in this line?
-        params = self._params_fn(x, context) if self._params_fn is not None else None
+        params = self._params_fn(x, y, context) if self._params_fn is not None else None
         x, log_detJ = self._inverse(y, params)
 
         if (
@@ -173,7 +175,7 @@ class Bijector(metaclass=flowtorch.LazyMeta):
                     "Computing _log_abs_det_jacobian from values and not from cache."
                 )
             params = (
-                self._params_fn(x, context) if self._params_fn is not None else None
+                self._params_fn(x, y, context) if self._params_fn is not None else None
             )
             return self._log_abs_det_jacobian(x, y, params)
         return ladj
