@@ -66,9 +66,9 @@ def test_jacobian(flow, epsilon=1e-2):
         epsilon_vector[(*idx,)] = epsilon
         # TODO: Use scipy.misc.derivative or another library's function?
         delta = (
-                    bij.forward(x + 0.5 * epsilon_vector)
-                    - bij.forward(x - 0.5 * epsilon_vector)
-                ) / epsilon
+            bij.forward(x + 0.5 * epsilon_vector)
+            - bij.forward(x - 0.5 * epsilon_vector)
+        ) / epsilon
 
         for var_jdx in range(count_vars):
             jdx = [dim_jdx[var_jdx] for dim_jdx in idxs]
@@ -94,6 +94,7 @@ def test_jacobian(flow, epsilon=1e-2):
 
     # Test that lower triangular with non-zero diagonal for autoregressive flows
     if hasattr(params, "permutation"):
+
         def nonzero(x):
             return torch.sign(torch.abs(x))
 

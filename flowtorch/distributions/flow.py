@@ -38,7 +38,7 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         event_dim = self.bijector.domain.event_dim  # type: ignore
         event_dim = max(event_dim, len(self.base_dist.event_shape))
         batch_shape = shape[: len(shape) - event_dim]
-        event_shape = shape[len(shape) - event_dim:]
+        event_shape = shape[len(shape) - event_dim :]
 
         dist.Distribution.__init__(
             self, batch_shape, event_shape, validate_args=validate_args

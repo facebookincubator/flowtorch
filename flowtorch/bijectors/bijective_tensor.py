@@ -11,8 +11,8 @@ class BijectiveTensor(Tensor):
     def __repr__(self) -> str:
         r_str = (
             super(BijectiveTensor, self)
-                .__repr__()
-                .replace("tensor", "bijective_tensor")
+            .__repr__()
+            .replace("tensor", "bijective_tensor")
         )
         return r_str
 
