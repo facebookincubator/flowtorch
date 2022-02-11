@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Any, Mapping, Sequence, Tuple, Callable
+from typing import Any, Dict, List, Mapping, Sequence, Tuple, Callable, Union
 
 from flowtorch.docs.filters import regexs
 from flowtorch.docs.object import modules, module_members, class_members
@@ -92,9 +92,9 @@ def generate_symbols(config: Any) -> Mapping[str, Symbol]:
     filters = regexs(config)
 
     # Read in all modules and symbols
-    search = config["settings"]["search"]
-    search = set([search] if type(search) is str else search)
-    symbols = {}
+    search_mods: Union[str, Sequence[str]] = config["settings"]["search"]
+    search = set([search_mods] if type(search_mods) is str else search_mods)
+    symbols: Mapping[str, Symbol] = {}
     for modname in search:
         symbols = {**symbols, **search_module(modname, filters)}
 
@@ -107,8 +107,8 @@ def construct_article_list(
     # Construct list of articles (converting symbols to lower-case and collating)
     # NOTE: Webservers and Windows machines can't seem to distinguish addresses by
     # case...
-    articles: Mapping[str, Symbol] = {}
-    symbol_to_article: Mapping[str, str] = {}
+    articles: Dict[str, Symbol] = {}
+    symbol_to_article: Dict[str, str] = {}
 
     for _, symbol in symbols.items():
         if symbol._type.name in ["MODULE", "CLASS", "FUNCTION"]:
@@ -143,30 +143,30 @@ def module_sidebar(
         new = []
 
     # Base condition
+    items: List[str] = []
     if name == "":
-        items = []
         for item_name in new:
-            items = items + module_sidebar(
-                symbols, hierarchy, symbol_to_article, item_name
+            items = items + list(
+                module_sidebar(symbols, hierarchy, symbol_to_article, item_name)
             )
         return ["module.exports = [\n'api/overview',", *items, "];"]
-    else:
-        if symbols[name]._type.name in ["CLASS", "FUNCTION"]:
-            return [f'"api/{symbol_to_article[name]}", ']
-        elif symbols[name]._type.name in ["MODULE"]:
-            # TODO: Fill collapsed from a filter in config
-            items = []
-            for item_name in new:
-                items = items + module_sidebar(
-                    symbols, hierarchy, symbol_to_article, item_name
-                )
+    elif symbols[name]._type.name in ["CLASS", "FUNCTION"]:
+        return [f'"api/{symbol_to_article[name]}", ']
+    elif symbols[name]._type.name in ["MODULE"]:
+        # TODO: Fill collapsed from a filter in config
+        for item_name in new:
+            items = items + list(
+                module_sidebar(symbols, hierarchy, symbol_to_article, item_name)
+            )
 
-            return [
-                f"""{{
+        return [
+            f"""{{
   type: 'category',
   label: '{name}',
   collapsed: true,
   items: ["api/{symbol_to_article[name]}",""",
-                *items,
-                "],\n},",
-            ]
+            *items,
+            "],\n},",
+        ]
+    else:
+        raise ValueError(f"Invalid symbol type: {symbols[name]._type.name}")

@@ -79,10 +79,9 @@ class Symbol:
         self._canonical_file = inspect.getfile(object)
 
         # Get signature
+        self._signature: Optional[inspect.Signature] = None
         if self._type in [SymbolType.METHOD, SymbolType.FUNCTION]:
             self._signature = inspect.signature(object)
-        else:
-            self._signature = None
 
         # Get module/name and canonical modulename
         if self._type is SymbolType.MODULE:

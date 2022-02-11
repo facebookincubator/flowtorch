@@ -28,7 +28,8 @@ def test_bijector_imports():
         [
             c
             for c in flowtorch.bijectors.__all__
-            if inspect.isclass(flowtorch.bijectors.__dict__[c]) and issubclass(flowtorch.bijectors.__dict__[c], B.Bijector)
+            if inspect.isclass(flowtorch.bijectors.__dict__[c])
+            and issubclass(flowtorch.bijectors.__dict__[c], B.Bijector)
         ],
     )
 

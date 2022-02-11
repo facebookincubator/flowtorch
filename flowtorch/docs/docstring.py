@@ -44,11 +44,11 @@ valid_headers = {
 }
 
 
-def trim(docstring: str) -> str:
+def trim(docstring: Optional[str]) -> str:
     """
     Trims whitespace from docstrings according to PEP257.
     """
-    if not docstring:
+    if docstring is None:
         return ""
     # Convert tabs to spaces (following the normal Python rules)
     # and split into a list of lines:
@@ -105,7 +105,7 @@ class Docstring(object):
     Represents a Docstring in Google style and converts to MDX.
     """
 
-    def __init__(self, docstring: str, throw_warnings: bool = False) -> None:
+    def __init__(self, docstring: Optional[str], throw_warnings: bool = False) -> None:
         # Save raw docstring
         self._docstring = trim(docstring)
         self._throw_warnings = throw_warnings
