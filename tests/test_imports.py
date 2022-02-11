@@ -3,7 +3,7 @@
 import inspect
 
 import flowtorch
-import flowtorch.bijectors
+import flowtorch.bijectors as B
 import flowtorch.distributions
 import flowtorch.parameters
 import flowtorch.utils
@@ -28,7 +28,7 @@ def test_bijector_imports():
         [
             c
             for c in flowtorch.bijectors.__all__
-            if inspect.isclass(flowtorch.bijectors.__dict__[c])
+            if inspect.isclass(flowtorch.bijectors.__dict__[c]) and issubclass(flowtorch.bijectors.__dict__[c], B.Bijector)
         ],
     )
 
