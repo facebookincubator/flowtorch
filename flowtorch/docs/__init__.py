@@ -31,14 +31,10 @@ def search_module(
         for member_name, member_obj in members:
             qualified_name = module_name + "." + member_name
             this_symbol = Symbol(module_obj, qualified_name, member_obj)
-            if (
-                this_symbol._type.name
-                not in [
-                    "UNDEFINED",
-                    "BUILTIN",
-                ]
-                and this_symbol._canonical_module.startswith(modname)
-            ):
+            if this_symbol._type.name not in [
+                "UNDEFINED",
+                "BUILTIN",
+            ] and this_symbol._canonical_module.startswith(modname):
                 symbols[qualified_name] = this_symbol
 
             # Get methods
@@ -56,14 +52,10 @@ def search_module(
                     qualified_name = module_name + "." + member_name + "." + method_name
                     this_symbol = Symbol(module_obj, qualified_name, method_obj)
 
-                    if (
-                        this_symbol._type.name
-                        not in [
-                            "UNDEFINED",
-                            "BUILTIN",
-                        ]
-                        and this_symbol._canonical_module.startswith(modname)
-                    ):
+                    if this_symbol._type.name not in [
+                        "UNDEFINED",
+                        "BUILTIN",
+                    ] and this_symbol._canonical_module.startswith(modname):
                         symbols[qualified_name] = this_symbol
 
     return symbols

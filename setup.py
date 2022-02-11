@@ -11,7 +11,7 @@ REQUIRED_MINOR = 7
 
 TEST_REQUIRES = ["numpy", "pytest", "pytest-cov", "scipy"]
 DEV_REQUIRES = TEST_REQUIRES + [
-    "black",
+    "black>=22.1.0",
     "flake8",
     "flake8-bugbear",
     "mypy",
