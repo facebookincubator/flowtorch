@@ -85,8 +85,8 @@ if __name__ == "__main__":
 
     # Convert symbols to MDX and save
     # The magic happens inside Page object
+    github = config["settings"]["github"]
     for page_name, symbol in articles.items():
-        github = config["settings"]["github"]
         page = Page(page_name, symbol, symbols, hierarchy, symbol_to_article, github)
 
         with open(
