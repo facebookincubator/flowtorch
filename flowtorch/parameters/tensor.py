@@ -23,8 +23,8 @@ class Tensor(Parameters):
 
     def _forward(
         self,
-        x: Optional[torch.Tensor] = None,
-        y: Optional[torch.Tensor] = None,
+        input: torch.Tensor,
+        inverse: bool,
         context: Optional[torch.Tensor] = None,
     ) -> Optional[Sequence[torch.Tensor]]:
         return list(self.params)

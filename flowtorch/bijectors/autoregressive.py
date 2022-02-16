@@ -60,7 +60,7 @@ class Autoregressive(Bijector):
         # TODO: Make permutation, inverse work for other event shapes
         log_detJ: Optional[torch.Tensor] = None
         for idx in cast(torch.LongTensor, permutation):
-            _params = self._params_fn(x_new.clone(), None, context=context)
+            _params = self._params_fn(x_new.clone(), inverse=False, context=context)
             x_temp, log_detJ = self._inverse(y, params=_params)
             x_new[..., idx] = x_temp[..., idx]
             # _log_detJ = out[1]

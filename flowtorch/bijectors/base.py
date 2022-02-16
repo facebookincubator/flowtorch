@@ -76,7 +76,9 @@ class Bijector(metaclass=flowtorch.LazyMeta):
             return x.get_parent_from_bijector(self)
 
         params = (
-            self._params_fn(x, None, context) if self._params_fn is not None else None
+            self._params_fn(x, inverse=False, context=context)
+            if self._params_fn is not None
+            else None
         )
         y, log_detJ = self._forward(x, params)
         if (
@@ -121,7 +123,11 @@ class Bijector(metaclass=flowtorch.LazyMeta):
             return y.get_parent_from_bijector(self)
 
         # TODO: What to do in this line?
-        params = self._params_fn(x, y, context) if self._params_fn is not None else None
+        params = (
+            self._params_fn(y, inverse=True, context=context)
+            if self._params_fn is not None
+            else None
+        )
         x, log_detJ = self._inverse(y, params)
 
         if (

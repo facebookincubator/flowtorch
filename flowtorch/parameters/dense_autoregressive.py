@@ -148,22 +148,21 @@ class DenseAutoregressive(Parameters):
 
     def _forward(
         self,
-        x: Optional[torch.Tensor] = None,
-        y: Optional[torch.Tensor] = None,
+        input: torch.Tensor,
+        inverse: bool,
         context: Optional[torch.Tensor] = None,
     ) -> Optional[Sequence[torch.Tensor]]:
-        assert x is not None
 
-        # Flatten x
-        batch_shape = x.shape[: len(x.shape) - len(self.input_shape)]
+        # Flatten input
+        batch_shape = input.shape[: len(input.shape) - len(self.input_shape)]
         if len(batch_shape) > 0:
-            x = x.reshape(batch_shape + (-1,))
+            input = input.reshape(batch_shape + (-1,))
 
         if context is not None:
             # TODO: Fix the following!
-            h = torch.cat([context.expand((x.shape[0], -1)), x], dim=-1)
+            h = torch.cat([context.expand((input.shape[0], -1)), input], dim=-1)
         else:
-            h = x
+            h = input
 
         # Why not using regular sequential?
         for idx in range(len(self.layers) // 2):
@@ -172,7 +171,7 @@ class DenseAutoregressive(Parameters):
 
         # TODO: Get skip_layers working again!
         # if self.skip_layer is not None:
-        #    h = h + self.skip_layer(x)
+        #    h = h + self.skip_layer(input)
 
         # Shape the output
         # h ~ (batch_dims * input_dims, total_params_per_dim)

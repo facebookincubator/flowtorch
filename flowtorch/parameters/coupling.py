@@ -1,11 +1,11 @@
 # Copyright (c) Meta Platforms, Inc
 
-import warnings
 from typing import Callable, Optional, Sequence
 
 import torch
 import torch.nn as nn
-from flowtorch.nn.made import create_mask, MaskedLinear
+
+from flowtorch.nn.made import MaskedLinear
 from flowtorch.parameters.base import Parameters
 
 
@@ -69,33 +69,10 @@ class DenseCoupling(Parameters):
         self.output_multiplier = sum(self.param_dims)
 
         if input_dims == 1:
-            warnings.warn(
-                "DenseAutoregressive input_dim = 1. "
-                "Consider using an affine transformation instead."
+            raise ValueError(
+                "Coupling input_dim = 1. Coupling transforms require at least two features."
             )
 
-        # Calculate the indices on the output corresponding to each parameter
-        # TODO: Is this logic correct???
-        # ends = torch.cumsum(
-        #    torch.tensor(
-        #        [max(torch.prod(torch.tensor(s)).item(), 1) for s in param_shapes_]
-        #    ),
-        #    dim=0,
-        # )
-        # starts = torch.cat((torch.zeros(1).type_as(ends), ends[:-1]))
-        # self.param_slices = [slice(s.item(), e.item()) for s, e in zip(starts, ends)]
-
-        # Hidden dimension must be not less than the input otherwise it isn't
-        # possible to connect to the outputs correctly
-        for h in self.hidden_dims:
-            if h < input_dims:
-                raise ValueError(
-                    "Hidden dimension must not be less than input dimension."
-                )
-
-        # TODO: Check that the permutation is valid for the input dimension!
-        # Implement ispermutation() that sorts permutation and checks whether it
-        # has all integers from 0, 1, ..., self.input_dims - 1
         self.register_buffer("permutation", permutation)
         self.register_buffer("inv_permutation", permutation.argsort())
 
@@ -171,32 +148,30 @@ class DenseCoupling(Parameters):
 
     def _forward(
         self,
-        x: Optional[torch.Tensor] = None,
-        y: Optional[torch.Tensor] = None,
+        input: torch.Tensor,
+        inverse: bool,
         context: Optional[torch.Tensor] = None,
     ) -> Optional[Sequence[torch.Tensor]]:
-        if (x is None) and (y is None):
-            raise RuntimeError("Either x or y must be provided.")
-        elif x is None:
-            x = y[..., self.inv_permutation]  # type: ignore
-            inverse = True
+        if inverse:
+            input = input[..., self.inv_permutation]  # type: ignore
         else:
-            x = x[..., self.permutation]  # type: ignore
-            inverse = False
+            input = input[..., self.permutation]  # type: ignore
 
         if context is not None:
-            x_aug = torch.cat([context.expand((*x.shape[:-1], -1)), x], dim=-1)
+            input_aug = torch.cat(
+                [context.expand((*input.shape[:-1], -1)), input], dim=-1
+            )
         else:
-            x_aug = x
+            input_aug = input
 
-        h = self.layers(x_aug) + self.bias
+        h = self.layers(input_aug) + self.bias
 
         # TODO: Get skip_layers working again!
         if self.skip_connections:
-            h = h + self.skip_layer(x_aug)
+            h = h + self.skip_layer(input_aug)
 
         # Shape the output
-        h = h.view(*x.shape[:-1], self.output_multiplier, -1)
+        h = h.view(*input.shape[:-1], self.output_multiplier, -1)
 
         result = h.unbind(-2)
         perm = self.inv_permutation if inverse else self.permutation
