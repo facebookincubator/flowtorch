@@ -76,6 +76,12 @@ const config = {
             position: 'left',
           },
           {
+            to: 'tutorials',
+            activeBasePath: 'tutorials',
+            label: 'Tutorials',
+            position: 'left',
+          },
+          {
             href: 'https://github.com/facebookincubator/flowtorch/discussions',
             label: 'Discussions',
             position: 'right',
@@ -111,8 +117,8 @@ const config = {
                 to: 'api',
               },
               {
-                label: 'Roadmap',
-                href: 'https://github.com/facebookincubator/flowtorch/projects',
+                label: 'Tutorials',
+                to: 'tutorials',
               },
             ],
           },

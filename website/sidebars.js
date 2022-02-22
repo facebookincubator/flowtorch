@@ -10,7 +10,7 @@
  */
 
  var apiSideBar = require('./api.sidebar.js');
- var tutorialSideBar = require('./tutorial.sidebar.js');
+ var tutorialsSideBar = require('./tutorials.sidebar.js');
 
 // @ts-check
 
@@ -18,7 +18,6 @@
 const sidebars = {
   usersSidebar: {
     "Getting Started": ['users/introduction', 'users/installation', 'users/start'],
-    "Tutorials": ['users/univariate', 'users/multivariate'],
     "Basic Concepts": ['users/shapes'],
   },
   devsSidebar: {
@@ -27,7 +26,7 @@ const sidebars = {
     "Resources": ['dev/bibliography'],
   },
   apiSidebar: apiSideBar,
-  tutorialSidebar: tutorialSideBar,
+  tutorialsSidebar: tutorialsSideBar,
 };
 
 module.exports = sidebars;

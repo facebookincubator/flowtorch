@@ -1,4 +1,4 @@
-title = "Configuration for autogenerating tutorials from "
+name = "Configuration for autogenerating tutorials from notebooks"
 
 # List of tutorials
 [[tutorial]]

@@ -509,7 +509,13 @@ if __name__ == "__main__":
     # Extract list of tutorials
     with open('tutorials.toml', 'r') as f:
         tutorial_settings = toml.load(f)
-    tutorials = [Tutorial(**kwargs) for kwargs in tutorial_settings['tutorial']]
+    try:
+        tutorials = [Tutorial(**kwargs) for kwargs in tutorial_settings['tutorial']]
+    except:
+        pass
+
+    # Display errors and terminate if can't open any of the tutorial files
+    # TODO
     
     # 2. Extract menu hierarchy and build tutorial sidebar
     # TODO
