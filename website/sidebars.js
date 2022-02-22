@@ -10,6 +10,7 @@
  */
 
  var apiSideBar = require('./api.sidebar.js');
+ var tutorialSideBar = require('./tutorial.sidebar.js');
 
 // @ts-check
 
@@ -26,6 +27,7 @@ const sidebars = {
     "Resources": ['dev/bibliography'],
   },
   apiSidebar: apiSideBar,
+  tutorialSidebar: tutorialSideBar,
 };
 
 module.exports = sidebars;
