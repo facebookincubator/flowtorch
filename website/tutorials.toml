@@ -1,5 +1,20 @@
 name = "Configuration for autogenerating tutorials from notebooks"
 
+[settings]
+# This can be a list of strings if you want to document more than one module
+search = ["flowtorch"]
+github = "https://github.com/facebookincubator/flowtorch/blob/main/"
+
+[paths]
+# Paths are all relative to the *first* search module
+sidebar = "../website"
+sidebar_filename = "tutorials.sidebar.js"
+
+# TODO: Base path for Docusaurus 2 content
+markdown = "../website/docs/tutorials"
+
+# TODO: regular expression for sections that are visible initially: unfurled = "..."
+
 # List of tutorials
 # NOTE: if sidebar <label> is omitted, it is set to <title>,
 # and if <path> is omitted it is set to "<id>.ipynb"

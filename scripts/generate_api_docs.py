@@ -281,6 +281,7 @@ if __name__ == "__main__":
     sidebar_path = os.path.join(main_path, config["paths"]["sidebar"])
     markdown_path = os.path.join(main_path, config["paths"]["markdown"])
 
+    # TODO: Factor out this function to flowtorch.utils
     def create_paths(path: str) -> None:
         try:
             os.makedirs(path)

@@ -7,17 +7,40 @@ in `/tutorials`.
 
 """
 
+import errno
+import os
 import toml
+
 from flowtorch.tutorials.tutorial import Tutorial
 
 
 if __name__ == "__main__":
+    # Load and validate configuration file
+    import flowtorch
+
+    main_path = flowtorch.__path__[0]
+    config_path = os.path.join(main_path, "../website/tutorials.toml")
+    config = toml.load(config_path)
+
+    # Create directories if they don't exist
+    sidebar_path = os.path.join(main_path, config["paths"]["sidebar"])
+    markdown_path = os.path.join(main_path, config["paths"]["markdown"])
+
+    # TODO: Factor out this function to flowtorch.utils
+    def create_paths(path: str) -> None:
+        try:
+            os.makedirs(path)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+
+    create_paths(sidebar_path)
+    create_paths(markdown_path)
+
     # Extract list of tutorials and check whether exist
-    with open('tutorials.toml', 'r') as f:
-        tutorial_settings = toml.load(f)
     excepts_paths = []
     #try:
-    tutorials = [Tutorial(**kwargs) for kwargs in tutorial_settings['tutorial']]
+    tutorials = [Tutorial(**kwargs) for kwargs in config['tutorial']]
     #except:
     #    pass
 
@@ -30,7 +53,7 @@ if __name__ == "__main__":
     
     # Extract menu hierarchy and build tutorial sidebar
     # TODO
-    print(tutorial_settings['section'])
+    print(config['section'])
 
     # Build index page
     # TODO
