@@ -1,0 +1,35 @@
+title = "Configuration for autogenerating tutorials from "
+
+# List of tutorials
+[[tutorial]]
+id = "coin_flipping"
+title = "Coin Flipping"
+label = "Coin Flipping"
+path = "coin_flipping.ipynb"
+
+[[tutorial]]
+id = "hierarchical_regression"
+title = "Hierarchical Regression"
+label = "Hierarchical Regression"
+path = "tutorials/Hierarchical_regression.ipynb"
+
+# Table of contents
+[[section]]
+title = "Basic Examples"
+ids = ["coin_flipping"]
+
+[[section.section]]
+title = "under"
+ids = []
+
+[[section.section.section]]
+title = "under"
+ids = []
+
+[[section]]
+title = "Regression"
+ids = ["hierarchical"]
+
+[[section.section]]
+title = "under2"
+ids = ["coin_flippin"]

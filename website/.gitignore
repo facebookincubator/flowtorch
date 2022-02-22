@@ -8,7 +8,9 @@
 .docusaurus
 .cache-loader
 /docs/api
+/docs/tutorials
 api.sidebar.js
+tutorials.sidebar.js
 
 # Misc
 .DS_Store
