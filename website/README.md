@@ -1,5 +1,3 @@
-<a href="https://flowtorch.ai"><img src="https://github.com/facebookincubator/flowtorch/raw/main/gh-pages/flowtorch-ai.png" width="100%" /></a>
-
 This website is built using [Docusaurus 2](https://v2.docusaurus.io/), a modern static website generator, and hosted using GitHub pages at [https://flowtorch.ai](https://flowtorch.ai). The source for the website is located in [main/website](https://github.com/facebookincubator/flowtorch/tree/main/website) and it is hosted from the root directory of the [website](https://github.com/facebookincubator/flowtorch/tree/website) branch.
 
 ## Preparation

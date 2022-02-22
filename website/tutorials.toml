@@ -1,35 +1,39 @@
 name = "Configuration for autogenerating tutorials from notebooks"
 
 # List of tutorials
+# NOTE: if sidebar <label> is omitted, it is set to <title>,
+# and if <path> is omitted it is set to "<id>.ipynb"
 [[tutorial]]
-id = "coin_flipping"
-title = "Coin Flipping"
-label = "Coin Flipping"
-path = "coin_flipping.ipynb"
+id = "learn_bivariate_normal"
+title = "Your First Flow"
 
 [[tutorial]]
-id = "hierarchical_regression"
-title = "Hierarchical Regression"
-label = "Hierarchical Regression"
-path = "tutorials/Hierarchical_regression.ipynb"
+id = "univariate_bijectors"
+title = "Univariate Bijectors"
+
+[[tutorial]]
+id = "multivariate_bijectors"
+title = "Multivariate Bijectors"
+
+[[tutorial]]
+id = "transport_score_climbing"
+title = "Transport Score Climbing"
 
 # Table of contents
 [[section]]
-title = "Basic Examples"
-ids = ["coin_flipping"]
-
-[[section.section]]
-title = "under"
-ids = []
-
-[[section.section.section]]
-title = "under"
-ids = []
+title = "Getting Started"
+ids = ["learn_bivariate_normal"]
 
 [[section]]
-title = "Regression"
-ids = ["hierarchical"]
+title = "Background"
+ids = ["univariate_bijectors", "multivariate_bijectors"]
 
-[[section.section]]
-title = "under2"
-ids = ["coin_flippin"]
+[[section]]
+title = "Bayesian Inference"
+ids = ["transport_score_mapping"]
+
+# NOTE: You can create an arbitrarily deep hierarchy
+# using sections under sections ad infinitum
+#[[section.section]]
+#title = "Variation Inference"
+#ids = ["flexible_vi", "structured_vi", "robust_vi"]
