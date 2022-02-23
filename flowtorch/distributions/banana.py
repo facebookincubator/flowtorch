@@ -15,6 +15,9 @@ class Banana(dist.Distribution):
     distribution" is defined as, $$\\theta_1=z_1$$,
     $$\\theta_2=z_2+b\\cdot z^2_1-100b$$ for $$b=0.02$$.
 
+    It can be easily shown that this is a volume-preserving transformation,
+    that is, $$\\log(|\\det J|)=0$$.
+
     """
 
     support = constraints.real
@@ -42,7 +45,7 @@ class Banana(dist.Distribution):
         )
         z = torch.zeros(eps.shape)
         z[..., 0] = 10.0 * eps[..., 0]
-        z[..., 1] = eps[..., 1] + 0.02 * torch.square(eps[..., 0]) - 100.0 * 0.02
+        z[..., 1] = eps[..., 1] + 0.02 * torch.square(z[..., 0]) - 100.0 * 0.02
         return z
 
     def log_prob(
@@ -54,7 +57,6 @@ class Banana(dist.Distribution):
         z[..., 0] = value[..., 0]
         z[..., 1] = value[..., 1] - 0.02 * torch.square(value[..., 0]) + 100.0 * 0.02
 
-        # TODO: Check shape of the following
+        # Since volume-preserving, no need to add log(det(|J|)) term
         log_prob = dist.Normal(0, 1.0).log_prob(z).sum(-1)
-
         return log_prob
