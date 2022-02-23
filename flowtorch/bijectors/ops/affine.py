@@ -13,6 +13,7 @@ _DEFAULT_POSITIVE_BIASES = {
     "softplus": torch.expm1(torch.ones(1)).log().item(),
     "exp": 0.0,
 }
+
 _POSITIVE_MAPS: Dict[str, Callable[[torch.Tensor], torch.Tensor]] = {
     "softplus": torch.nn.functional.softplus,
     "sigmoid": torch.sigmoid,
@@ -90,7 +91,6 @@ class Affine(Bijector):
         else:
             inverse_scale = torch.exp(-unbounded_scale)
             log_scale = unbounded_scale
-
         x_new = (y - mean) * inverse_scale
         return x_new, _sum_rightmost(log_scale, self.domain.event_dim)
 

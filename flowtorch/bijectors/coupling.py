@@ -45,9 +45,7 @@ class Coupling(AffineOp):
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         assert self._params_fn is not None
 
-        x = x[..., self._params_fn.permutation]
         y, ldj = super()._forward(x, params)
-        y = y[..., self._params_fn.inv_permutation]
         return y, ldj
 
     def _inverse(
@@ -55,7 +53,5 @@ class Coupling(AffineOp):
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         assert self._params_fn is not None
 
-        y = y[..., self._params_fn.inv_permutation]
         x, ldj = super()._inverse(y, params)
-        x = x[..., self._params_fn.permutation]
         return x, ldj

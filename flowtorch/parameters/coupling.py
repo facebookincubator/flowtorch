@@ -87,8 +87,9 @@ class DenseCoupling(Parameters):
         mask_input[:, x1_dim:] = 0.0
 
         out_dims = input_dims * self.output_multiplier
-        mask_output = torch.ones(self.output_multiplier, input_dims, hidden_dims[-1])
-        mask_output[:x1_dim] = 0.0
+        mask_output = torch.ones(self.output_multiplier, input_dims, hidden_dims[-1], dtype=torch.bool)
+        mask_output[:, :x1_dim] = 0.0
+        mask_output_buffer = mask_output[0, :, 0]
         mask_output = mask_output.view(-1, hidden_dims[-1])
         self._bias = nn.Parameter(
             torch.zeros(self.output_multiplier, x1_dim, requires_grad=True)
@@ -135,6 +136,15 @@ class DenseCoupling(Parameters):
             )
 
         self.layers = nn.Sequential(*layers)
+        self.register_buffer('mask_output', mask_output_buffer)
+        self._init_weights()
+
+    def _init_weights(self) -> None:
+        for layer in self.modules():
+            if hasattr(layer, 'weight'):
+                layer.weight.data.normal_(0.0, 1e-3)
+            if hasattr(layer, 'bias') and layer.bias is not None:
+                layer.bias.data.fill_(0.0)
 
     @property
     def bias(self) -> torch.Tensor:
@@ -152,17 +162,18 @@ class DenseCoupling(Parameters):
         inverse: bool,
         context: Optional[torch.Tensor] = None,
     ) -> Optional[Sequence[torch.Tensor]]:
-        if inverse:
-            input = input[..., self.inv_permutation]  # type: ignore
-        else:
-            input = input[..., self.permutation]  # type: ignore
+        # if inverse:
+        #     input = input[..., self.inv_permutation]  # type: ignore
+        # else:
+        input = input[..., self.permutation]  # type: ignore
 
+        input_masked = input.masked_fill(self.mask_output, 0.0)
         if context is not None:
             input_aug = torch.cat(
-                [context.expand((*input.shape[:-1], -1)), input], dim=-1
+                [context.expand((*input.shape[:-1], -1)), input_masked], dim=-1
             )
         else:
-            input_aug = input
+            input_aug = input_masked
 
         h = self.layers(input_aug) + self.bias
 
@@ -174,6 +185,7 @@ class DenseCoupling(Parameters):
         h = h.view(*input.shape[:-1], self.output_multiplier, -1)
 
         result = h.unbind(-2)
-        perm = self.inv_permutation if inverse else self.permutation
+        perm = self.inv_permutation
+        result = tuple(r.masked_fill(~self.mask_output.expand_as(r), 0.0) for r in result)
         result = tuple(r[..., perm] for r in result)
         return result
