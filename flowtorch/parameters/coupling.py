@@ -88,7 +88,9 @@ class DenseCoupling(Parameters):
         mask_input = mask_input[:, self.permutation]
 
         out_dims = input_dims * self.output_multiplier
-        mask_output = torch.ones(self.output_multiplier, input_dims, hidden_dims[-1], dtype=torch.bool)
+        mask_output = torch.ones(
+            self.output_multiplier, input_dims, hidden_dims[-1], dtype=torch.bool
+        )
         mask_output[:, :x1_dim] = 0.0
         mask_output = mask_output[:, self.permutation]
         mask_output_reg = mask_output[0, :, 0]
@@ -136,15 +138,15 @@ class DenseCoupling(Parameters):
             )
 
         self.layers = nn.Sequential(*layers)
-        self.register_buffer('mask_output', mask_output_reg.to(torch.bool))
+        self.register_buffer("mask_output", mask_output_reg.to(torch.bool))
         self._init_weights()
 
     def _init_weights(self) -> None:
         for layer in self.modules():
-            if hasattr(layer, 'weight'):
-                layer.weight.data.normal_(0.0, 1e-3)
-            if hasattr(layer, 'bias') and layer.bias is not None:
-                layer.bias.data.fill_(0.0)
+            if hasattr(layer, "weight"):
+                layer.weight.data.normal_(0.0, 1e-3)  # type: ignore
+            if hasattr(layer, "bias") and layer.bias is not None:
+                layer.bias.data.fill_(0.0)  # type: ignore
 
     @property
     def bias(self) -> torch.Tensor:
@@ -163,7 +165,7 @@ class DenseCoupling(Parameters):
         context: Optional[torch.Tensor] = None,
     ) -> Optional[Sequence[torch.Tensor]]:
 
-        input_masked = input.masked_fill(self.mask_output, 0.0)
+        input_masked = input.masked_fill(self.mask_output, 0.0)  # type: ignore
         if context is not None:
             input_aug = torch.cat(
                 [context.expand((*input.shape[:-1], -1)), input_masked], dim=-1
@@ -181,5 +183,7 @@ class DenseCoupling(Parameters):
         h = h.view(*input.shape[:-1], self.output_multiplier, -1)
 
         result = h.unbind(-2)
-        result = tuple(r.masked_fill(~self.mask_output.expand_as(r), 0.0) for r in result)
+        result = tuple(
+            r.masked_fill(~self.mask_output.expand_as(r), 0.0) for r in result  # type: ignore
+        )
         return result
