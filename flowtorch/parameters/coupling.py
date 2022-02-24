@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Callable, Optional, Sequence
+from typing import Callable, Iterable, Optional, Sequence
 
 import torch
 import torch.nn as nn
@@ -9,8 +9,25 @@ from flowtorch.nn.made import MaskedLinear
 from flowtorch.parameters.base import Parameters
 
 
+def _make_mask(shape: torch.Size, mask_type: str) -> torch.Tensor:
+    if mask_type.startswith("neg_"):
+        return _make_mask(shape, mask_type[4:])
+    elif mask_type == "chessboard":
+        z = torch.zeros(shape, dtype=torch.bool)
+        z[:, ::2, ::2] = 1
+        z[:, 1::2, 1::2] = 1
+        return z
+    elif mask_type == "quadrant":
+        z = torch.zeros(shape, dtype=torch.bool)
+        z[:, shape[1] // 2 :, : shape[2] // 2] = 1
+        z[:, : shape[1] // 2, shape[2] // 2 :] = 1
+        return z
+    else:
+        raise NotImplementedError(shape)
+
+
 class DenseCoupling(Parameters):
-    autoregressive = True
+    autoregressive = False
 
     def __init__(
         self,
@@ -43,15 +60,15 @@ class DenseCoupling(Parameters):
         context_shape: Optional[torch.Size],
         permutation: Optional[torch.LongTensor],
     ) -> None:
+
         # Work out flattened input and output shapes
         param_shapes_ = list(param_shapes)
-        input_dims = int(torch.sum(torch.tensor(input_shape)).int().item())
+        input_dims = sum(input_shape)
         self.input_dims = input_dims
         if input_dims == 0:
             input_dims = 1  # scalars represented by torch.Size([])
         if permutation is None:
-            # By default set a random permutation of variables, which is
-            # important for performance with multiple steps
+            # permutation will define the split of the input
             permutation = torch.LongTensor(
                 torch.randperm(input_dims, device="cpu").to(
                     torch.LongTensor((1,)).device
@@ -124,11 +141,6 @@ class DenseCoupling(Parameters):
             )
         )
 
-        for l in layers[::2]:
-            l.weight.data.normal_(0.0, 1e-3)  # type: ignore
-            if l.bias is not None:
-                l.bias.data.fill_(0.0)  # type: ignore
-
         if self.skip_connections:
             self.skip_layer = MaskedLinear(
                 input_dims,  # + context_dims,
@@ -186,4 +198,146 @@ class DenseCoupling(Parameters):
         result = tuple(
             r.masked_fill(~self.mask_output.expand_as(r), 0.0) for r in result  # type: ignore
         )
+        return result
+
+
+class ConvCoupling(Parameters):
+    autoregressive = False
+    _mask_types = ["chessboard", "quadrants"]
+
+    def __init__(
+        self,
+        param_shapes: Sequence[torch.Size],
+        input_shape: torch.Size,
+        context_shape: Optional[torch.Size],
+        *,
+        cnn_activate_input: bool = True,
+        cnn_channels: int = 256,
+        cnn_kernel: Sequence[int] = None,
+        cnn_padding: Sequence[int] = None,
+        cnn_stride: Sequence[int] = None,
+        nonlinearity: Callable[[], nn.Module] = nn.ReLU,
+        skip_connections: bool = False,
+        mask_type: str = "chessboard",
+    ) -> None:
+        super().__init__(param_shapes, input_shape, context_shape)
+
+        # Check consistency of input_shape with param_shapes
+        # We need each param_shapes to match input_shape in
+        # its leftmost dimensions
+        for s in param_shapes:
+            assert len(s) >= len(input_shape) and s[: len(input_shape)] == input_shape
+
+        if cnn_kernel is None:
+            cnn_kernel = [3, 1, 3]
+        if cnn_padding is None:
+            cnn_padding = [1, 0, 1]
+        if cnn_stride is None:
+            cnn_stride = [1, 1, 1]
+
+        self.cnn_channels = cnn_channels
+        self.cnn_activate_input = cnn_activate_input
+        self.cnn_kernel = cnn_kernel
+        self.cnn_padding = cnn_padding
+        self.cnn_stride = cnn_stride
+
+        self.nonlinearity = nonlinearity
+        self.skip_connections = skip_connections
+        self._build(input_shape, param_shapes, context_shape, mask_type)
+
+    def _build(
+        self,
+        input_shape: torch.Size,  # something like [C, W, H]
+        param_shapes: Sequence[torch.Size],  # something like [[C, W, H], [C, W, H]]
+        context_shape: Optional[torch.Size],
+        mask_type: str,
+    ) -> None:
+
+        mask = _make_mask(input_shape, mask_type)
+        self.register_buffer("mask", mask)
+        self.output_multiplier = len(param_shapes)
+
+        out_channels, width, height = input_shape
+
+        layers = []
+        if self.cnn_activate_input:
+            layers.append(self.nonlinearity())
+        layers.append(
+            nn.LazyConv2d(
+                out_channels=self.cnn_channels,
+                kernel_size=self.cnn_kernel[0],
+                padding=self.cnn_padding[0],
+                stride=self.cnn_stride[0],
+            )
+        )
+        layers.append(self.nonlinearity())
+        layers.append(
+            nn.Conv2d(
+                in_channels=self.cnn_channels,
+                out_channels=self.cnn_channels,
+                kernel_size=self.cnn_kernel[1],
+                padding=self.cnn_padding[1],
+                stride=self.cnn_stride[1],
+            )
+        )
+        layers.append(self.nonlinearity())
+        layers.append(
+            nn.Conv2d(
+                in_channels=self.cnn_channels,
+                out_channels=out_channels * self.output_multiplier,
+                kernel_size=self.cnn_kernel[2],
+                padding=self.cnn_padding[2],
+                stride=self.cnn_stride[2],
+            )
+        )
+
+        self.layers = nn.Sequential(*layers)
+        self._init_weights()
+
+    def _init_weights(self) -> None:
+        for layer in self.modules():
+            if hasattr(layer, "weight"):
+                layer.weight.data.normal_(0.0, 1e-3)  # type: ignore
+            if hasattr(layer, "bias") and layer.bias is not None:
+                layer.bias.data.fill_(0.0)  # type: ignore
+
+    def _forward(
+        self,
+        input: torch.Tensor,
+        inverse: bool,
+        context: Optional[torch.Tensor] = None,
+    ) -> Optional[Sequence[torch.Tensor]]:
+
+        unsqueeze = False
+        if input.ndimension() == 3:
+            # mostly for initialization
+            unsqueeze = True
+            input = input.unsqueeze(0)
+
+        input_masked = input.masked_fill(self.mask, 0.0)  # type: ignore
+        if context is not None:
+            context_shape = [shape for shape in input_masked.shape]
+            context_shape[-3] = context.shape[-3]
+            input_aug = torch.cat(
+                [context.expand(*context_shape), input_masked], dim=-1
+            )
+        else:
+            input_aug = input_masked
+
+        print(self.layers)
+        h = self.layers(input_aug)
+
+        if self.skip_connections:
+            h = h + input_masked
+
+        # Shape the output
+
+        if unsqueeze:
+            h = h.squeeze(0)
+        result = h.chunk(2, -3)
+
+        result = tuple(
+            r.masked_fill(~self.mask.expand_as(r), 0.0) for r in result  # type: ignore
+        )
+
         return result
