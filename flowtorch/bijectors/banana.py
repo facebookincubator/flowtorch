@@ -1,11 +1,10 @@
 # Copyright (c) Meta Platforms, Inc
 import math
-from typing import Any, Optional, Sequence, Tuple
-
-import torch
-import torch.distributions.constraints as constraints
+from typing import Optional, Sequence, Tuple
 
 import flowtorch
+import torch
+import torch.distributions.constraints as constraints
 from flowtorch.bijectors.fixed import Fixed
 
 
@@ -13,7 +12,7 @@ class Banana(Fixed):
     domain = constraints.real_vector
     codomain = constraints.real_vector
     b_coef = 0.02
-    
+
     def __init__(
         self,
         params_fn: Optional[flowtorch.Lazy] = None,
@@ -25,7 +24,7 @@ class Banana(Fixed):
 
         # Check that we're operating on a bivariate base distribution
         if len(shape) != 1 or shape[-1] != 2:
-            raise ValueError("Base distribution to Banana is not bivariate.")       
+            raise ValueError("Base distribution to Banana is not bivariate.")
 
     def _forward(
         self, x: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
