@@ -19,7 +19,7 @@ def test_bijector_constructor():
 def flow(request):
     bij = request.param
     event_dim = max(bij.domain.event_dim, 1)
-    event_shape = event_dim * [3]
+    event_shape = event_dim * [2]
     base_dist = dist.Independent(
         dist.Normal(torch.zeros(event_shape), torch.ones(event_shape)), event_dim
     )

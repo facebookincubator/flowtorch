@@ -54,7 +54,10 @@ for bij_name, cls in standard_bijectors:
     # TODO: Use factored out version of the following
     # Define plan for flow
     event_dim = max(cls.domain.event_dim, 1)  # type: ignore
-    event_shape = event_dim * [4]
+    
+    # TODO: Sometimes a bijector operates on specific event shapes.
+    # How to generalize this?
+    event_shape = event_dim * [2]
     # base_dist = dist.Normal(torch.zeros(event_shape), torch.ones(event_shape))
     bij = cls(shape=torch.Size(event_shape))
 

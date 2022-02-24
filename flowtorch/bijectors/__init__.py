@@ -14,6 +14,7 @@ from flowtorch.bijectors.affine import Affine
 from flowtorch.bijectors.affine_autoregressive import AffineAutoregressive
 from flowtorch.bijectors.affine_fixed import AffineFixed
 from flowtorch.bijectors.autoregressive import Autoregressive
+from flowtorch.bijectors.banana import Banana
 from flowtorch.bijectors.base import Bijector
 from flowtorch.bijectors.compose import Compose
 from flowtorch.bijectors.elementwise import Elementwise
@@ -34,6 +35,7 @@ standard_bijectors = [
     ("Affine", Affine),
     ("AffineAutoregressive", AffineAutoregressive),
     ("AffineFixed", AffineFixed),
+    ("Banana", Banana),
     ("ELU", ELU),
     ("Exp", Exp),
     ("LeakyReLU", LeakyReLU),
@@ -76,7 +78,10 @@ for bij_name, cls in standard_bijectors:
     # TODO: Use factored out version of the following
     # Define plan for flow
     event_dim = max(cls.domain.event_dim, 1)  # type: ignore
-    event_shape = event_dim * [4]
+
+    # TODO: Sometimes a bijector operates on specific event shapes.
+    # How to generalize this?
+    event_shape = event_dim * [2]
     # base_dist = dist.Normal(torch.zeros(event_shape), torch.ones(event_shape))
     bij = cls(shape=torch.Size(event_shape))
 

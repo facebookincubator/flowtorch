@@ -1,4 +1,5 @@
 # Copyright (c) Meta Platforms, Inc
+import math
 from typing import Any, Dict, Optional, Union
 
 import torch
@@ -45,7 +46,7 @@ class Banana(dist.Distribution):
         )
         z = torch.zeros(eps.shape)
         z[..., 0] = 10.0 * eps[..., 0]
-        z[..., 1] = eps[..., 1] + 0.02 * torch.square(z[..., 0]) - 100.0 * 0.02
+        z[..., 1] = eps[..., 1] + 100.0 * 0.02 * torch.square(eps[..., 0]) - 100.0 * 0.02
         return z
 
     def log_prob(
@@ -53,10 +54,11 @@ class Banana(dist.Distribution):
     ) -> torch.Tensor:
         if self._validate_args:
             self._validate_sample(value)
-        z = torch.zeros(value.shape)
-        z[..., 0] = value[..., 0]
-        z[..., 1] = value[..., 1] - 0.02 * torch.square(value[..., 0]) + 100.0 * 0.02
+        x = value[..., 0] / 10.0
+        y = value[..., 1] - 0.02 * torch.square(value[..., 0]) + 100.0 * 0.02
 
         # Since volume-preserving, no need to add log(det(|J|)) term
-        log_prob = dist.Normal(0, 1.0).log_prob(z).sum(-1)
+        log_prob = dist.Normal(0, 1.0).log_prob(x)
+        log_prob += dist.Normal(0, 1.0).log_prob(y)
+        #log_prob += math.log(10)
         return log_prob
