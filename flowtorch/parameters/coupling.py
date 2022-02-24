@@ -85,12 +85,15 @@ class DenseCoupling(Parameters):
         mask_input = torch.ones(hidden_dims[0], input_dims)
         self.x1_dim = x1_dim = input_dims // 2
         mask_input[:, x1_dim:] = 0.0
+        mask_input = mask_input[:, self.permutation]
 
         out_dims = input_dims * self.output_multiplier
         mask_output = torch.ones(self.output_multiplier, input_dims, hidden_dims[-1], dtype=torch.bool)
         mask_output[:, :x1_dim] = 0.0
-        mask_output_buffer = mask_output[0, :, 0]
+        mask_output = mask_output[:, self.permutation]
+        mask_output_reg = mask_output[0, :, 0]
         mask_output = mask_output.view(-1, hidden_dims[-1])
+
         self._bias = nn.Parameter(
             torch.zeros(self.output_multiplier, x1_dim, requires_grad=True)
         )
@@ -125,18 +128,15 @@ class DenseCoupling(Parameters):
                 l.bias.data.fill_(0.0)  # type: ignore
 
         if self.skip_connections:
-            mask_skip = torch.ones(out_dims, input_dims)
-            mask_skip[:, input_dims // 2 :] = 0.0
-            mask_skip[: mask_output // 2] = 0.0
             self.skip_layer = MaskedLinear(
                 input_dims,  # + context_dims,
                 out_dims,
-                mask_skip,
+                mask_output,
                 bias=False,
             )
 
         self.layers = nn.Sequential(*layers)
-        self.register_buffer('mask_output', mask_output_buffer)
+        self.register_buffer('mask_output', mask_output_reg.to(torch.bool))
         self._init_weights()
 
     def _init_weights(self) -> None:
@@ -162,10 +162,6 @@ class DenseCoupling(Parameters):
         inverse: bool,
         context: Optional[torch.Tensor] = None,
     ) -> Optional[Sequence[torch.Tensor]]:
-        # if inverse:
-        #     input = input[..., self.inv_permutation]  # type: ignore
-        # else:
-        input = input[..., self.permutation]  # type: ignore
 
         input_masked = input.masked_fill(self.mask_output, 0.0)
         if context is not None:
@@ -185,7 +181,5 @@ class DenseCoupling(Parameters):
         h = h.view(*input.shape[:-1], self.output_multiplier, -1)
 
         result = h.unbind(-2)
-        perm = self.inv_permutation
         result = tuple(r.masked_fill(~self.mask_output.expand_as(r), 0.0) for r in result)
-        result = tuple(r[..., perm] for r in result)
         return result
