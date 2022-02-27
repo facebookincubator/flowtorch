@@ -7,6 +7,7 @@ Do not modify or delete!
 """
 
 from flowtorch.distributions.flow import Flow
+from flowtorch.distributions.lollipop import Lollipop
 from flowtorch.distributions.neals_funnel import NealsFunnel
 
-__all__ = ["Flow", "NealsFunnel"]
+__all__ = ["Flow", "Lollipop", "NealsFunnel"]
