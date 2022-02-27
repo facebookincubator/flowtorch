@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 import math
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
 import torch
 import torch.distributions as dist
