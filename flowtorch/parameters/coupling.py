@@ -4,7 +4,6 @@ from typing import Callable, Iterable, Optional, Sequence
 
 import torch
 import torch.nn as nn
-
 from flowtorch.nn.made import MaskedLinear
 from flowtorch.parameters.base import Parameters
 
@@ -203,7 +202,7 @@ class DenseCoupling(Parameters):
 
 class ConvCoupling(Parameters):
     autoregressive = False
-    _mask_types = ["chessboard", "quadrants"]
+    _mask_types = ["chessboard", "quadrants", "inv_chessboard", "inv_quadrants"]
 
     def __init__(
         self,
