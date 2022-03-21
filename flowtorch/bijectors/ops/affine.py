@@ -3,7 +3,6 @@
 from typing import Callable, Dict, Optional, Sequence, Tuple
 
 import flowtorch
-
 import torch
 from flowtorch.bijectors.base import Bijector
 from flowtorch.ops import clamp_preserve_gradients

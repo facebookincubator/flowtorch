@@ -3,11 +3,9 @@ from copy import deepcopy
 from typing import Optional, Sequence, Tuple
 
 import flowtorch.parameters
-
 import torch
 from flowtorch.bijectors.ops.affine import Affine as AffineOp
 from flowtorch.parameters import ConvCoupling, DenseCoupling
-
 from torch.distributions import constraints
 
 
