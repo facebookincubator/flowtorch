@@ -29,6 +29,7 @@ from flowtorch.bijectors.spline import Spline
 from flowtorch.bijectors.spline_autoregressive import SplineAutoregressive
 from flowtorch.bijectors.tanh import Tanh
 from flowtorch.bijectors.volume_preserving import VolumePreserving
+from flowtorch.bijectors.split_bijector import SplitBijector
 
 standard_bijectors = [
     ("Affine", Affine),
@@ -53,6 +54,7 @@ meta_bijectors = [
     ("Bijector", Bijector),
     ("Compose", Compose),
     ("VolumePreserving", VolumePreserving),
+    ("SplitBijector", SplitBijector),
 ]
 
 
