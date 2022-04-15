@@ -5,7 +5,6 @@ import warnings
 from typing import Callable, Iterator, Optional, Sequence, Tuple, Union
 
 import flowtorch.parameters
-
 import torch
 import torch.distributions
 from flowtorch.bijectors.bijective_tensor import BijectiveTensor, to_bijective_tensor
@@ -222,54 +221,3 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         Defaults to preserving shape.
         """
         return shape
-
-    def invert(self) -> Bijector:
-        return InverseBijector(self)
-
-
-class InverseBijector(Bijector):
-    """
-    An inverse bijector class.
-    InverseBijector flips a bijector such that forward calls inverse and
-    inverse calls forward.
-    The log-abs-det-Jacobian is updated accordingly.
-
-    Args:
-        bijector (Bijector): layer to be inverted
-
-    Examples:
-
-    """
-
-    def __init__(self, bijector: Bijector) -> None:
-        self.bijector = bijector
-
-    def forward(
-        self,
-        x: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
-    ) -> torch.Tensor:
-        y = self.bijector.inverse(x, context=context)
-        return y
-
-    def inverse(
-        self,
-        y: torch.Tensor,
-        x: Optional[torch.Tensor] = None,
-        context: Optional[torch.Tensor] = None,
-    ) -> torch.Tensor:
-        if x is not None:
-            raise RuntimeError("x must be None when calling InverseBijector.inverse")
-        x = self.bijector.forward(y, context=context)
-        return x
-
-    def log_abs_det_jacobian(
-        self,
-        x: torch.Tensor,
-        y: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
-    ) -> torch.Tensor:
-        return self.bijector.log_abs_det_jacobian(y, x, context)
-
-    def invert(self) -> Bijector:
-        return self.bijector

@@ -3,7 +3,6 @@ import warnings
 from typing import Iterator, Optional, Sequence
 
 import flowtorch.parameters
-
 import torch
 import torch.distributions
 from flowtorch.bijectors.base import Bijector
