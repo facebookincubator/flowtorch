@@ -35,8 +35,6 @@ class Compose(Bijector):
 
         self._context_shape = context_shape
 
-    # def state_dict(destination=None, prefix='', keep_vars=False):
-
     def forward(
         self,
         x: torch.Tensor,

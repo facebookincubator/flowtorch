@@ -133,7 +133,6 @@ def test_invert():
             AffineAutoregressive(params.DenseAutoregressive()),
         ]
     )
-    # ar = AffineAutoregressive(params.DenseAutoregressive())
     shape = torch.Size(
         [
             16,

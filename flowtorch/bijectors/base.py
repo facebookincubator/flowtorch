@@ -20,9 +20,6 @@ ParamFnType = Callable[
 class Bijector(torch.nn.Module, metaclass=flowtorch.LazyMeta):
     codomain: constraints.Constraint = constraints.real
     domain: constraints.Constraint = constraints.real
-    # _shape: torch.Size
-    # _context_shape: Optional[torch.Size]
-    # _params_fn: Optional[Union[Parameters, torch.nn.ModuleList]] = None
 
     def __init__(
         self,
