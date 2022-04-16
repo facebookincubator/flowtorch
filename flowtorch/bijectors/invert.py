@@ -1,5 +1,5 @@
 # Copyright (c) Meta Platforms, Inc
-from typing import Optional
+from typing import Optional, Sequence
 
 import flowtorch
 import torch
@@ -27,11 +27,9 @@ class Invert(Bijector):
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None
     ) -> None:
-        # TODO: Handle context_shape
-
-        self.bijector = bijector(shape=shape)
-        if hasattr(self.bijector, "_params_fn"):
-            self._params_fn = self.bijector._params_fn  # type: ignore
+        b = bijector(shape=shape)
+        super().__init__(None, shape=shape, context_shape=context_shape)
+        self.bijector = b
 
     def forward(
         self,
@@ -59,3 +57,23 @@ class Invert(Bijector):
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return self.bijector.log_abs_det_jacobian(y, x, context)  # type: ignore
+
+    def param_shapes(self, shape: torch.Size) -> Sequence[torch.Size]:
+        return self.bijector.param_shapes(shape)  # type: ignore
+
+    def __repr__(self) -> str:
+        return self.bijector.__repr__()  # type: ignore
+
+    def forward_shape(self, shape: torch.Size) -> torch.Size:
+        """
+        Infers the shape of the forward computation, given the input shape.
+        Defaults to preserving shape.
+        """
+        return self.bijector.forward_shape(shape)  # type: ignore
+
+    def inverse_shape(self, shape: torch.Size) -> torch.Size:
+        """
+        Infers the shapes of the inverse computation, given the output shape.
+        Defaults to preserving shape.
+        """
+        return self.bijector.inverse_shape(shape)  # type: ignore

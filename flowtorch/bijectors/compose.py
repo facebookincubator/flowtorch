@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 import warnings
-from typing import Iterator, Optional, Sequence
+from typing import Optional, Sequence
 
 import flowtorch.parameters
 import torch
@@ -20,13 +20,14 @@ class Compose(Bijector):
         context_shape: Optional[torch.Size] = None,
     ):
         assert len(bijectors) > 0
+        super().__init__(None, shape=shape, context_shape=context_shape)
 
         # Instantiate all bijectors, propagating shape information
-        self.bijectors = []
+        self.bijectors = torch.nn.ModuleList()
         for bijector in bijectors:
             assert issubclass(bijector.cls, Bijector)
 
-            self.bijectors.append(bijector(shape=shape))
+            self.bijectors.append(bijector(shape=shape))  # type: ignore
             shape = self.bijectors[-1].forward_shape(shape)  # type: ignore
 
         self.domain = self.bijectors[0].domain  # type: ignore
@@ -34,10 +35,7 @@ class Compose(Bijector):
 
         self._context_shape = context_shape
 
-    def parameters(self) -> Iterator[torch.Tensor]:
-        for b in self.bijectors:
-            for param in b.parameters():  # type: ignore
-                yield param
+    # def state_dict(destination=None, prefix='', keep_vars=False):
 
     def forward(
         self,
@@ -78,7 +76,7 @@ class Compose(Bijector):
     ) -> torch.Tensor:
         log_detJ: Optional[torch.Tensor] = None
         y_temp = y
-        for bijector in reversed(self.bijectors):
+        for bijector in reversed(self.bijectors._modules.values()):
             x = bijector.inverse(y_temp, context)  # type: ignore
             if is_record_flow_graph_enabled() and requires_log_detJ():
                 if isinstance(y_temp, BijectiveTensor) and y_temp.from_forward():
@@ -134,7 +132,7 @@ class Compose(Bijector):
                 "Computing _log_abs_det_jacobian from values and not from cache."
             )
 
-        for bijector in reversed(self.bijectors):
+        for bijector in reversed(self.bijectors._modules.values()):
             if not _use_cached_inverse:
                 y_inv = bijector.inverse(y, context)  # type: ignore
             else:
