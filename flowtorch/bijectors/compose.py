@@ -74,7 +74,7 @@ class Compose(Bijector):
     ) -> torch.Tensor:
         log_detJ: Optional[torch.Tensor] = None
         y_temp = y
-        for bijector in reversed(self.bijectors._modules.values()):
+        for bijector in reversed(self.bijectors._modules.values()):  # type: ignore
             x = bijector.inverse(y_temp, context)  # type: ignore
             if is_record_flow_graph_enabled() and requires_log_detJ():
                 if isinstance(y_temp, BijectiveTensor) and y_temp.from_forward():
@@ -130,7 +130,7 @@ class Compose(Bijector):
                 "Computing _log_abs_det_jacobian from values and not from cache."
             )
 
-        for bijector in reversed(self.bijectors._modules.values()):
+        for bijector in reversed(self.bijectors._modules.values()):  # type: ignore
             if not _use_cached_inverse:
                 y_inv = bijector.inverse(y, context)  # type: ignore
             else:
