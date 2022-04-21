@@ -30,6 +30,9 @@ class Tanh(Fixed):
         return x, ladj
 
     def _log_abs_det_jacobian(
-        self, x: torch.Tensor, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
+        self,
+        x: torch.Tensor,
+        y: torch.Tensor,
+        params: Optional[Sequence[torch.Tensor]],
     ) -> torch.Tensor:
         return 2.0 * (math.log(2.0) - x - F.softplus(-2.0 * x))

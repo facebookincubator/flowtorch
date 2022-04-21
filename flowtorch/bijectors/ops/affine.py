@@ -51,7 +51,9 @@ class Affine(Bijector):
         if positive_map not in _POSITIVE_MAPS:
             raise RuntimeError(f"Unknwon positive map {positive_map}")
         self._positive_map = _POSITIVE_MAPS[positive_map]
-        self._exp_map = self._positive_map is torch.exp and self.positive_bias == 0
+        self._exp_map = (
+            self._positive_map is torch.exp and self.positive_bias == 0
+        )
 
     def positive_map(self, x: torch.Tensor) -> torch.Tensor:
         return self._positive_map(x + self.positive_bias)
@@ -64,7 +66,9 @@ class Affine(Bijector):
         mean, unbounded_scale = params
         if self.clamp_values:
             unbounded_scale = clamp_preserve_gradients(
-                unbounded_scale, self.log_scale_min_clip, self.log_scale_max_clip
+                unbounded_scale,
+                self.log_scale_min_clip,
+                self.log_scale_max_clip,
             )
         scale = self.positive_map(unbounded_scale)
         log_scale = scale.log() if not self._exp_map else unbounded_scale
@@ -81,7 +85,9 @@ class Affine(Bijector):
         mean, unbounded_scale = params
         if self.clamp_values:
             unbounded_scale = clamp_preserve_gradients(
-                unbounded_scale, self.log_scale_min_clip, self.log_scale_max_clip
+                unbounded_scale,
+                self.log_scale_min_clip,
+                self.log_scale_max_clip,
             )
 
         if not self._exp_map:
@@ -104,7 +110,9 @@ class Affine(Bijector):
         _, unbounded_scale = params
         if self.clamp_values:
             unbounded_scale = clamp_preserve_gradients(
-                unbounded_scale, self.log_scale_min_clip, self.log_scale_max_clip
+                unbounded_scale,
+                self.log_scale_min_clip,
+                self.log_scale_max_clip,
             )
         log_scale = (
             self.positive_map(unbounded_scale).log()

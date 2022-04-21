@@ -18,7 +18,10 @@ class Tensor(Parameters):
 
         # TODO: Initialization strategies and constraints!
         self.params = nn.ParameterList(
-            [nn.Parameter(torch.randn(shape) * 0.001) for shape in param_shapes]
+            [
+                nn.Parameter(torch.randn(shape) * 0.001)
+                for shape in param_shapes
+            ]
         )
 
     def _forward(

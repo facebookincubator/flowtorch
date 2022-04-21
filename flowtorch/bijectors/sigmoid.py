@@ -29,6 +29,9 @@ class Sigmoid(Fixed):
         return x, ladj
 
     def _log_abs_det_jacobian(
-        self, x: torch.Tensor, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
+        self,
+        x: torch.Tensor,
+        y: torch.Tensor,
+        params: Optional[Sequence[torch.Tensor]],
     ) -> torch.Tensor:
         return -F.softplus(-x) - F.softplus(x)

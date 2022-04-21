@@ -26,7 +26,10 @@ class LeakyReLU(Fixed):
         return x, ladj
 
     def _log_abs_det_jacobian(
-        self, x: torch.Tensor, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
+        self,
+        x: torch.Tensor,
+        y: torch.Tensor,
+        params: Optional[Sequence[torch.Tensor]],
     ) -> torch.Tensor:
         return torch.where(
             x >= 0.0, torch.zeros_like(x), torch.ones_like(x) * math.log(0.01)

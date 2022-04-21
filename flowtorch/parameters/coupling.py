@@ -1,9 +1,10 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Callable, Iterable, Optional, Sequence
+from typing import Callable, Optional, Sequence
 
 import torch
 import torch.nn as nn
+
 from flowtorch.nn.made import MaskedLinear
 from flowtorch.parameters.base import Parameters
 
@@ -88,8 +89,8 @@ class DenseCoupling(Parameters):
 
         if input_dims == 1:
             raise ValueError(
-                "Coupling input_dim = 1. Coupling transforms require "
-                "at least two features."
+                "Coupling input_dim = 1. Coupling transforms require at least "
+                "two features."
             )
 
         self.register_buffer("permutation", permutation)
@@ -111,7 +112,7 @@ class DenseCoupling(Parameters):
             self.output_multiplier,
             input_dims,
             hidden_dims[-1],
-            dtype=torch.bool
+            dtype=torch.bool,
         )
         mask_output[:, :x1_dim] = 0.0
         mask_output = mask_output[:, self.permutation]
@@ -214,7 +215,7 @@ class ConvCoupling(Parameters):
         "chessboard",
         "quadrants",
         "inv_chessboard",
-        "inv_quadrants"
+        "inv_quadrants",
     ]
 
     def __init__(

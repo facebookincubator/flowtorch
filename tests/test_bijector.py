@@ -15,13 +15,16 @@ def test_bijector_constructor():
 """
 
 
-@pytest.fixture(params=[bij_name for _, bij_name in bijectors.standard_bijectors])
+@pytest.fixture(
+    params=[bij_name for _, bij_name in bijectors.standard_bijectors]
+)
 def flow(request):
     bij = request.param
     event_dim = max(bij.domain.event_dim, 1)
     event_shape = event_dim * [3]
     base_dist = dist.Independent(
-        dist.Normal(torch.zeros(event_shape), torch.ones(event_shape)), event_dim
+        dist.Normal(torch.zeros(event_shape), torch.ones(event_shape)),
+        event_dim,
     )
 
     flow = Flow(base_dist, bij)
@@ -71,11 +74,13 @@ def test_jacobian(flow, epsilon=1e-2):
             # Have to account for permutation potentially introduced by MADE network
             # TODO: Make this more general with structure abstraction
             if hasattr(params, "permutation"):
-                jacobian[(inv_permutation[idx[0]], inv_permutation[jdx[0]])] = float(
+                jacobian[
+                    (inv_permutation[idx[0]], inv_permutation[jdx[0]])
+                ] = float(delta[(Ellipsis, *jdx)].data.sum())
+            else:
+                jacobian[(*idx, *jdx)] = float(
                     delta[(Ellipsis, *jdx)].data.sum()
                 )
-            else:
-                jacobian[(*idx, *jdx)] = float(delta[(Ellipsis, *jdx)].data.sum())
 
     # For autoregressive flow, Jacobian is sum of diagonal, otherwise need full
     # determinate

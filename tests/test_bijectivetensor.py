@@ -92,7 +92,9 @@ def test_gradient_matching(mode):
             xinv = ar.forward(y)
             ldj = ar.log_abs_det_jacobian(y, x).sum()
         assert xinv is not x
-        print(f"op with regular tensor took {time.time() - t1} for mode={mode}")
+        print(
+            f"op with regular tensor took {time.time() - t1} for mode={mode}"
+        )
         ldj.backward()
         g_tensor = x.grad.clone()
     tensor_time = time.time() - t0
@@ -103,7 +105,9 @@ def test_gradient_matching(mode):
 
     # This is flacky and should probably not be merged, but it's a good
     # soundness check locally
-    assert bij_time < tensor_time, f"Bijective tensor {mode}+backprop took longer"
+    assert (
+        bij_time < tensor_time
+    ), f"Bijective tensor {mode}+backprop took longer"
 
 
 if __name__ == "__main__":

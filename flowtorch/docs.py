@@ -50,7 +50,9 @@ def generate_class_markdown(symbol_name: str, entity: Any) -> str:
 
     # Docstring
     # TODO: Parse docstring and extract short summary
-    docstring = entity.__doc__ if entity.__doc__ is not None else "empty docstring"
+    docstring = (
+        entity.__doc__ if entity.__doc__ is not None else "empty docstring"
+    )
     docstring = "\n".join(line.strip() for line in docstring.splitlines())
 
     # short_summary = "```short summary```\n"
@@ -77,9 +79,15 @@ def generate_class_markdown(symbol_name: str, entity: Any) -> str:
     # Methods for class
     members = inspect.getmembers(entity, predicate=inspect.isroutine)
     members = [
-        (n, obj) for n, obj in members if n == "__init__" or not n.startswith("_")
+        (n, obj)
+        for n, obj in members
+        if n == "__init__" or not n.startswith("_")
     ]
-    members = [(n, obj) for n, obj in members if type(obj) not in ["method_descriptor"]]
+    members = [
+        (n, obj)
+        for n, obj in members
+        if type(obj) not in ["method_descriptor"]
+    ]
 
     # member_strs = []
     for member_name, member_object in members:
@@ -144,7 +152,9 @@ def generate_module_markdown(symbol_name: str, entity: Any) -> str:
 
     # Docstring
     # TODO: Parse docstring and extract short summary
-    docstring = entity.__doc__ if entity.__doc__ is not None else "empty docstring"
+    docstring = (
+        entity.__doc__ if entity.__doc__ is not None else "empty docstring"
+    )
     docstring = "\n".join(line.strip() for line in docstring.splitlines())
 
     # short_summary = "```short summary```\n"
@@ -173,7 +183,9 @@ def generate_function_markdown(symbol_name: str, entity: Any) -> str:
 
     # Docstring
     # TODO: Parse docstring and extract short summary
-    docstring = entity.__doc__ if entity.__doc__ is not None else "empty docstring"
+    docstring = (
+        entity.__doc__ if entity.__doc__ is not None else "empty docstring"
+    )
     docstring = "\n".join(line.strip() for line in docstring.splitlines())
     # short_summary = "```short summary```\n"
 
@@ -228,7 +240,8 @@ def documentable_symbols(module: ModuleType) -> Sequence[Tuple[str, Any]]:
     return [
         (n, m)
         for n, m in inspect.getmembers(module, None)
-        if isfunction(m) or (isclass(m) and m.__module__.startswith(module.__name__))
+        if isfunction(m)
+        or (isclass(m) and m.__module__.startswith(module.__name__))
     ]
 
 

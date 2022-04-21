@@ -91,7 +91,9 @@ out in the future.
     # Regular modules/functions
     item = {
         "id": article_name,
-        "sidebar_label": "Overview" if ismodule(entity) else symbol_name.split(".")[-1],
+        "sidebar_label": "Overview"
+        if ismodule(entity)
+        else symbol_name.split(".")[-1],
         "slug": f"/api/{article_name}",
         "ref": entity,
     }
@@ -117,7 +119,9 @@ import PythonNavbar from "@theme/PythonNavbar";
 
     # Make URL
     entity_file = (
-        entity.__file__ if ismodule(entity) else inspect.getmodule(entity).__file__
+        entity.__file__
+        if ismodule(entity)
+        else inspect.getmodule(entity).__file__
     )
     url = (
         config["settings"]["github"]
@@ -141,7 +145,9 @@ import PythonNavbar from "@theme/PythonNavbar";
             navigation.append(f"{symbol_splits[idx]}")
 
     markdown.append(
-        ' <FontAwesomeIcon icon={faAngleDoubleRight} size="sm" /> '.join(navigation)
+        ' <FontAwesomeIcon icon={faAngleDoubleRight} size="sm" /> '.join(
+            navigation
+        )
     )
     markdown.append("\n</PythonNavbar>\n")
 
@@ -161,7 +167,9 @@ import PythonNavbar from "@theme/PythonNavbar";
 
     # Unknown symbol type
     else:
-        raise ValueError(f"Symbol {symbol_name} has unknown type {type(symbol_object)}")
+        raise ValueError(
+            f"Symbol {symbol_name} has unknown type {type(symbol_object)}"
+        )
 
 
 def search_symbols(config):
@@ -180,7 +188,10 @@ def search_symbols(config):
     # Construct regular expressions for includes and excludes
     # Default include/exclude rules
     patterns = {
-        "include": {"modules": re.compile(r".+"), "symbols": re.compile(r".+")},
+        "include": {
+            "modules": re.compile(r".+"),
+            "symbols": re.compile(r".+"),
+        },
         "exclude": {"modules": re.compile(r""), "symbols": re.compile(r"")},
     }
 
@@ -212,8 +223,10 @@ def search_symbols(config):
             new_y1 = [
                 (a, b)
                 for a, b in y[1]
-                if patterns["include"]["symbols"].fullmatch(x + "." + a) is not None
-                and patterns["exclude"]["symbols"].fullmatch(x + "." + a) is None
+                if patterns["include"]["symbols"].fullmatch(x + "." + a)
+                is not None
+                and patterns["exclude"]["symbols"].fullmatch(x + "." + a)
+                is None
             ]
 
             tmp[x] = (y[0], new_y1)
@@ -263,7 +276,9 @@ if __name__ == "__main__":
     # Load and validate configuration file
     import flowtorch
 
-    config_path = os.path.join(flowtorch.__path__[0], "../website/documentation.toml")
+    config_path = os.path.join(
+        flowtorch.__path__[0], "../website/documentation.toml"
+    )
     config = toml.load(config_path)
 
     modules_and_symbols = search_symbols(config)
@@ -315,11 +330,14 @@ if __name__ == "__main__":
         with open(
             os.path.join(
                 os.path.join(
-                    main_path, config["paths"]["markdown"], article_name + ".mdx"
+                    main_path,
+                    config["paths"]["markdown"],
+                    article_name + ".mdx",
                 )
             ),
             "w",
         ) as file:
             print(
-                generate_markdown(article_name, symbol_name, symbol_object), file=file
+                generate_markdown(article_name, symbol_name, symbol_object),
+                file=file,
             )

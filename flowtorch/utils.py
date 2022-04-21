@@ -36,13 +36,17 @@ def isderivedclass(cls: type, base_cls: type) -> bool:
 
 
 def list_bijectors() -> Sequence[Tuple[str, Bijector]]:
-    ans = _walk_packages("bijectors", partial(isderivedclass, base_cls=Bijector))
+    ans = _walk_packages(
+        "bijectors", partial(isderivedclass, base_cls=Bijector)
+    )
     ans = [a for a in ans if ".ops." not in a[1].__module__]
     return list({classname(cls[1]): cls for cls in ans}.values())
 
 
 def list_parameters() -> Sequence[Tuple[str, Parameters]]:
-    ans = _walk_packages("parameters", partial(isderivedclass, base_cls=Parameters))
+    ans = _walk_packages(
+        "parameters", partial(isderivedclass, base_cls=Parameters)
+    )
     return list({classname(cls[1]): cls for cls in ans}.values())
 
 

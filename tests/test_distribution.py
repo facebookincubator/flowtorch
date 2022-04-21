@@ -15,7 +15,10 @@ def test_tdist_standalone():
     def make_tdist():
         # train a flow here
         base_dist = torch.distributions.Independent(
-            torch.distributions.Normal(torch.zeros(input_dim), torch.ones(input_dim)), 1
+            torch.distributions.Normal(
+                torch.zeros(input_dim), torch.ones(input_dim)
+            ),
+            1,
         )
         bijector = bijs.AffineAutoregressive()
         tdist = dist.Flow(base_dist, bijector)
@@ -29,7 +32,9 @@ def test_tdist_standalone():
 def test_neals_funnel_vi():
     torch.manual_seed(42)
     nf = dist.NealsFunnel()
-    bijector = bijs.AffineAutoregressive(params_fn=params.DenseAutoregressive())
+    bijector = bijs.AffineAutoregressive(
+        params_fn=params.DenseAutoregressive()
+    )
 
     base_dist = torch.distributions.Independent(
         torch.distributions.Normal(torch.zeros(2), torch.ones(2)), 1
@@ -56,8 +61,12 @@ def test_neals_funnel_vi():
     nf_samples = dist.NealsFunnel().sample((20,)).squeeze().numpy()
     vi_samples = flow.sample((20,)).detach().numpy()
 
-    assert scipy.stats.ks_2samp(nf_samples[:, 0], vi_samples[:, 0]).pvalue >= 0.05
-    assert scipy.stats.ks_2samp(nf_samples[:, 1], vi_samples[:, 1]).pvalue >= 0.05
+    assert (
+        scipy.stats.ks_2samp(nf_samples[:, 0], vi_samples[:, 0]).pvalue >= 0.05
+    )
+    assert (
+        scipy.stats.ks_2samp(nf_samples[:, 1], vi_samples[:, 1]).pvalue >= 0.05
+    )
 
 
 """

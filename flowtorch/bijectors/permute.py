@@ -53,6 +53,8 @@ class Permute(Fixed, VolumePreserving):
 
         result = torch.empty_like(self.permutation, dtype=torch.long)
         result[self.permutation] = torch.arange(
-            self.permutation.size(0), dtype=torch.long, device=self.permutation.device
+            self.permutation.size(0),
+            dtype=torch.long,
+            device=self.permutation.device,
         )
         return result
