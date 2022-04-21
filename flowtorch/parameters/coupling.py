@@ -226,8 +226,9 @@ class ConvCoupling(Parameters):
         # We need each param_shapes to match input_shape in
         # its leftmost dimensions
         for s in param_shapes:
-            assert (len(s) >= len(input_shape)) \
-                   and (s[: len(input_shape)] == input_shape)
+            assert (len(s) >= len(input_shape)) and (
+                s[: len(input_shape)] == input_shape
+            )
 
         if cnn_kernel is None:
             cnn_kernel = [3, 1, 3]
