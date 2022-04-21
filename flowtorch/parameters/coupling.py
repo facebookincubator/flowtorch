@@ -196,7 +196,8 @@ class DenseCoupling(Parameters):
 
         result = h.unbind(-2)
         result = tuple(
-            r.masked_fill(~self.mask_output.expand_as(r), 0.0) for r in result  # type: ignore
+            r.masked_fill(~self.mask_output.expand_as(r), 0.0)
+            for r in result  # type: ignore
         )
         return result
 
