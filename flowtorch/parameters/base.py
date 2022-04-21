@@ -29,7 +29,7 @@ class Parameters(torch.nn.Module, metaclass=LazyMeta):
         context: Optional[torch.Tensor] = None,
     ) -> Optional[Sequence[torch.Tensor]]:
         # TODO: Caching etc.
-        return self._forward(input, inverse, context)
+        return self._forward(input, inverse=inverse, context=context)
 
     def _forward(
         self,

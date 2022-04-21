@@ -1,9 +1,10 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Callable, Iterable, Optional, Sequence
+from typing import Callable, Optional, Sequence
 
 import torch
 import torch.nn as nn
+
 from flowtorch.nn.made import MaskedLinear
 from flowtorch.parameters.base import Parameters
 
@@ -45,7 +46,9 @@ class DenseCoupling(Parameters):
         # We need each param_shapes to match input_shape in
         # its leftmost dimensions
         for s in param_shapes:
-            assert len(s) >= len(input_shape) and s[: len(input_shape)] == input_shape
+            assert (len(s) >= len(input_shape)) and (
+                s[: len(input_shape)] == input_shape
+            )
 
         self.hidden_dims = hidden_dims
         self.nonlinearity = nonlinearity
@@ -86,7 +89,8 @@ class DenseCoupling(Parameters):
 
         if input_dims == 1:
             raise ValueError(
-                "Coupling input_dim = 1. Coupling transforms require at least two features."
+                "Coupling input_dim = 1. Coupling transforms require at least "
+                "two features."
             )
 
         self.register_buffer("permutation", permutation)
@@ -105,7 +109,10 @@ class DenseCoupling(Parameters):
 
         out_dims = input_dims * self.output_multiplier
         mask_output = torch.ones(
-            self.output_multiplier, input_dims, hidden_dims[-1], dtype=torch.bool
+            self.output_multiplier,
+            input_dims,
+            hidden_dims[-1],
+            dtype=torch.bool,
         )
         mask_output[:, :x1_dim] = 0.0
         mask_output = mask_output[:, self.permutation]
@@ -171,11 +178,12 @@ class DenseCoupling(Parameters):
 
     def _forward(
         self,
-        input: torch.Tensor,
+        *input: torch.Tensor,
         inverse: bool,
         context: Optional[torch.Tensor] = None,
     ) -> Optional[Sequence[torch.Tensor]]:
 
+        input = input[0]
         input_masked = input.masked_fill(self.mask_output, 0.0)  # type: ignore
         if context is not None:
             input_aug = torch.cat(
@@ -195,14 +203,20 @@ class DenseCoupling(Parameters):
 
         result = h.unbind(-2)
         result = tuple(
-            r.masked_fill(~self.mask_output.expand_as(r), 0.0) for r in result  # type: ignore
+            r.masked_fill(~self.mask_output.expand_as(r), 0.0)
+            for r in result  # type: ignore
         )
         return result
 
 
 class ConvCoupling(Parameters):
     autoregressive = False
-    _mask_types = ["chessboard", "quadrants", "inv_chessboard", "inv_quadrants"]
+    _mask_types = [
+        "chessboard",
+        "quadrants",
+        "inv_chessboard",
+        "inv_quadrants",
+    ]
 
     def __init__(
         self,
@@ -225,7 +239,9 @@ class ConvCoupling(Parameters):
         # We need each param_shapes to match input_shape in
         # its leftmost dimensions
         for s in param_shapes:
-            assert len(s) >= len(input_shape) and s[: len(input_shape)] == input_shape
+            assert (len(s) >= len(input_shape)) and (
+                s[: len(input_shape)] == input_shape
+            )
 
         if cnn_kernel is None:
             cnn_kernel = [3, 1, 3]
@@ -247,7 +263,7 @@ class ConvCoupling(Parameters):
     def _build(
         self,
         input_shape: torch.Size,  # something like [C, W, H]
-        param_shapes: Sequence[torch.Size],  # something like [[C, W, H], [C, W, H]]
+        param_shapes: Sequence[torch.Size],  # [[C, W, H], [C, W, H]]
         context_shape: Optional[torch.Size],
         mask_type: str,
     ) -> None:
@@ -302,11 +318,12 @@ class ConvCoupling(Parameters):
 
     def _forward(
         self,
-        input: torch.Tensor,
+        *input: torch.Tensor,
         inverse: bool,
         context: Optional[torch.Tensor] = None,
     ) -> Optional[Sequence[torch.Tensor]]:
 
+        input = input[0]
         unsqueeze = False
         if input.ndimension() == 3:
             # mostly for initialization
@@ -323,7 +340,6 @@ class ConvCoupling(Parameters):
         else:
             input_aug = input_masked
 
-        print(self.layers)
         h = self.layers(input_aug)
 
         if self.skip_connections:
@@ -336,7 +352,8 @@ class ConvCoupling(Parameters):
         result = h.chunk(2, -3)
 
         result = tuple(
-            r.masked_fill(~self.mask.expand_as(r), 0.0) for r in result  # type: ignore
+            r.masked_fill(~self.mask.expand_as(r), 0.0)
+            for r in result  # type: ignore
         )
 
         return result

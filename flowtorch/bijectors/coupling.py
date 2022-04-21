@@ -12,6 +12,9 @@ from torch.distributions import constraints
 _REAL3d = deepcopy(constraints.real)
 _REAL3d.event_dim = 3
 
+_REAL1d = deepcopy(constraints.real)
+_REAL1d.event_dim = 1
+
 
 class CouplingBijector(AffineOp):
     """
@@ -26,6 +29,9 @@ class CouplingBijector(AffineOp):
         >>> x_bis = bij.inverse(y)
         >>> torch.testing.assert_allclose(x, x_bis)
     """
+
+    domain: constraints.Constraint = _REAL1d
+    codomain: constraints.Constraint = _REAL1d
 
     def __init__(
         self,
