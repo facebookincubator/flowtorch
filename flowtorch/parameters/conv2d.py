@@ -1,9 +1,9 @@
+# Copyright (c) Meta Platforms, Inc
 from typing import Sequence, Optional, Tuple
 
 import torch
-from torch import nn, Tensor
-
 from flowtorch.parameters import Parameters
+from torch import nn, Tensor
 
 
 class ZeroConv2d(Parameters):
@@ -16,7 +16,7 @@ class ZeroConv2d(Parameters):
         context_shape: Optional[torch.Size],
         *,
         kernel_size: int = 3,
-        padding: int = 1
+        padding: int = 1,
     ) -> None:
         super().__init__(param_shapes, input_shape, context_shape)
 
@@ -33,7 +33,8 @@ class ZeroConv2d(Parameters):
             self.channels,
             2 * self.channels,
             kernel_size=self.kernel_size,
-            padding=self.padding)
+            padding=self.padding,
+        )
         for p in self.conv2d.parameters():
             p.data.zero_()
 

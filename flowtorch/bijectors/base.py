@@ -45,12 +45,8 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         if params_fn is not None:
             param_shapes = self.param_shapes(shape)
             self._params_fn = params_fn(  # type: ignore
-                param_shapes,
-                self._shape,
-                self._context_shape
+                param_shapes, self._shape, self._context_shape
             )
-            print(params_fn)
-            print(self._params_fn)
 
     def parameters(self) -> Iterator[torch.Tensor]:
         assert self._params_fn is not None
@@ -83,7 +79,6 @@ class Bijector(metaclass=flowtorch.LazyMeta):
             return x.get_parent_from_bijector(self)
 
         x_tuple = self._forward_pre_ops(x)
-        print(self._params_fn)
         params = (
             self._params_fn(*x_tuple, inverse=False, context=context)
             if self._params_fn is not None

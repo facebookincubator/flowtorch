@@ -15,6 +15,7 @@ _REAL3d.event_dim = 3
 _REAL1d = deepcopy(constraints.real)
 _REAL1d.event_dim = 1
 
+
 class CouplingBijector(AffineOp):
     """
     Examples:

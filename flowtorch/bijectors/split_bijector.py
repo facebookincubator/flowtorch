@@ -1,16 +1,18 @@
+# Copyright (c) Meta Platforms, Inc
 from typing import Tuple, Optional, Sequence
 
+import flowtorch
 import torch
 from torch.nn.functional import softplus
 
-import flowtorch
+from ..parameters import ZeroConv2d
 from . import Bijector
 from .utils import _sum_rightmost_over_tuple
-from ..parameters import ZeroConv2d
 
 
 class ReshapeBijector(Bijector):
     pass
+
 
 class SplitBijector(ReshapeBijector):
     BIAS_SOFTPLUS = 0.54
@@ -63,9 +65,9 @@ class SplitBijector(ReshapeBijector):
         loc, scale = params
         scale = softplus(scale + self.BIAS_SOFTPLUS)
         x2 = y2 * scale + loc
-        ldj = self._transform.log_abs_det_jacobian(x1,
-                                                   x1.get_parent_from_bijector(
-                                                       self._transform))
+        ldj = self._transform.log_abs_det_jacobian(
+            x1, x1.get_parent_from_bijector(self._transform)
+        )
         ldj1, ldj2 = _sum_rightmost_over_tuple(ldj, -scale.log())
         return torch.cat([x1, x2], self.chunk_dim), ldj1 + ldj2
 
