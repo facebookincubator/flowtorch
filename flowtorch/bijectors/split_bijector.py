@@ -1,13 +1,16 @@
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Sequence
 
 import torch
-from torch import Tensor, nn
-from torch.nn import functional as F
+from torch.nn.functional import softplus
 
 import flowtorch
 from . import Bijector
-from .reshape import ReshapeBijector
+from .utils import _sum_rightmost_over_tuple
+from ..parameters import ZeroConv2d
 
+
+class ReshapeBijector(Bijector):
+    pass
 
 class SplitBijector(ReshapeBijector):
     BIAS_SOFTPLUS = 0.54
@@ -21,44 +24,51 @@ class SplitBijector(ReshapeBijector):
         chunk_dim: int = -3,
         context_shape: Optional[torch.Size] = None,
     ) -> None:
-        super().__init__(params_fn, transform=transform, shape=shape, context_shape=context_shape)
+        if params_fn is None:
+            params_fn = ZeroConv2d()
+
+        super().__init__(params_fn, shape=shape, context_shape=context_shape)
+        self._transform = transform
         self.chunk_dim = chunk_dim
-        self._split_prior = nn.Conv2d(10, 20, (3, 3), padding=(1, 1))
 
-    def _reshape_in(
-        self,
-        x: Tensor,
-        mode: str
-    ) -> Tuple[Tensor, Tensor, Tensor]:
+    def _forward_pre_ops(self, x: torch.Tensor) -> Tuple[torch.Tensor, ...]:
         x1, x2 = x.chunk(2, dim=self.chunk_dim)
-        ldj = 0.0
-        if mode == 'forward':
-            m, logs = self._split_prior(x1).chunk(2, dim=self.chunk_dim)
-            sd = F.softplus(self.BIAS_SOFTPLUS + logs)
-            sd_rec = sd.clamp_min(1e-5).reciprocal()
-            x2 = (x2 - m) * sd_rec
-            ldj = sd_rec.log()
-        return x1, x2, ldj
+        return x1, x2
 
-    def _reshape_out(
+    def _inverse_pre_ops(self, y: torch.Tensor) -> Tuple[torch.Tensor, ...]:
+        y1, y2 = y.chunk(2, dim=self.chunk_dim)
+        x1 = self._transform.inverse(y1)
+        return x1, y2
+
+    def _forward(
         self,
-        x1: Tensor,
-        mode: str,
-        log_detJ: Tensor,
-        x2: Tensor,
-        ldj: Tensor,
-    ) -> Tuple[Tensor, ...]:
-        if mode == "inverse":
-            m, logs = self._split_prior(x1)
-            sd = F.softplus(self.BIAS_SOFTPLUS + logs)
-            sd = sd.clamp_min(1e-5)
-            x2 = m + x2 * sd
-            ldj = - sd.log()
-        if isinstance(ldj, Tensor) and isinstance(log_detJ, Tensor):
-            if not ldj.shape == log_detJ.shape:
-                raise RuntimeError(
-                    "SplitBijector and transform log-abs-det Jacobian shapes"
-                    f"mismatch: {ldj.shape} vs {log_detJ.shape}")
-        ldj = ldj + log_detJ
-        y = torch.cat([x1, x2], dim=self.chunk_dim)
-        return y, ldj
+        *x: torch.Tensor,
+        params: Optional[Sequence[torch.Tensor]],
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        x1, x2 = x
+        loc, scale = params
+        scale = softplus(scale + self.BIAS_SOFTPLUS)
+        y1 = self._transform.forward(x1)
+        y2 = (x2 - loc) / scale.clamp_min(1e-5)
+        ldj = self._transform.log_abs_det_jacobian(x1, y1)
+        ldj1, ldj2 = _sum_rightmost_over_tuple(ldj, -scale.log())
+        return torch.cat([y1, y2], self.chunk_dim), ldj1 + ldj2
+
+    def _inverse(
+        self,
+        *y: torch.Tensor,
+        params: Optional[Sequence[torch.Tensor]],
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        x1, y2 = y
+        loc, scale = params
+        scale = softplus(scale + self.BIAS_SOFTPLUS)
+        x2 = y2 * scale + loc
+        ldj = self._transform.log_abs_det_jacobian(x1,
+                                                   x1.get_parent_from_bijector(
+                                                       self._transform))
+        ldj1, ldj2 = _sum_rightmost_over_tuple(ldj, -scale.log())
+        return torch.cat([x1, x2], self.chunk_dim), ldj1 + ldj2
+
+    def param_shapes(self, shape: torch.Size) -> Tuple[torch.Size, torch.Size]:
+        # A mean and log variance for every dimension of the event shape
+        return shape, shape

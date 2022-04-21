@@ -24,16 +24,16 @@ class Parameters(torch.nn.Module, metaclass=LazyMeta):
 
     def forward(
         self,
-        input: torch.Tensor,
+        *input: torch.Tensor,
         inverse: bool,
         context: Optional[torch.Tensor] = None,
     ) -> Optional[Sequence[torch.Tensor]]:
         # TODO: Caching etc.
-        return self._forward(input, inverse, context)
+        return self._forward(*input, inverse=inverse, context=context)
 
     def _forward(
         self,
-        input: torch.Tensor,
+        *input: torch.Tensor,
         inverse: bool,
         context: Optional[torch.Tensor] = None,
     ) -> Optional[Sequence[torch.Tensor]]:

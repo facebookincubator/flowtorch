@@ -171,11 +171,12 @@ class DenseCoupling(Parameters):
 
     def _forward(
         self,
-        input: torch.Tensor,
+        *input: torch.Tensor,
         inverse: bool,
         context: Optional[torch.Tensor] = None,
     ) -> Optional[Sequence[torch.Tensor]]:
 
+        input = input[0]
         input_masked = input.masked_fill(self.mask_output, 0.0)  # type: ignore
         if context is not None:
             input_aug = torch.cat(
@@ -302,11 +303,12 @@ class ConvCoupling(Parameters):
 
     def _forward(
         self,
-        input: torch.Tensor,
+        *input: torch.Tensor,
         inverse: bool,
         context: Optional[torch.Tensor] = None,
     ) -> Optional[Sequence[torch.Tensor]]:
 
+        input = input[0]
         unsqueeze = False
         if input.ndimension() == 3:
             # mostly for initialization

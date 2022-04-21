@@ -16,7 +16,8 @@ from flowtorch.bijectors.affine_fixed import AffineFixed
 from flowtorch.bijectors.autoregressive import Autoregressive
 from flowtorch.bijectors.base import Bijector
 from flowtorch.bijectors.compose import Compose
-from flowtorch.bijectors.coupling import ConvCouplingBijector, CouplingBijector
+from flowtorch.bijectors.coupling import ConvCouplingBijector
+from flowtorch.bijectors.coupling import CouplingBijector
 from flowtorch.bijectors.elementwise import Elementwise
 from flowtorch.bijectors.elu import ELU
 from flowtorch.bijectors.exp import Exp
@@ -28,16 +29,17 @@ from flowtorch.bijectors.sigmoid import Sigmoid
 from flowtorch.bijectors.softplus import Softplus
 from flowtorch.bijectors.spline import Spline
 from flowtorch.bijectors.spline_autoregressive import SplineAutoregressive
+from flowtorch.bijectors.split_bijector import ReshapeBijector
+from flowtorch.bijectors.split_bijector import SplitBijector
 from flowtorch.bijectors.tanh import Tanh
 from flowtorch.bijectors.volume_preserving import VolumePreserving
-from flowtorch.bijectors.split_bijector import SplitBijector
 
 standard_bijectors = [
     ("Affine", Affine),
     ("AffineAutoregressive", AffineAutoregressive),
-    ("CouplingBijector", CouplingBijector),
-    ("ConvCouplingBijector", ConvCouplingBijector),
     ("AffineFixed", AffineFixed),
+    ("ConvCouplingBijector", ConvCouplingBijector),
+    ("CouplingBijector", CouplingBijector),
     ("ELU", ELU),
     ("Exp", Exp),
     ("LeakyReLU", LeakyReLU),
@@ -57,6 +59,7 @@ meta_bijectors = [
     ("Bijector", Bijector),
     ("Compose", Compose),
     ("VolumePreserving", VolumePreserving),
+    ("ReshapeBijector", ReshapeBijector),
     ("SplitBijector", SplitBijector),
 ]
 

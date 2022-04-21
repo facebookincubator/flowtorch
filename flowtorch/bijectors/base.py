@@ -45,8 +45,12 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         if params_fn is not None:
             param_shapes = self.param_shapes(shape)
             self._params_fn = params_fn(  # type: ignore
-                param_shapes, self._shape, self._context_shape
+                param_shapes,
+                self._shape,
+                self._context_shape
             )
+            print(params_fn)
+            print(self._params_fn)
 
     def parameters(self) -> Iterator[torch.Tensor]:
         assert self._params_fn is not None
@@ -64,6 +68,9 @@ class Bijector(metaclass=flowtorch.LazyMeta):
             and x.check_context(context)
         )
 
+    def _forward_pre_ops(self, x: torch.Tensor) -> Tuple[torch.Tensor, ...]:
+        return (x,)
+
     def forward(
         self,
         x: torch.Tensor,
@@ -75,12 +82,14 @@ class Bijector(metaclass=flowtorch.LazyMeta):
             assert isinstance(x, BijectiveTensor)
             return x.get_parent_from_bijector(self)
 
+        x_tuple = self._forward_pre_ops(x)
+        print(self._params_fn)
         params = (
-            self._params_fn(x, inverse=False, context=context)
+            self._params_fn(*x_tuple, inverse=False, context=context)
             if self._params_fn is not None
             else None
         )
-        y, log_detJ = self._forward(x, params)
+        y, log_detJ = self._forward(*x_tuple, params=params)
         if (
             is_record_flow_graph_enabled()
             and not isinstance(y, BijectiveTensor)
@@ -92,7 +101,7 @@ class Bijector(metaclass=flowtorch.LazyMeta):
 
     def _forward(
         self,
-        x: torch.Tensor,
+        *x: torch.Tensor,
         params: Optional[Sequence[torch.Tensor]],
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         """
@@ -110,6 +119,9 @@ class Bijector(metaclass=flowtorch.LazyMeta):
             and y.check_context(context)
         )
 
+    def _inverse_pre_ops(self, y: torch.Tensor) -> Tuple[torch.Tensor, ...]:
+        return (y,)
+
     def inverse(
         self,
         y: torch.Tensor,
@@ -123,12 +135,13 @@ class Bijector(metaclass=flowtorch.LazyMeta):
             return y.get_parent_from_bijector(self)
 
         # TODO: What to do in this line?
+        y_tuple = self._inverse_pre_ops(y)
         params = (
-            self._params_fn(y, inverse=True, context=context)
+            self._params_fn(*y_tuple, inverse=True, context=context)
             if self._params_fn is not None
             else None
         )
-        x, log_detJ = self._inverse(y, params)
+        x, log_detJ = self._inverse(*y_tuple, params=params)
 
         if (
             is_record_flow_graph_enabled()
@@ -140,7 +153,7 @@ class Bijector(metaclass=flowtorch.LazyMeta):
 
     def _inverse(
         self,
-        y: torch.Tensor,
+        *y: torch.Tensor,
         params: Optional[Sequence[torch.Tensor]],
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         """
