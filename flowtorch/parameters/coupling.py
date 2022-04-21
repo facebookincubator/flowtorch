@@ -45,7 +45,9 @@ class DenseCoupling(Parameters):
         # We need each param_shapes to match input_shape in
         # its leftmost dimensions
         for s in param_shapes:
-            assert len(s) >= len(input_shape) and s[: len(input_shape)] == input_shape
+            assert (len(s) >= len(input_shape)) and (
+                s[: len(input_shape)] == input_shape
+            )
 
         self.hidden_dims = hidden_dims
         self.nonlinearity = nonlinearity
@@ -86,7 +88,8 @@ class DenseCoupling(Parameters):
 
         if input_dims == 1:
             raise ValueError(
-                "Coupling input_dim = 1. Coupling transforms require at least two features."
+                "Coupling input_dim = 1. Coupling transforms require "
+                "at least two features."
             )
 
         self.register_buffer("permutation", permutation)
@@ -105,7 +108,10 @@ class DenseCoupling(Parameters):
 
         out_dims = input_dims * self.output_multiplier
         mask_output = torch.ones(
-            self.output_multiplier, input_dims, hidden_dims[-1], dtype=torch.bool
+            self.output_multiplier,
+            input_dims,
+            hidden_dims[-1],
+            dtype=torch.bool
         )
         mask_output[:, :x1_dim] = 0.0
         mask_output = mask_output[:, self.permutation]
@@ -204,7 +210,12 @@ class DenseCoupling(Parameters):
 
 class ConvCoupling(Parameters):
     autoregressive = False
-    _mask_types = ["chessboard", "quadrants", "inv_chessboard", "inv_quadrants"]
+    _mask_types = [
+        "chessboard",
+        "quadrants",
+        "inv_chessboard",
+        "inv_quadrants"
+    ]
 
     def __init__(
         self,
@@ -341,7 +352,8 @@ class ConvCoupling(Parameters):
         result = h.chunk(2, -3)
 
         result = tuple(
-            r.masked_fill(~self.mask.expand_as(r), 0.0) for r in result  # type: ignore
+            r.masked_fill(~self.mask.expand_as(r), 0.0)
+            for r in result  # type: ignore
         )
 
         return result
