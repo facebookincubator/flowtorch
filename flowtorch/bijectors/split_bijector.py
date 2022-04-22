@@ -5,9 +5,9 @@ import flowtorch
 import torch
 from torch.nn.functional import softplus
 
-from .bijective_tensor import BijectiveTensor
 from ..parameters import ZeroConv2d
 from . import Bijector
+from .bijective_tensor import BijectiveTensor
 from .utils import _sum_rightmost_over_tuple
 
 
