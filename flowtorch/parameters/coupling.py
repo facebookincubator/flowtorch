@@ -4,7 +4,6 @@ from typing import Callable, Optional, Sequence
 
 import torch
 import torch.nn as nn
-
 from flowtorch.nn.made import MaskedLinear
 from flowtorch.parameters.base import Parameters
 

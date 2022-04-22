@@ -1,5 +1,5 @@
 # Copyright (c) Meta Platforms, Inc
-from typing import Sequence, Optional, Tuple
+from typing import Sequence, Optional
 
 import torch
 from flowtorch.parameters import Parameters
