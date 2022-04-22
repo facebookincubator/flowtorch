@@ -193,7 +193,9 @@ class Bijector(metaclass=flowtorch.LazyMeta):
                     "Computing _log_abs_det_jacobian from values and not from cache."
                 )
             params = (
-                self._params_fn(x, y, context) if self._params_fn is not None else None
+                self._params_fn(x, inverse=False, context=context)
+                if self._params_fn is not None
+                else None
             )
             return self._log_abs_det_jacobian(x, y, params)
         return ladj

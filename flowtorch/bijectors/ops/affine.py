@@ -9,7 +9,7 @@ from flowtorch.ops import clamp_preserve_gradients
 from torch.distributions.utils import _sum_rightmost
 
 _DEFAULT_POSITIVE_BIASES = {
-    "softplus": torch.expm1(torch.ones(1)).log().item(),
+    "softplus": 0.5413248538970947,
     "exp": 0.0,
 }
 
@@ -45,6 +45,7 @@ class Affine(Bijector):
         self.log_scale_min_clip = log_scale_min_clip
         self.log_scale_max_clip = log_scale_max_clip
         self.sigmoid_bias = sigmoid_bias
+
         if positive_bias is None:
             positive_bias = _DEFAULT_POSITIVE_BIASES[positive_map]
         self.positive_bias = positive_bias
@@ -92,7 +93,7 @@ class Affine(Bijector):
 
         if not self._exp_map:
             inverse_scale = self.positive_map(unbounded_scale).reciprocal()
-            log_scale = inverse_scale.log()
+            log_scale = -inverse_scale.log()
         else:
             inverse_scale = torch.exp(-unbounded_scale)
             log_scale = unbounded_scale

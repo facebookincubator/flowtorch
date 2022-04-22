@@ -57,6 +57,7 @@ def test_neals_funnel_vi():
     nf_samples = dist.NealsFunnel().sample((20,)).squeeze().numpy()
     vi_samples = flow.sample((20,)).detach().numpy()
 
+    # kind of flacky -- locally fails
     assert scipy.stats.ks_2samp(nf_samples[:, 0], vi_samples[:, 0]).pvalue >= 0.05
     assert scipy.stats.ks_2samp(nf_samples[:, 1], vi_samples[:, 1]).pvalue >= 0.05
 

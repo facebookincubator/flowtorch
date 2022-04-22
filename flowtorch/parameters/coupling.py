@@ -339,7 +339,6 @@ class ConvCoupling(Parameters):
         else:
             input_aug = input_masked
 
-        print(self.layers)
         h = self.layers(input_aug)
 
         if self.skip_connections:
