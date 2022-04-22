@@ -9,7 +9,7 @@ from flowtorch.ops import clamp_preserve_gradients
 from torch.distributions.utils import _sum_rightmost
 
 _DEFAULT_POSITIVE_BIASES = {
-    "softplus": torch.expm1(torch.ones(1)).log().item(),
+    "softplus": 0.5413248538970947,
     "exp": 0.0,
 }
 
@@ -58,7 +58,7 @@ class Affine(Bijector):
 
     def _forward(
         self, x: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         assert params is not None
 
         mean, unbounded_scale = params
@@ -73,7 +73,7 @@ class Affine(Bijector):
 
     def _inverse(
         self, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         assert (
             params is not None
         ), f"{self.__class__.__name__}._inverse got no parameters"
@@ -86,7 +86,7 @@ class Affine(Bijector):
 
         if not self._exp_map:
             inverse_scale = self.positive_map(unbounded_scale).reciprocal()
-            log_scale = inverse_scale.log()
+            log_scale = -inverse_scale.log()
         else:
             inverse_scale = torch.exp(-unbounded_scale)
             log_scale = unbounded_scale

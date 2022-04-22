@@ -56,7 +56,7 @@ class Spline(Bijector):
 
         # TODO: Should I invert the sign of log_detJ?
         # TODO: A unit test that compares log_detJ from _forward and _inverse
-        return x_new, _sum_rightmost(log_detJ, self.domain.event_dim)
+        return x_new, _sum_rightmost(-log_detJ, self.domain.event_dim)
 
     def _log_abs_det_jacobian(
         self,

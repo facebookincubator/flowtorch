@@ -65,7 +65,7 @@ class CouplingBijector(AffineOp):
 
     def _forward(
         self, x: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         assert self._params_fn is not None
 
         y, ldj = super()._forward(x, params)
@@ -73,7 +73,7 @@ class CouplingBijector(AffineOp):
 
     def _inverse(
         self, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         assert self._params_fn is not None
 
         x, ldj = super()._inverse(y, params)
