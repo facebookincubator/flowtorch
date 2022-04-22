@@ -38,9 +38,9 @@ def test_neals_funnel_vi():
     flow = dist.Flow(base_dist, bijector)
     bijector = flow.bijector
 
-    opt = torch.optim.Adam(flow.parameters(), lr=2e-3)
+    opt = torch.optim.Adam(flow.parameters(), lr=1e-2)
     num_elbo_mc_samples = 200
-    for _ in range(100):
+    for _ in range(500):
         z0 = flow.base_dist.rsample(sample_shape=(num_elbo_mc_samples,))
         zk = bijector.forward(z0)
         ldj = zk._log_detJ
@@ -57,7 +57,6 @@ def test_neals_funnel_vi():
     nf_samples = dist.NealsFunnel().sample((20,)).squeeze().numpy()
     vi_samples = flow.sample((20,)).detach().numpy()
 
-    # kind of flacky -- locally fails
     assert scipy.stats.ks_2samp(nf_samples[:, 0], vi_samples[:, 0]).pvalue >= 0.05
     assert scipy.stats.ks_2samp(nf_samples[:, 1], vi_samples[:, 1]).pvalue >= 0.05
 
