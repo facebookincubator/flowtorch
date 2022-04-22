@@ -149,9 +149,7 @@ if __name__ == "__main__":
                     if after_quotes == "":
                         lines = lines[line_idx + 1 :]
                     elif after_quotes.startswith(";"):
-                        lines = [after_quotes[1:].lstrip()] + lines[
-                            line_idx + 1 :
-                        ]
+                        lines = [after_quotes[1:].lstrip()] + lines[line_idx + 1 :]
                     else:
                         raise RuntimeError(
                             "Statements must be separated by newlines or semicolons"

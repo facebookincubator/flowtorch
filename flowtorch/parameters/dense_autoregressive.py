@@ -29,10 +29,7 @@ class DenseAutoregressive(Parameters):
         # We need each param_shapes to match input_shape in
         # its leftmost dimensions
         for s in param_shapes:
-            assert (
-                len(s) >= len(input_shape)
-                and s[: len(input_shape)] == input_shape
-            )
+            assert len(s) >= len(input_shape) and s[: len(input_shape)] == input_shape
 
         self.hidden_dims = hidden_dims
         self.nonlinearity = nonlinearity
@@ -151,21 +148,20 @@ class DenseAutoregressive(Parameters):
 
     def _forward(
         self,
-        input: torch.Tensor,
+        *inputs: torch.Tensor,
         inverse: bool,
         context: Optional[torch.Tensor] = None,
     ) -> Optional[Sequence[torch.Tensor]]:
 
         # Flatten input
+        input = inputs[0]
         batch_shape = input.shape[: len(input.shape) - len(self.input_shape)]
         if len(batch_shape) > 0:
             input = input.reshape(batch_shape + (-1,))
 
         if context is not None:
             # TODO: Fix the following!
-            h = torch.cat(
-                [context.expand((input.shape[0], -1)), input], dim=-1
-            )
+            h = torch.cat([context.expand((input.shape[0], -1)), input], dim=-1)
         else:
             h = input
 

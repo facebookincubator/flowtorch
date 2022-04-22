@@ -52,9 +52,7 @@ or `'inverse'`. got {self._mode}"
             kwargs = {}
         # we don't want to create a new BijectiveTensor when summing,
         # calling zeros_like etc.
-        types = tuple(
-            Tensor if _type is BijectiveTensor else _type for _type in types
-        )
+        types = tuple(Tensor if _type is BijectiveTensor else _type for _type in types)
         return Tensor.__torch_function__(func, types, args, kwargs)
 
     def check_bijector(self, bijector: "Bijector") -> bool:
@@ -89,9 +87,7 @@ or `'inverse'`. got {self._mode}"
     def detach_from_flow(self) -> Tensor:
         detached_tensor = self._output if self.from_forward() else self._input
         if isinstance(detached_tensor, BijectiveTensor):
-            raise RuntimeError(
-                "the detached tensor is an instance of BijectiveTensor."
-            )
+            raise RuntimeError("the detached tensor is an instance of BijectiveTensor.")
         return detached_tensor
 
     def has_ancestor(self, tensor: Tensor) -> bool:

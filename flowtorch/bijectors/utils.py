@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 import functools
-from typing import Any, Callable, List, Sequence
+from typing import Any, Callable, List, Sequence, Tuple
 
 import torch
 
@@ -60,12 +60,12 @@ def requires_log_detJ() -> bool:
     return _REQUIRES_LOG_DETJ
 
 
-def _sum_rightmost_over_tuple(*x: torch.Tensor):
+def _sum_rightmost_over_tuple(*x: torch.Tensor) -> Tuple[torch.Tensor, ...]:
     min_dim = min(_x.ndimension() for _x in x)
-    x = [
-        _x.sum(dim=range(min_dim, _x.ndimension()))
+    x = tuple(
+        _x.sum(dim=list(range(min_dim, _x.ndimension())))
         if _x.ndimension() > min_dim
         else _x
         for _x in x
-    ]
+    )
     return x

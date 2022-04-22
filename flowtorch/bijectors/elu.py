@@ -15,15 +15,18 @@ class ELU(Fixed):
     # TODO: Setting the alpha value of ELU as __init__ argument
 
     def _forward(
-        self, x: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
+        self, *inputs: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        x = inputs[0]
         y = F.elu(x)
         ladj = self._log_abs_det_jacobian(x, y, params)
         return y, ladj
 
     def _inverse(
-        self, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
+        self, *inputs: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        y = inputs[0]
+
         x = torch.max(y, torch.zeros_like(y)) + torch.min(
             torch.log1p(y + eps), torch.zeros_like(y)
         )

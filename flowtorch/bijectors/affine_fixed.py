@@ -24,7 +24,7 @@ class AffineFixed(Fixed):
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None,
         loc: float = 0.0,
-        scale: float = 1.0
+        scale: float = 1.0,
     ) -> None:
         super().__init__(params_fn, shape=shape, context_shape=context_shape)
         self.loc = loc
@@ -32,9 +32,10 @@ class AffineFixed(Fixed):
 
     def _forward(
         self,
-        x: torch.Tensor,
+        *inputs: torch.Tensor,
         params: Optional[Sequence[torch.Tensor]],
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        x = inputs[0]
         y = self.loc + self.scale * x
         ladj: Optional[torch.Tensor] = None
         if requires_log_detJ():
@@ -42,8 +43,9 @@ class AffineFixed(Fixed):
         return y, ladj
 
     def _inverse(
-        self, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
+        self, *inputs: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        y = inputs[0]
         x = (y - self.loc) / self.scale
         ladj: Optional[torch.Tensor] = None
         if requires_log_detJ():

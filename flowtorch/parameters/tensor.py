@@ -18,15 +18,12 @@ class Tensor(Parameters):
 
         # TODO: Initialization strategies and constraints!
         self.params = nn.ParameterList(
-            [
-                nn.Parameter(torch.randn(shape) * 0.001)
-                for shape in param_shapes
-            ]
+            [nn.Parameter(torch.randn(shape) * 0.001) for shape in param_shapes]
         )
 
     def _forward(
         self,
-        input: torch.Tensor,
+        *input: torch.Tensor,
         inverse: bool,
         context: Optional[torch.Tensor] = None,
     ) -> Optional[Sequence[torch.Tensor]]:

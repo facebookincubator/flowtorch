@@ -5,6 +5,7 @@ import flowtorch
 import torch
 from torch.nn.functional import softplus
 
+from .bijective_tensor import BijectiveTensor
 from ..parameters import ZeroConv2d
 from . import Bijector
 from .utils import _sum_rightmost_over_tuple
@@ -27,7 +28,7 @@ class SplitBijector(ReshapeBijector):
         context_shape: Optional[torch.Size] = None,
     ) -> None:
         if params_fn is None:
-            params_fn = ZeroConv2d()
+            params_fn = ZeroConv2d()  # type: ignore
 
         super().__init__(params_fn, shape=shape, context_shape=context_shape)
         self._transform = transform
@@ -48,6 +49,7 @@ class SplitBijector(ReshapeBijector):
         params: Optional[Sequence[torch.Tensor]],
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         x1, x2 = x
+        assert params is not None
         loc, scale = params
         scale = softplus(scale + self.BIAS_SOFTPLUS)
         y1 = self._transform.forward(x1)
@@ -62,6 +64,8 @@ class SplitBijector(ReshapeBijector):
         params: Optional[Sequence[torch.Tensor]],
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         x1, y2 = y
+        assert params is not None
+        assert isinstance(x1, BijectiveTensor)
         loc, scale = params
         scale = softplus(scale + self.BIAS_SOFTPLUS)
         x2 = y2 * scale + loc

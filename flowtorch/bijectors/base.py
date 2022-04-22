@@ -95,9 +95,7 @@ class Bijector(metaclass=flowtorch.LazyMeta):
             and not (isinstance(x, BijectiveTensor) and y in set(x.parents()))
         ):
             # we exclude y that are bijective tensors for Compose
-            y = to_bijective_tensor(
-                x, y, context, self, log_detJ, mode="forward"
-            )
+            y = to_bijective_tensor(x, y, context, self, log_detJ, mode="forward")
         return y
 
     def _forward(
@@ -149,9 +147,7 @@ class Bijector(metaclass=flowtorch.LazyMeta):
             and not isinstance(x, BijectiveTensor)
             and not (isinstance(y, BijectiveTensor) and x in set(y.parents()))
         ):
-            x = to_bijective_tensor(
-                x, y, context, self, log_detJ, mode="inverse"
-            )
+            x = to_bijective_tensor(x, y, context, self, log_detJ, mode="inverse")
         return x
 
     def _inverse(
@@ -197,9 +193,7 @@ class Bijector(metaclass=flowtorch.LazyMeta):
                     "Computing _log_abs_det_jacobian from values and not from cache."
                 )
             params = (
-                self._params_fn(x, y, context)
-                if self._params_fn is not None
-                else None
+                self._params_fn(x, y, context) if self._params_fn is not None else None
             )
             return self._log_abs_det_jacobian(x, y, params)
         return ladj

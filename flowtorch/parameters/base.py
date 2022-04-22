@@ -33,7 +33,7 @@ class Parameters(torch.nn.Module, metaclass=LazyMeta):
 
     def _forward(
         self,
-        *input: torch.Tensor,
+        *inputs: torch.Tensor,
         inverse: bool,
         context: Optional[torch.Tensor] = None,
     ) -> Optional[Sequence[torch.Tensor]]:

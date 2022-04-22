@@ -56,18 +56,13 @@ class Compose(Bijector):
             if is_record_flow_graph_enabled() and requires_log_detJ():
                 if isinstance(y, BijectiveTensor) and y.from_forward():
                     _log_detJ = y._log_detJ
-                elif (
-                    isinstance(x_temp, BijectiveTensor)
-                    and x_temp.from_inverse()
-                ):
+                elif isinstance(x_temp, BijectiveTensor) and x_temp.from_inverse():
                     _log_detJ = x_temp._log_detJ
                 else:
                     raise RuntimeError(
                         "neither of x nor y contains the log-abs-det-jacobian"
                     )
-                log_detJ = (
-                    log_detJ + _log_detJ if log_detJ is not None else _log_detJ
-                )
+                log_detJ = log_detJ + _log_detJ if log_detJ is not None else _log_detJ
             x_temp = y
 
         # TODO: Check that this doesn't contain bugs!
@@ -77,9 +72,7 @@ class Compose(Bijector):
             and not (isinstance(x, BijectiveTensor) and y in set(x.parents()))
         ):
             # we exclude y that are bijective tensors for Compose
-            y = to_bijective_tensor(
-                x, x_temp, context, self, log_detJ, mode="forward"
-            )
+            y = to_bijective_tensor(x, x_temp, context, self, log_detJ, mode="forward")
         return y
 
     def inverse(
@@ -93,10 +86,7 @@ class Compose(Bijector):
         for bijector in reversed(self.bijectors):
             x = bijector.inverse(y_temp, context)  # type: ignore
             if is_record_flow_graph_enabled() and requires_log_detJ():
-                if (
-                    isinstance(y_temp, BijectiveTensor)
-                    and y_temp.from_forward()
-                ):
+                if isinstance(y_temp, BijectiveTensor) and y_temp.from_forward():
                     _log_detJ = y_temp._log_detJ
                 elif isinstance(x, BijectiveTensor) and x.from_inverse():
                     _log_detJ = x._log_detJ
@@ -104,9 +94,7 @@ class Compose(Bijector):
                     raise RuntimeError(
                         "neither of x nor y contains the log-abs-det-jacobian"
                     )
-                log_detJ = (
-                    log_detJ + _log_detJ if log_detJ is not None else _log_detJ
-                )
+                log_detJ = log_detJ + _log_detJ if log_detJ is not None else _log_detJ
             y_temp = x  # type: ignore
 
         # TODO: Check that this doesn't contain bugs!
@@ -115,9 +103,7 @@ class Compose(Bijector):
             and not isinstance(x, BijectiveTensor)
             and not (isinstance(y, BijectiveTensor) and x in set(y.parents()))
         ):
-            x = to_bijective_tensor(
-                y_temp, y, context, self, log_detJ, mode="inverse"
-            )
+            x = to_bijective_tensor(y_temp, y, context, self, log_detJ, mode="inverse")
         return x  # type: ignore
 
     def log_abs_det_jacobian(

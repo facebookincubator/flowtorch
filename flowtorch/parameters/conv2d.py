@@ -3,7 +3,7 @@ from typing import Sequence, Optional
 
 import torch
 from flowtorch.parameters import Parameters
-from torch import nn, Tensor
+from torch import nn
 
 
 class ZeroConv2d(Parameters):
@@ -43,10 +43,10 @@ class ZeroConv2d(Parameters):
         *input: torch.Tensor,
         inverse: bool,
         context: Optional[torch.Tensor] = None,
-    ) -> Tensor:
+    ) -> Optional[Sequence[torch.Tensor]]:
         x1, x2_or_y2 = input
         return self.conv2d(x1).chunk(2, dim=-3)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         string = f"{self.__class__.__name__}(conv={self.conv2d})"
         return string

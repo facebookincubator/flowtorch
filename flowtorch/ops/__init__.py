@@ -8,9 +8,7 @@ import torch.nn.functional as F
 eps = 1e-8
 
 
-def clamp_preserve_gradients(
-    x: torch.Tensor, min: float, max: float
-) -> torch.Tensor:
+def clamp_preserve_gradients(x: torch.Tensor, min: float, max: float) -> torch.Tensor:
     """
     This helper function clamps gradients but still passes through the
     gradient in clamped regions
@@ -27,9 +25,7 @@ def softplus_inv(y: torch.Tensor) -> torch.Tensor:
     return y + y.neg().expm1().neg().log()
 
 
-def _searchsorted(
-    sorted_sequence: torch.Tensor, values: torch.Tensor
-) -> torch.Tensor:
+def _searchsorted(sorted_sequence: torch.Tensor, values: torch.Tensor) -> torch.Tensor:
     """
     Searches for which bin an input belongs to (in a way that is parallelizable and
     amenable to autodiff)
@@ -197,18 +193,14 @@ def monotonic_rational_spline(
             numerator = (input_lambdas * wa * (ya - inputs)) * (
                 inputs <= yc
             ).float() + (
-                (wc - input_lambdas * wb) * inputs
-                + input_lambdas * wb * yb
-                - wc * yc
+                (wc - input_lambdas * wb) * inputs + input_lambdas * wb * yb - wc * yc
             ) * (
                 inputs > yc
             ).float()
 
             denominator = ((wc - wa) * inputs + wa * ya - wc * yc) * (
                 inputs <= yc
-            ).float() + ((wc - wb) * inputs + wb * yb - wc * yc) * (
-                inputs > yc
-            ).float()
+            ).float() + ((wc - wb) * inputs + wb * yb - wc * yc) * (inputs > yc).float()
 
             theta = numerator / denominator
 
@@ -216,11 +208,7 @@ def monotonic_rational_spline(
 
             derivative_numerator = (
                 wa * wc * input_lambdas * (yc - ya) * (inputs <= yc).float()
-                + wb
-                * wc
-                * (1 - input_lambdas)
-                * (yb - yc)
-                * (inputs > yc).float()
+                + wb * wc * (1 - input_lambdas) * (yb - yc) * (inputs > yc).float()
             ) * input_widths
 
             logabsdet = torch.log(derivative_numerator) - 2 * torch.log(
@@ -230,11 +218,9 @@ def monotonic_rational_spline(
         else:
             theta = (inputs - input_cumwidths) / input_widths
 
-            numerator = (
-                wa * ya * (input_lambdas - theta) + wc * yc * theta
-            ) * (theta <= input_lambdas).float() + (
-                wc * yc * (1 - theta) + wb * yb * (theta - input_lambdas)
-            ) * (
+            numerator = (wa * ya * (input_lambdas - theta) + wc * yc * theta) * (
+                theta <= input_lambdas
+            ).float() + (wc * yc * (1 - theta) + wb * yb * (theta - input_lambdas)) * (
                 theta > input_lambdas
             ).float()
 
@@ -247,11 +233,7 @@ def monotonic_rational_spline(
             outputs = numerator / denominator
 
             derivative_numerator = (
-                wa
-                * wc
-                * input_lambdas
-                * (yc - ya)
-                * (theta <= input_lambdas).float()
+                wa * wc * input_lambdas * (yc - ya) * (theta <= input_lambdas).float()
                 + wb
                 * wc
                 * (1 - input_lambdas)
@@ -267,16 +249,10 @@ def monotonic_rational_spline(
     else:
         if inverse:
             a = (inputs - input_cumheights) * (
-                input_derivatives
-                + input_derivatives_plus_one
-                - 2 * input_delta
+                input_derivatives + input_derivatives_plus_one - 2 * input_delta
             ) + input_heights * (input_delta - input_derivatives)
-            b = input_heights * input_derivatives - (
-                inputs - input_cumheights
-            ) * (
-                input_derivatives
-                + input_derivatives_plus_one
-                - 2 * input_delta
+            b = input_heights * input_derivatives - (inputs - input_cumheights) * (
+                input_derivatives + input_derivatives_plus_one - 2 * input_delta
             )
             c = -input_delta * (inputs - input_cumheights)
 
@@ -288,11 +264,7 @@ def monotonic_rational_spline(
 
             theta_one_minus_theta = root * (1 - root)
             denominator = input_delta + (
-                (
-                    input_derivatives
-                    + input_derivatives_plus_one
-                    - 2 * input_delta
-                )
+                (input_derivatives + input_derivatives_plus_one - 2 * input_delta)
                 * theta_one_minus_theta
             )
             derivative_numerator = input_delta.pow(2) * (
@@ -300,24 +272,17 @@ def monotonic_rational_spline(
                 + 2 * input_delta * theta_one_minus_theta
                 + input_derivatives * (1 - root).pow(2)
             )
-            logabsdet = -(
-                torch.log(derivative_numerator) - 2 * torch.log(denominator)
-            )
+            logabsdet = -(torch.log(derivative_numerator) - 2 * torch.log(denominator))
 
         else:
             theta = (inputs - input_cumwidths) / input_widths
             theta_one_minus_theta = theta * (1 - theta)
 
             numerator = input_heights * (
-                input_delta * theta.pow(2)
-                + input_derivatives * theta_one_minus_theta
+                input_delta * theta.pow(2) + input_derivatives * theta_one_minus_theta
             )
             denominator = input_delta + (
-                (
-                    input_derivatives
-                    + input_derivatives_plus_one
-                    - 2 * input_delta
-                )
+                (input_derivatives + input_derivatives_plus_one - 2 * input_delta)
                 * theta_one_minus_theta
             )
             outputs = input_cumheights + numerator / denominator
@@ -327,9 +292,7 @@ def monotonic_rational_spline(
                 + 2 * input_delta * theta_one_minus_theta
                 + input_derivatives * (1 - theta).pow(2)
             )
-            logabsdet = torch.log(derivative_numerator) - 2 * torch.log(
-                denominator
-            )
+            logabsdet = torch.log(derivative_numerator) - 2 * torch.log(denominator)
 
     # Apply the identity function outside the bounding box
     outputs[outside_interval_mask] = inputs[outside_interval_mask]

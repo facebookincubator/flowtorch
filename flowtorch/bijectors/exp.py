@@ -14,15 +14,18 @@ class Exp(Fixed):
     codomain = constraints.positive
 
     def _forward(
-        self, x: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
+        self, *inputs: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        x = inputs[0]
         y = torch.exp(x)
         ladj = self._log_abs_det_jacobian(x, y, params)
         return y, ladj
 
     def _inverse(
-        self, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
+        self, *inputs: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        y = inputs[0]
+
         x = y.log()
         ladj = self._log_abs_det_jacobian(x, y, params)
         return x, ladj

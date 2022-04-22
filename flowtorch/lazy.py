@@ -29,11 +29,7 @@ def partial_signature(
 
 def count_unbound(sig: inspect.Signature) -> int:
     return len(
-        [
-            p
-            for p, v in sig.parameters.items()
-            if v.default is inspect.Parameter.empty
-        ]
+        [p for p, v in sig.parameters.items() if v.default is inspect.Parameter.empty]
     )
 
 
@@ -52,11 +48,7 @@ class LazyMeta(type):
         # Remove first argument (i.e., self) from signature of class' initializer
         sig = inspect.signature(lazy_cls.__init__)
         new_parameters = OrderedDict(
-            [
-                (k, v)
-                for idx, (k, v) in enumerate(sig.parameters.items())
-                if idx != 0
-            ]
+            [(k, v) for idx, (k, v) in enumerate(sig.parameters.items()) if idx != 0]
         )
         sig = sig.replace(parameters=list(new_parameters.values()))
 
@@ -96,9 +88,7 @@ class Lazy(metaclass=LazyMeta):
         """
         Apply additional bindings
         """
-        new_bindings = dict(
-            self.bound_sig.bind_partial(*args, **kwargs).arguments
-        )
+        new_bindings = dict(self.bound_sig.bind_partial(*args, **kwargs).arguments)
         new_bindings.update(self.bindings)
 
         # Update args and kwargs

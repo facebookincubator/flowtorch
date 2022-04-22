@@ -51,16 +51,15 @@ class Affine(Bijector):
         if positive_map not in _POSITIVE_MAPS:
             raise RuntimeError(f"Unknwon positive map {positive_map}")
         self._positive_map = _POSITIVE_MAPS[positive_map]
-        self._exp_map = (
-            self._positive_map is torch.exp and self.positive_bias == 0
-        )
+        self._exp_map = self._positive_map is torch.exp and self.positive_bias == 0
 
     def positive_map(self, x: torch.Tensor) -> torch.Tensor:
         return self._positive_map(x + self.positive_bias)
 
     def _forward(
-        self, x: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        self, *inputs: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        x = inputs[0]
         assert params is not None
 
         mean, unbounded_scale = params
@@ -76,8 +75,9 @@ class Affine(Bijector):
         return y, _sum_rightmost(log_scale, self.domain.event_dim)
 
     def _inverse(
-        self, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        self, *inputs: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        y = inputs[0]
         assert (
             params is not None
         ), f"{self.__class__.__name__}._inverse got no parameters"

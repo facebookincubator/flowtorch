@@ -44,14 +44,16 @@ class Spline(Bijector):
         super().__init__(params_fn, shape=shape, context_shape=context_shape)
 
     def _forward(
-        self, x: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        self, *inputs: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        x = inputs[0]
         y, log_detJ = self._op(x, params)
         return y, _sum_rightmost(log_detJ, self.domain.event_dim)
 
     def _inverse(
-        self, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        self, *inputs: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        y = inputs[0]
         x_new, log_detJ = self._op(y, params, inverse=True)
         return x_new, _sum_rightmost(-log_detJ, self.domain.event_dim)
 

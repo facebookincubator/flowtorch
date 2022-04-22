@@ -177,12 +177,12 @@ class DenseCoupling(Parameters):
 
     def _forward(
         self,
-        *input: torch.Tensor,
+        *inputs: torch.Tensor,
         inverse: bool,
         context: Optional[torch.Tensor] = None,
     ) -> Optional[Sequence[torch.Tensor]]:
 
-        input = input[0]
+        input = inputs[0]
         input_masked = input.masked_fill(self.mask_output, 0.0)  # type: ignore
         if context is not None:
             input_aug = torch.cat(
@@ -202,7 +202,7 @@ class DenseCoupling(Parameters):
 
         result = h.unbind(-2)
         result = tuple(
-            r.masked_fill(~self.mask_output.expand_as(r), 0.0)
+            r.masked_fill(~self.mask_output.expand_as(r), 0.0)  # type: ignore
             for r in result  # type: ignore
         )
         return result
@@ -317,12 +317,12 @@ class ConvCoupling(Parameters):
 
     def _forward(
         self,
-        *input: torch.Tensor,
+        *inputs: torch.Tensor,
         inverse: bool,
         context: Optional[torch.Tensor] = None,
     ) -> Optional[Sequence[torch.Tensor]]:
 
-        input = input[0]
+        input = inputs[0]
         unsqueeze = False
         if input.ndimension() == 3:
             # mostly for initialization
@@ -352,8 +352,7 @@ class ConvCoupling(Parameters):
         result = h.chunk(2, -3)
 
         result = tuple(
-            r.masked_fill(~self.mask.expand_as(r), 0.0)
-            for r in result  # type: ignore
+            r.masked_fill(~self.mask.expand_as(r), 0.0) for r in result  # type: ignore
         )
 
         return result

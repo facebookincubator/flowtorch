@@ -32,8 +32,7 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         # TODO: Confirm that the following logic works. Shouldn't it use
         # .domain and .codomain?? Infer shape from constructed self.bijector
         shape = (
-            self.base_dist.batch_shape
-            + self.base_dist.event_shape  # pyre-ignore[16]
+            self.base_dist.batch_shape + self.base_dist.event_shape  # pyre-ignore[16]
         )
         event_dim = self.bijector.domain.event_dim  # type: ignore
         event_dim = max(event_dim, len(self.base_dist.event_shape))
