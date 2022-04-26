@@ -45,6 +45,7 @@ class DenseAutoregressive(Parameters):
     ) -> None:
         # Work out flattened input and output shapes
         param_shapes_ = list(param_shapes)
+        # Why not just (sum(input_shape))?
         input_dims = int(torch.sum(torch.tensor(input_shape)).int().item())
         if input_dims == 0:
             input_dims = 1  # scalars represented by torch.Size([])
@@ -60,6 +61,7 @@ class DenseAutoregressive(Parameters):
             # The permutation is chosen by the user
             permutation = torch.LongTensor(permutation)
 
+        # why not math.pod(s[len(input_shape):]), where math.prod([])=1?
         self.param_dims = [
             int(max(torch.prod(torch.tensor(s[len(input_shape) :])).item(), 1))
             for s in param_shapes_
@@ -141,33 +143,35 @@ class DenseAutoregressive(Parameters):
                 )
             )
 
+        # Why not using regular sequential?
         self.layers = nn.ModuleList(layers)
 
     def _forward(
         self,
-        x: Optional[torch.Tensor] = None,
+        input: torch.Tensor,
+        inverse: bool,
         context: Optional[torch.Tensor] = None,
     ) -> Optional[Sequence[torch.Tensor]]:
-        assert x is not None
 
-        # Flatten x
-        batch_shape = x.shape[: len(x.shape) - len(self.input_shape)]
+        # Flatten input
+        batch_shape = input.shape[: len(input.shape) - len(self.input_shape)]
         if len(batch_shape) > 0:
-            x = x.reshape(batch_shape + (-1,))
+            input = input.reshape(batch_shape + (-1,))
 
         if context is not None:
             # TODO: Fix the following!
-            h = torch.cat([context.expand((x.shape[0], -1)), x], dim=-1)
+            h = torch.cat([context.expand((input.shape[0], -1)), input], dim=-1)
         else:
-            h = x
+            h = input
 
+        # Why not using regular sequential?
         for idx in range(len(self.layers) // 2):
             h = self.layers[2 * idx + 1](self.layers[2 * idx](h))
         h = self.layers[-1](h)
 
         # TODO: Get skip_layers working again!
         # if self.skip_layer is not None:
-        #    h = h + self.skip_layer(x)
+        #    h = h + self.skip_layer(input)
 
         # Shape the output
         # h ~ (batch_dims * input_dims, total_params_per_dim)

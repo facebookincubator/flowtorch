@@ -16,6 +16,10 @@ from flowtorch.bijectors.affine_fixed import AffineFixed
 from flowtorch.bijectors.autoregressive import Autoregressive
 from flowtorch.bijectors.base import Bijector
 from flowtorch.bijectors.compose import Compose
+from flowtorch.bijectors.conv11 import Conv1x1Bijector
+from flowtorch.bijectors.conv11 import SomeOtherClass
+from flowtorch.bijectors.coupling import ConvCouplingBijector
+from flowtorch.bijectors.coupling import CouplingBijector
 from flowtorch.bijectors.elementwise import Elementwise
 from flowtorch.bijectors.elu import ELU
 from flowtorch.bijectors.exp import Exp
@@ -35,6 +39,9 @@ standard_bijectors = [
     ("Affine", Affine),
     ("AffineAutoregressive", AffineAutoregressive),
     ("AffineFixed", AffineFixed),
+    ("Conv1x1Bijector", Conv1x1Bijector),
+    ("ConvCouplingBijector", ConvCouplingBijector),
+    ("CouplingBijector", CouplingBijector),
     ("ELU", ELU),
     ("Exp", Exp),
     ("LeakyReLU", LeakyReLU),
@@ -54,6 +61,7 @@ meta_bijectors = [
     ("Bijector", Bijector),
     ("Compose", Compose),
     ("Invert", Invert),
+    ("SomeOtherClass", SomeOtherClass),
     ("VolumePreserving", VolumePreserving),
 ]
 

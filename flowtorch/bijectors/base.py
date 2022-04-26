@@ -71,7 +71,11 @@ class Bijector(torch.nn.Module, metaclass=flowtorch.LazyMeta):
             assert isinstance(x, BijectiveTensor)
             return x.get_parent_from_bijector(self)
 
-        params = self._params_fn(x, context) if self._params_fn is not None else None
+        params = (
+            self._params_fn(x, inverse=False, context=context)
+            if self._params_fn is not None
+            else None
+        )
         y, log_detJ = self._forward(x, params)
         if (
             is_record_flow_graph_enabled()
@@ -117,7 +121,11 @@ class Bijector(torch.nn.Module, metaclass=flowtorch.LazyMeta):
             return y.get_parent_from_bijector(self)
 
         # TODO: What to do in this line?
-        params = self._params_fn(x, context) if self._params_fn is not None else None
+        params = (
+            self._params_fn(y, inverse=True, context=context)
+            if self._params_fn is not None
+            else None
+        )
         x, log_detJ = self._inverse(y, params)
 
         if (
@@ -170,10 +178,10 @@ class Bijector(torch.nn.Module, metaclass=flowtorch.LazyMeta):
         if ladj is None:
             if is_record_flow_graph_enabled():
                 warnings.warn(
-                    "Computing _log_abs_det_jacobian from values and not " "from cache."
+                    "Computing _log_abs_det_jacobian from values and not from cache."
                 )
             params = (
-                self._params_fn(x, context) if self._params_fn is not None else None
+                self._params_fn(x, y, context) if self._params_fn is not None else None
             )
             return self._log_abs_det_jacobian(x, y, params)
         return ladj
