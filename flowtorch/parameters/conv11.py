@@ -95,7 +95,7 @@ class Conv1x1Params(Parameters):
                     torch.tensor(_v) for _v in scipy_linalg.lu(w_init.numpy())
                 ]
             else:
-                np_p = np_p0  # torch.zeros(w_shape).scatter_(-1, torch.multinomial(torch.randn(w_shape).softmax(-1), 1), 1.0)
+                np_p = np_p0
                 np_l = torch.eye(w_shape[0])
                 np_u = torch.eye(w_shape[0])
             self.register_buffer("p", np_p)
