@@ -7,6 +7,7 @@ Do not modify or delete!
 """
 
 from flowtorch.parameters.base import Parameters
+from flowtorch.parameters.conv11 import Conv1x1Params
 from flowtorch.parameters.coupling import ConvCoupling
 from flowtorch.parameters.coupling import DenseCoupling
 from flowtorch.parameters.dense_autoregressive import DenseAutoregressive
@@ -14,6 +15,7 @@ from flowtorch.parameters.tensor import Tensor
 
 __all__ = [
     "Parameters",
+    "Conv1x1Params",
     "ConvCoupling",
     "DenseCoupling",
     "DenseAutoregressive",
