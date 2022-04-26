@@ -37,28 +37,28 @@ standard_bijectors = [
     ("Affine", Affine),
     ("AffineAutoregressive", AffineAutoregressive),
     ("AffineFixed", AffineFixed),
+    ("Fixed", Fixed),
     ("ConvCouplingBijector", ConvCouplingBijector),
     ("CouplingBijector", CouplingBijector),
     ("ELU", ELU),
     ("Exp", Exp),
     ("LeakyReLU", LeakyReLU),
-    ("Permute", Permute),
+    ("VolumePreserving", VolumePreserving),
     ("Power", Power),
     ("Sigmoid", Sigmoid),
     ("Softplus", Softplus),
     ("Spline", Spline),
-    ("SplineAutoregressive", SplineAutoregressive),
     ("Tanh", Tanh),
 ]
 
 meta_bijectors = [
     ("Elementwise", Elementwise),
     ("Autoregressive", Autoregressive),
-    ("Fixed", Fixed),
     ("Bijector", Bijector),
     ("Compose", Compose),
     ("Invert", Invert),
-    ("VolumePreserving", VolumePreserving),
+    ("Permute", Permute),
+    ("SplineAutoregressive", SplineAutoregressive),
 ]
 
 
