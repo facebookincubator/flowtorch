@@ -22,6 +22,7 @@ from flowtorch.bijectors.elementwise import Elementwise
 from flowtorch.bijectors.elu import ELU
 from flowtorch.bijectors.exp import Exp
 from flowtorch.bijectors.fixed import Fixed
+from flowtorch.bijectors.invert import Invert
 from flowtorch.bijectors.leaky_relu import LeakyReLU
 from flowtorch.bijectors.permute import Permute
 from flowtorch.bijectors.power import Power
@@ -58,6 +59,7 @@ meta_bijectors = [
     ("Fixed", Fixed),
     ("Bijector", Bijector),
     ("Compose", Compose),
+    ("Invert", Invert),
     ("VolumePreserving", VolumePreserving),
     ("ReshapeBijector", ReshapeBijector),
     ("SplitBijector", SplitBijector),
