@@ -128,8 +128,8 @@ class Conv1x1Params(Parameters):
             dlogdet = torch.slogdet(weight)[1] * pixels
             if not inverse:
                 weight_out = self.weight.view(
-                    num_channels,
-                    num_channels, 1, 1)  # type: ignore
+                    num_channels, num_channels, 1, 1
+                )  # type: ignore
             else:
                 weight_double = weight.double()
                 dtype = weight.dtype
