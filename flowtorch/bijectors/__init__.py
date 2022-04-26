@@ -61,6 +61,7 @@ meta_bijectors = [
     ("Bijector", Bijector),
     ("Compose", Compose),
     ("Invert", Invert),
+    ("SomeOtherClass", SomeOtherClass),
     ("VolumePreserving", VolumePreserving),
 ]
 
