@@ -1,3 +1,4 @@
+# Copyright (c) Meta Platforms, Inc
 from copy import deepcopy
 from typing import Optional, Sequence, Tuple
 

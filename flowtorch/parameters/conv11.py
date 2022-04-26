@@ -1,3 +1,4 @@
+# Copyright (c) Meta Platforms, Inc
 from typing import Optional, Sequence, Union, List
 
 import torch
