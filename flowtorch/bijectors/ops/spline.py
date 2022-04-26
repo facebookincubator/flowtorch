@@ -53,9 +53,6 @@ class Spline(Bijector):
         self, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         x_new, log_detJ = self._op(y, params, inverse=True)
-
-        # TODO: Should I invert the sign of log_detJ?
-        # TODO: A unit test that compares log_detJ from _forward and _inverse
         return x_new, _sum_rightmost(-log_detJ, self.domain.event_dim)
 
     def _log_abs_det_jacobian(

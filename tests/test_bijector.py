@@ -1,12 +1,14 @@
 # Copyright (c) Meta Platforms, Inc
-import math
+import warnings
 
 import flowtorch.bijectors as bijectors
+import flowtorch.parameters as params
 import numpy as np
 import pytest
 import torch
 import torch.distributions as dist
 import torch.optim
+from flowtorch.bijectors import AffineAutoregressive, Compose
 from flowtorch.distributions import Flow
 
 """
@@ -19,13 +21,11 @@ def test_bijector_constructor():
 
 @pytest.fixture(params=[bij_name for _, bij_name in bijectors.standard_bijectors])
 def flow(request):
-    torch.set_default_dtype(torch.double)
     bij = request.param
     event_dim = max(bij.domain.event_dim, 1)
     event_shape = event_dim * [3]
     base_dist = dist.Independent(
-        dist.Normal(torch.zeros(event_shape), torch.ones(event_shape)),
-        event_dim,
+        dist.Normal(torch.zeros(event_shape), torch.ones(event_shape)), event_dim
     )
 
     flow = Flow(base_dist, bij)
@@ -41,12 +41,10 @@ def test_jacobian(flow, epsilon=1e-2):
     x = torch.randn(*flow.event_shape)
     x = torch.distributions.transform_to(bij.domain)(x)
     y = bij.forward(x)
-    if bij.domain.event_dim == 0:
-        analytic_ldt = bij.log_abs_det_jacobian(x, y).data.sum(-1)
-    else:
+    if bij.domain.event_dim == 1:
         analytic_ldt = bij.log_abs_det_jacobian(x, y).data
-        for _ in range(bij.domain.event_dim - 1):
-            analytic_ldt = analytic_ldt.sum(-1)
+    else:
+        analytic_ldt = bij.log_abs_det_jacobian(x, y).sum(-1).data
 
     # Calculate numerical Jacobian
     # TODO: Better way to get all indices of array/tensor?
@@ -88,8 +86,7 @@ def test_jacobian(flow, epsilon=1e-2):
     if hasattr(params, "permutation"):
         numeric_ldt = torch.sum(torch.log(torch.diag(jacobian)))
     else:
-        jacobian = jacobian.view(int(math.sqrt(jacobian.numel())), -1)
-        numeric_ldt = torch.log(torch.abs(jacobian.det())).sum()
+        numeric_ldt = torch.log(torch.abs(jacobian.det()))
 
     ldt_discrepancy = (analytic_ldt - numeric_ldt).abs()
     assert ldt_discrepancy < epsilon
@@ -112,7 +109,6 @@ def test_inverse(flow, epsilon=1e-5):
 
     # Test g^{-1}(g(x)) = x
     x_true = base_dist.sample(torch.Size([10]))
-    assert x_true.dtype is torch.double
     x_true = torch.distributions.transform_to(bij.domain)(x_true)
 
     y = bij.forward(x_true)
@@ -127,6 +123,48 @@ def test_inverse(flow, epsilon=1e-5):
 
     # Test that Jacobian after inverse op is same as after forward
     assert (J_1 - J_2).abs().max().item() < epsilon
+
+
+def test_invert():
+    # Define a simple bijector to invert
+    ar = Compose(
+        [
+            AffineAutoregressive(params.DenseAutoregressive()),
+            AffineAutoregressive(params.DenseAutoregressive()),
+        ]
+    )
+    shape = torch.Size(
+        [
+            16,
+        ]
+    )
+
+    # Instantiate the bijector and its inverse
+    bij = ar(shape=shape)
+    inv_bij = bijectors.Invert(ar)(shape=shape)
+
+    # Make parameters the same for both
+    inv_bij.load_state_dict(bij.state_dict(prefix="bijector."))
+
+    # Test if inversion is correct
+    x = torch.randn(50, 16, requires_grad=True)
+    torch.testing.assert_allclose(inv_bij.forward(x), bij.inverse(x))
+
+    y = inv_bij.forward(x)
+
+    # checks that no warning is displayed, which can happen if no cache is used
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        inv_bij.log_abs_det_jacobian(x, y)
+
+    with pytest.warns(UserWarning):
+        y_det = y.detach_from_flow()
+        inv_bij.log_abs_det_jacobian(x, y_det)
+
+    y = y.detach_from_flow()
+    torch.testing.assert_allclose(
+        inv_bij.log_abs_det_jacobian(x, y), bij.log_abs_det_jacobian(y, x)
+    )
 
 
 """

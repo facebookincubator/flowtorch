@@ -1,6 +1,8 @@
 # Copyright (c) Meta Platforms, Inc
+from __future__ import annotations
+
 import warnings
-from typing import Callable, Iterator, Optional, Sequence, Tuple, Union
+from typing import Callable, Optional, Sequence, Tuple, Union
 
 import flowtorch.parameters
 import torch
@@ -15,12 +17,9 @@ ParamFnType = Callable[
 ]
 
 
-class Bijector(metaclass=flowtorch.LazyMeta):
+class Bijector(torch.nn.Module, metaclass=flowtorch.LazyMeta):
     codomain: constraints.Constraint = constraints.real
     domain: constraints.Constraint = constraints.real
-    _shape: torch.Size
-    _context_shape: Optional[torch.Size]
-    _params_fn: Optional[Union[Parameters, torch.nn.ModuleList]] = None
 
     def __init__(
         self,
@@ -29,6 +28,8 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None,
     ) -> None:
+        super().__init__()
+
         # Prevent "meta bijectors" from being initialized
         # NOTE: We define a "standard bijector" as one that inherits from a
         # subclass of Bijector, hence why we need to test the length of the MRO
@@ -42,17 +43,12 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         self._context_shape = context_shape
 
         # Instantiate parameters (tensor, hypernets, etc.)
+        self._params_fn: Optional[Union[Parameters, torch.nn.ModuleList]] = None
         if params_fn is not None:
             param_shapes = self.param_shapes(shape)
             self._params_fn = params_fn(  # type: ignore
                 param_shapes, self._shape, self._context_shape
             )
-
-    def parameters(self) -> Iterator[torch.Tensor]:
-        assert self._params_fn is not None
-        if hasattr(self._params_fn, "parameters"):
-            for param in self._params_fn.parameters():
-                yield param
 
     def _check_bijective_x(
         self, x: torch.Tensor, context: Optional[torch.Tensor]
@@ -75,11 +71,7 @@ class Bijector(metaclass=flowtorch.LazyMeta):
             assert isinstance(x, BijectiveTensor)
             return x.get_parent_from_bijector(self)
 
-        params = (
-            self._params_fn(x, inverse=False, context=context)
-            if self._params_fn is not None
-            else None
-        )
+        params = self._params_fn(x, context) if self._params_fn is not None else None
         y, log_detJ = self._forward(x, params)
         if (
             is_record_flow_graph_enabled()
@@ -98,7 +90,9 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         """
         Abstract method to compute forward transformation.
         """
-        raise NotImplementedError
+        raise NotImplementedError(
+            f"layer {self.__class__.__name__} does not have an `_forward` method"
+        )
 
     def _check_bijective_y(
         self, y: torch.Tensor, context: Optional[torch.Tensor]
@@ -123,11 +117,7 @@ class Bijector(metaclass=flowtorch.LazyMeta):
             return y.get_parent_from_bijector(self)
 
         # TODO: What to do in this line?
-        params = (
-            self._params_fn(y, inverse=True, context=context)
-            if self._params_fn is not None
-            else None
-        )
+        params = self._params_fn(x, context) if self._params_fn is not None else None
         x, log_detJ = self._inverse(y, params)
 
         if (
@@ -146,7 +136,9 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         """
         Abstract method to compute inverse transformation.
         """
-        raise NotImplementedError
+        raise NotImplementedError(
+            f"layer {self.__class__.__name__} does not have an `_inverse` method"
+        )
 
     def log_abs_det_jacobian(
         self,
@@ -178,10 +170,10 @@ class Bijector(metaclass=flowtorch.LazyMeta):
         if ladj is None:
             if is_record_flow_graph_enabled():
                 warnings.warn(
-                    "Computing _log_abs_det_jacobian from values and not from cache."
+                    "Computing _log_abs_det_jacobian from values and not " "from cache."
                 )
             params = (
-                self._params_fn(x, y, context) if self._params_fn is not None else None
+                self._params_fn(x, context) if self._params_fn is not None else None
             )
             return self._log_abs_det_jacobian(x, y, params)
         return ladj
