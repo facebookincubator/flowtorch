@@ -1,7 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 import warnings
 from typing import Optional, Sequence
-from typing import Iterator, Optional, Sequence
 
 import flowtorch.parameters
 import torch

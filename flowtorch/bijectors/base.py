@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import warnings
-from typing import Callable, Iterator, Optional, Sequence, Tuple, Union
 from typing import Callable, Optional, Sequence, Tuple, Union
 
 import flowtorch.parameters
