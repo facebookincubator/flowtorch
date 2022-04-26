@@ -28,17 +28,17 @@ class Power(Fixed):
         self.exponent = exponent
 
     def _forward(
-        self, x: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
+        self, *inputs: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        x = inputs[0]
         y = x.pow(self.exponent)
         ladj = self._log_abs_det_jacobian(x, y, params)
         return y, ladj
 
     def _inverse(
-        self,
-        y: torch.Tensor,
-        params: Optional[Sequence[torch.Tensor]] = None,
+        self, *inputs: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        y = inputs[0]
         x = y.pow(1 / self.exponent)
         ladj = self._log_abs_det_jacobian(x, y, params)
         return x, ladj

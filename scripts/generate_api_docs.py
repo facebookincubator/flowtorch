@@ -180,7 +180,10 @@ def search_symbols(config):
     # Construct regular expressions for includes and excludes
     # Default include/exclude rules
     patterns = {
-        "include": {"modules": re.compile(r".+"), "symbols": re.compile(r".+")},
+        "include": {
+            "modules": re.compile(r".+"),
+            "symbols": re.compile(r".+"),
+        },
         "exclude": {"modules": re.compile(r""), "symbols": re.compile(r"")},
     }
 
@@ -315,11 +318,14 @@ if __name__ == "__main__":
         with open(
             os.path.join(
                 os.path.join(
-                    main_path, config["paths"]["markdown"], article_name + ".mdx"
+                    main_path,
+                    config["paths"]["markdown"],
+                    article_name + ".mdx",
                 )
             ),
             "w",
         ) as file:
             print(
-                generate_markdown(article_name, symbol_name, symbol_object), file=file
+                generate_markdown(article_name, symbol_name, symbol_object),
+                file=file,
             )

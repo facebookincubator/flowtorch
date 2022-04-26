@@ -1,4 +1,5 @@
 # Copyright (c) Meta Platforms, Inc
+import math
 import warnings
 
 import flowtorch.bijectors as bijectors
@@ -21,11 +22,13 @@ def test_bijector_constructor():
 
 @pytest.fixture(params=[bij_name for _, bij_name in bijectors.standard_bijectors])
 def flow(request):
+    torch.set_default_dtype(torch.double)
     bij = request.param
     event_dim = max(bij.domain.event_dim, 1)
     event_shape = event_dim * [3]
     base_dist = dist.Independent(
-        dist.Normal(torch.zeros(event_shape), torch.ones(event_shape)), event_dim
+        dist.Normal(torch.zeros(event_shape), torch.ones(event_shape)),
+        event_dim,
     )
 
     flow = Flow(base_dist, bij)
@@ -41,10 +44,12 @@ def test_jacobian(flow, epsilon=1e-2):
     x = torch.randn(*flow.event_shape)
     x = torch.distributions.transform_to(bij.domain)(x)
     y = bij.forward(x)
-    if bij.domain.event_dim == 1:
-        analytic_ldt = bij.log_abs_det_jacobian(x, y).data
+    if bij.domain.event_dim == 0:
+        analytic_ldt = bij.log_abs_det_jacobian(x, y).data.sum(-1)
     else:
-        analytic_ldt = bij.log_abs_det_jacobian(x, y).sum(-1).data
+        analytic_ldt = bij.log_abs_det_jacobian(x, y).data
+        for _ in range(bij.domain.event_dim - 1):
+            analytic_ldt = analytic_ldt.sum(-1)
 
     # Calculate numerical Jacobian
     # TODO: Better way to get all indices of array/tensor?
@@ -86,7 +91,8 @@ def test_jacobian(flow, epsilon=1e-2):
     if hasattr(params, "permutation"):
         numeric_ldt = torch.sum(torch.log(torch.diag(jacobian)))
     else:
-        numeric_ldt = torch.log(torch.abs(jacobian.det()))
+        jacobian = jacobian.view(int(math.sqrt(jacobian.numel())), -1)
+        numeric_ldt = torch.log(torch.abs(jacobian.det())).sum()
 
     ldt_discrepancy = (analytic_ldt - numeric_ldt).abs()
     assert ldt_discrepancy < epsilon
@@ -109,6 +115,7 @@ def test_inverse(flow, epsilon=1e-5):
 
     # Test g^{-1}(g(x)) = x
     x_true = base_dist.sample(torch.Size([10]))
+    assert x_true.dtype is torch.double
     x_true = torch.distributions.transform_to(bij.domain)(x_true)
 
     y = bij.forward(x_true)

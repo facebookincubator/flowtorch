@@ -108,7 +108,10 @@ if __name__ == "__main__":
         help="just checks files and does not change any",
     )
     parser.add_argument(
-        "-v", "--verbose", action="store_true", help="prints extra information on files"
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="prints extra information on files",
     )
     parser.add_argument(
         "paths", nargs="+", help="paths to search for Python source files"

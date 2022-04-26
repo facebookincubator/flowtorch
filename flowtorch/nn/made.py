@@ -110,7 +110,11 @@ class MaskedLinear(nn.Linear):
     """
 
     def __init__(
-        self, in_features: int, out_features: int, mask: torch.Tensor, bias: bool = True
+        self,
+        in_features: int,
+        out_features: int,
+        mask: torch.Tensor,
+        bias: bool = True,
     ) -> None:
         super().__init__(in_features, out_features, bias)
         self.register_buffer("mask", mask.data)

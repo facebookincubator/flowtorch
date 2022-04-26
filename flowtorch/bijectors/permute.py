@@ -27,8 +27,9 @@ class Permute(Fixed, VolumePreserving):
         self.permutation = permutation
 
     def _forward(
-        self, x: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
+        self, *inputs: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        x = inputs[0]
         if self.permutation is None:
             self.permutation = torch.randperm(x.shape[-1])
 
@@ -37,8 +38,10 @@ class Permute(Fixed, VolumePreserving):
         return y, ladj
 
     def _inverse(
-        self, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
+        self, *inputs: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        y = inputs[0]
+
         if self.permutation is None:
             self.permutation = torch.randperm(y.shape[-1])
 
@@ -53,6 +56,8 @@ class Permute(Fixed, VolumePreserving):
 
         result = torch.empty_like(self.permutation, dtype=torch.long)
         result[self.permutation] = torch.arange(
-            self.permutation.size(0), dtype=torch.long, device=self.permutation.device
+            self.permutation.size(0),
+            dtype=torch.long,
+            device=self.permutation.device,
         )
         return result

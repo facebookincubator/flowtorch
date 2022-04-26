@@ -7,13 +7,17 @@ from typing import Callable, Optional, Sequence, Tuple, Union
 import flowtorch.parameters
 import torch
 import torch.distributions
-from flowtorch.bijectors.bijective_tensor import BijectiveTensor, to_bijective_tensor
+from flowtorch.bijectors.bijective_tensor import (
+    BijectiveTensor,
+    to_bijective_tensor,
+)
 from flowtorch.bijectors.utils import is_record_flow_graph_enabled
 from flowtorch.parameters import Parameters
 from torch.distributions import constraints
 
 ParamFnType = Callable[
-    [Optional[torch.Tensor], Optional[torch.Tensor]], Optional[Sequence[torch.Tensor]]
+    [Optional[torch.Tensor], Optional[torch.Tensor]],
+    Optional[Sequence[torch.Tensor]],
 ]
 
 
@@ -60,6 +64,9 @@ class Bijector(torch.nn.Module, metaclass=flowtorch.LazyMeta):
             and x.check_context(context)
         )
 
+    def _forward_pre_ops(self, x: torch.Tensor) -> Tuple[torch.Tensor, ...]:
+        return (x,)
+
     def forward(
         self,
         x: torch.Tensor,
@@ -71,8 +78,13 @@ class Bijector(torch.nn.Module, metaclass=flowtorch.LazyMeta):
             assert isinstance(x, BijectiveTensor)
             return x.get_parent_from_bijector(self)
 
-        params = self._params_fn(x, context) if self._params_fn is not None else None
-        y, log_detJ = self._forward(x, params)
+        x_tuple = self._forward_pre_ops(x)
+        params = (
+            self._params_fn(*x_tuple, inverse=False, context=context)
+            if self._params_fn is not None
+            else None
+        )
+        y, log_detJ = self._forward(*x_tuple, params=params)
         if (
             is_record_flow_graph_enabled()
             and not isinstance(y, BijectiveTensor)
@@ -84,7 +96,7 @@ class Bijector(torch.nn.Module, metaclass=flowtorch.LazyMeta):
 
     def _forward(
         self,
-        x: torch.Tensor,
+        *x: torch.Tensor,
         params: Optional[Sequence[torch.Tensor]],
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         """
@@ -104,6 +116,9 @@ class Bijector(torch.nn.Module, metaclass=flowtorch.LazyMeta):
             and y.check_context(context)
         )
 
+    def _inverse_pre_ops(self, y: torch.Tensor) -> Tuple[torch.Tensor, ...]:
+        return (y,)
+
     def inverse(
         self,
         y: torch.Tensor,
@@ -117,8 +132,13 @@ class Bijector(torch.nn.Module, metaclass=flowtorch.LazyMeta):
             return y.get_parent_from_bijector(self)
 
         # TODO: What to do in this line?
-        params = self._params_fn(x, context) if self._params_fn is not None else None
-        x, log_detJ = self._inverse(y, params)
+        y_tuple = self._inverse_pre_ops(y)
+        params = (
+            self._params_fn(*y_tuple, inverse=True, context=context)
+            if self._params_fn is not None
+            else None
+        )
+        x, log_detJ = self._inverse(*y_tuple, params=params)
 
         if (
             is_record_flow_graph_enabled()
@@ -130,7 +150,7 @@ class Bijector(torch.nn.Module, metaclass=flowtorch.LazyMeta):
 
     def _inverse(
         self,
-        y: torch.Tensor,
+        *y: torch.Tensor,
         params: Optional[Sequence[torch.Tensor]],
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         """
@@ -170,10 +190,12 @@ class Bijector(torch.nn.Module, metaclass=flowtorch.LazyMeta):
         if ladj is None:
             if is_record_flow_graph_enabled():
                 warnings.warn(
-                    "Computing _log_abs_det_jacobian from values and not " "from cache."
+                    "Computing _log_abs_det_jacobian from values and not from cache."
                 )
             params = (
-                self._params_fn(x, context) if self._params_fn is not None else None
+                self._params_fn(x, inverse=False, context=context)
+                if self._params_fn is not None
+                else None
             )
             return self._log_abs_det_jacobian(x, y, params)
         return ladj
