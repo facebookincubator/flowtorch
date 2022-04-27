@@ -1,13 +1,12 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Any, Dict, Optional, Union, Iterator
+from typing import Any, Dict, Optional, Union
 
 import flowtorch
 import torch
 import torch.distributions as dist
 from torch import Tensor
 from torch.distributions.utils import _sum_rightmost
-from torch.nn import Parameter
 
 
 class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
@@ -26,9 +25,6 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         self._context: Optional[torch.Tensor] = None
         self.bijector = bijector(shape=base_dist.event_shape)
 
-        # Required so that parameters are registered with nn.Module
-        self.params = self.bijector.parameters()  # type: ignore
-
         # TODO: Confirm that the following logic works. Shouldn't it use
         # .domain and .codomain?? Infer shape from constructed self.bijector
         shape = (
@@ -42,13 +38,6 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         dist.Distribution.__init__(
             self, batch_shape, event_shape, validate_args=validate_args
         )
-
-    def parameters(self, recurse: bool = True) -> Iterator[Parameter]:
-        for p in super().parameters(recurse=recurse):
-            yield p
-        if recurse:
-            for p in self.bijector.parameters():  # type: ignore
-                yield p
 
     def condition(self, context: torch.Tensor) -> "Flow":
         self._context = context
