@@ -40,7 +40,9 @@ class Compose(Bijector):
         self.codomain = copy.copy(self.bijectors[-1].codomain)  # type: ignore
         max_event_dim = max([b.codomain.event_dim for b in self.bijectors])
         if max_event_dim > self.codomain.event_dim:
-            self.codomain = constraints.independent(self.codomain, max_event_dim - self.codomain.event_dim)
+            self.codomain = constraints.independent(
+                self.codomain, max_event_dim - self.codomain.event_dim
+            )
 
         self._context_shape = context_shape
 
@@ -62,7 +64,9 @@ class Compose(Bijector):
                     raise RuntimeError(
                         "neither of x nor y contains the log-abs-det-jacobian"
                     )
-                _log_detJ = _sum_rightmost(_log_detJ, self.codomain.event_dim - bijector.codomain.event_dim)
+                _log_detJ = _sum_rightmost(
+                    _log_detJ, self.codomain.event_dim - bijector.codomain.event_dim
+                )
                 log_detJ = log_detJ + _log_detJ if log_detJ is not None else _log_detJ
             x_temp = y
 
@@ -95,7 +99,10 @@ class Compose(Bijector):
                     raise RuntimeError(
                         "neither of x nor y contains the log-abs-det-jacobian"
                     )
-                _log_detJ = _sum_rightmost(_log_detJ, self.codomain.event_dim - bijector.codomain.event_dim)
+                event_dim: int = bijector.codomain.event_dim  # type: ignore
+                _log_detJ = _sum_rightmost(
+                    _log_detJ, self.codomain.event_dim - event_dim
+                )
                 log_detJ = log_detJ + _log_detJ if log_detJ is not None else _log_detJ
             y_temp = x  # type: ignore
 
@@ -147,7 +154,8 @@ class Compose(Bijector):
             else:
                 y_inv = parents.pop()
             _log_detJ = bijector.log_abs_det_jacobian(y_inv, y, context)  # type: ignore
-            _log_detJ = _sum_rightmost(_log_detJ, self.codomain.event_dim - bijector.codomain.event_dim)
+            event_dim: int = bijector.codomain.event_dim  # type: ignore
+            _log_detJ = _sum_rightmost(_log_detJ, self.codomain.event_dim - event_dim)
             ldj += _log_detJ
             y = y_inv
         return ldj
