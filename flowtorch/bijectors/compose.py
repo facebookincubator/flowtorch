@@ -1,10 +1,12 @@
 # Copyright (c) Meta Platforms, Inc
+import copy
 import warnings
 from typing import Optional, Sequence
 
 import flowtorch.parameters
 import torch
 import torch.distributions
+import torch.distributions.constraints as constraints
 from flowtorch.bijectors.base import Bijector
 from flowtorch.bijectors.bijective_tensor import BijectiveTensor, to_bijective_tensor
 from flowtorch.bijectors.utils import is_record_flow_graph_enabled, requires_log_detJ
@@ -30,8 +32,15 @@ class Compose(Bijector):
             self.bijectors.append(bijector(shape=shape))  # type: ignore
             shape = self.bijectors[-1].forward_shape(shape)  # type: ignore
 
-        self.domain = self.bijectors[0].domain  # type: ignore
-        self.codomain = self.bijectors[-1].codomain  # type: ignore
+        # TODO: domain of next bijector must be compatible with codomain
+        # of previous one
+        # TODO: Intelligent way to calculate final codomain, like an algebra
+        # of contraints
+        self.domain = copy.copy(self.bijectors[0].domain)  # type: ignore
+        self.codomain = copy.copy(self.bijectors[-1].codomain)  # type: ignore
+        max_event_dim = max([b.codomain.event_dim for b in self.bijectors])
+        if max_event_dim > self.codomain.event_dim:
+            self.codomain = constraints.independent(self.codomain, max_event_dim - self.codomain.event_dim)
 
         self._context_shape = context_shape
 
@@ -53,6 +62,7 @@ class Compose(Bijector):
                     raise RuntimeError(
                         "neither of x nor y contains the log-abs-det-jacobian"
                     )
+                _log_detJ = _sum_rightmost(_log_detJ, self.codomain.event_dim - bijector.codomain.event_dim)
                 log_detJ = log_detJ + _log_detJ if log_detJ is not None else _log_detJ
             x_temp = y
 
@@ -85,6 +95,7 @@ class Compose(Bijector):
                     raise RuntimeError(
                         "neither of x nor y contains the log-abs-det-jacobian"
                     )
+                _log_detJ = _sum_rightmost(_log_detJ, self.codomain.event_dim - bijector.codomain.event_dim)
                 log_detJ = log_detJ + _log_detJ if log_detJ is not None else _log_detJ
             y_temp = x  # type: ignore
 
@@ -106,7 +117,7 @@ class Compose(Bijector):
         """
         ldj = _sum_rightmost(
             torch.zeros_like(y),
-            self.domain.event_dim,
+            self.codomain.event_dim,
         )
 
         if isinstance(x, BijectiveTensor) and x.has_ancestor(y):
@@ -135,7 +146,9 @@ class Compose(Bijector):
                 y_inv = bijector.inverse(y, context)  # type: ignore
             else:
                 y_inv = parents.pop()
-            ldj += bijector.log_abs_det_jacobian(y_inv, y, context)  # type: ignore
+            _log_detJ = bijector.log_abs_det_jacobian(y_inv, y, context)  # type: ignore
+            _log_detJ = _sum_rightmost(_log_detJ, self.codomain.event_dim - bijector.codomain.event_dim)
+            ldj += _log_detJ
             y = y_inv
         return ldj
 
