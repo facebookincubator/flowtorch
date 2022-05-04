@@ -16,15 +16,17 @@ class AffineAutoregressive(AffineOp, Autoregressive):
         *,
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None,
+        clamp_values: bool = False,
         log_scale_min_clip: float = -5.0,
         log_scale_max_clip: float = 3.0,
-        sigmoid_bias: float = 2.0,
+        scale_fn: str = "softplus",
     ) -> None:
         super().__init__(
             params_fn,
             shape=shape,
             context_shape=context_shape,
         )
+        self.clamp_values = clamp_values
         self.log_scale_min_clip = log_scale_min_clip
         self.log_scale_max_clip = log_scale_max_clip
-        self.sigmoid_bias = sigmoid_bias
+        self.scale_fn = scale_fn
