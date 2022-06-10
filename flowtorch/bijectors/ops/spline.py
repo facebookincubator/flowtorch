@@ -27,7 +27,7 @@ class Spline(Bijector):
         context_shape: Optional[torch.Size] = None,
         count_bins: int = 8,
         bound: float = 3.0,
-        order: str = "linear"
+        order: str = "linear",
     ) -> None:
         if order not in ["linear", "quadratic"]:
             raise ValueError(
@@ -69,7 +69,7 @@ class Spline(Bijector):
         input: torch.Tensor,
         params: Optional[Sequence[torch.Tensor]],
         inverse: bool = False,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         assert params is not None
 
@@ -94,7 +94,7 @@ class Spline(Bijector):
             lambdas,
             bound=self.bound,
             inverse=inverse,
-            **kwargs
+            **kwargs,
         )
         return y, log_detJ
 

@@ -18,7 +18,7 @@ class SplineAutoregressive(SplineOp, Autoregressive):
         context_shape: Optional[torch.Size] = None,
         count_bins: int = 8,
         bound: float = 3.0,
-        order: str = "linear"
+        order: str = "linear",
     ) -> None:
         super().__init__(
             params_fn,

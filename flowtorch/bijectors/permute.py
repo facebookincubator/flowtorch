@@ -21,7 +21,7 @@ class Permute(Fixed, VolumePreserving):
         *,
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None,
-        permutation: Optional[torch.Tensor] = None
+        permutation: Optional[torch.Tensor] = None,
     ) -> None:
         super().__init__(params_fn, shape=shape, context_shape=context_shape)
         self.permutation = permutation

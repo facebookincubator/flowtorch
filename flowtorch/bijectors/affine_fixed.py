@@ -24,7 +24,7 @@ class AffineFixed(Fixed):
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None,
         loc: float = 0.0,
-        scale: float = 1.0
+        scale: float = 1.0,
     ) -> None:
         super().__init__(params_fn, shape=shape, context_shape=context_shape)
         self.loc = loc

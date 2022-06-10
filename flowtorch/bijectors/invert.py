@@ -25,7 +25,7 @@ class Invert(Bijector):
         bijector: flowtorch.Lazy,
         *,
         shape: torch.Size,
-        context_shape: Optional[torch.Size] = None
+        context_shape: Optional[torch.Size] = None,
     ) -> None:
         b = bijector(shape=shape)
         super().__init__(None, shape=shape, context_shape=context_shape)

@@ -15,7 +15,7 @@ class Elementwise(Bijector):
         *,
         shape: torch.Size,
         context_shape: Optional[torch.Size] = None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         if not params_fn:
             params_fn = Tensor()  # type: ignore
