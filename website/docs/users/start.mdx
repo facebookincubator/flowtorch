@@ -116,7 +116,7 @@ for idx in range(3001):
     loss = -flow.log_prob(y).mean()
 
     if idx % 500 == 0:
-        print('epoch', idx, 'loss', loss)
+        print('epoch', idx, 'loss', loss.item())
 
     loss.backward()
     opt.step()
