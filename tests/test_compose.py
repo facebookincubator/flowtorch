@@ -37,4 +37,4 @@ def test_compose():
     flow.log_prob(torch.randn((100,) + event_shape)).sum().backward()
     assert optimizer.param_groups[0]["params"][0].grad.abs().sum().item() > 1e-3
     optimizer.zero_grad()
-    assert optimizer.param_groups[0]["params"][0].grad.abs().sum().item() < 1e-3
+    assert optimizer.param_groups[0]["params"][0].grad is None
