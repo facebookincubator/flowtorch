@@ -25,7 +25,7 @@ class NealsFunnel(dist.Distribution):
 
     def rsample(
         self,
-        sample_shape: Union[torch.Tensor, torch.Size] = None,
+        sample_shape: Optional[Union[torch.Tensor, torch.Size]] = None,
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         if not sample_shape:
