@@ -46,16 +46,3 @@ jobs:
     - name: Test with pytest
       run: |
         pytest --cov=tests --cov-report=xml -W ignore::DeprecationWarning tests/
-    - name: Upload coverage to Codecov
-      if: ${{ runner.os == 'Linux' && matrix.python-version == 3.7 }}
-      uses: codecov/codecov-action@v1
-      with:
-        token: 9667eb01-c300-4166-b8ba-605deb2682e4
-        files: coverage.xml
-        directory: ./
-        flags: unittests
-        env_vars: OS,PYTHON
-        name: codecov-umbrella
-        fail_ci_if_error: true
-        path_to_write_report: ./codecov_report.txt
-        verbose: true

@@ -116,7 +116,7 @@ class Compose(Bijector):
         return x  # type: ignore
 
     def log_abs_det_jacobian(
-        self, x: torch.Tensor, y: torch.Tensor, context: torch.Tensor = None
+        self, x: torch.Tensor, y: torch.Tensor, context: Optional[torch.Tensor] = None
     ) -> torch.Tensor:
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.

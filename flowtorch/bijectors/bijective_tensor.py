@@ -8,7 +8,7 @@ from torch import Tensor
 
 
 class BijectiveTensor(Tensor):
-    def __repr__(self) -> str:
+    def __repr__(self, *, tensor_contents: Any = None) -> Any:  # type: ignore
         r_str = (
             super(BijectiveTensor, self)
             .__repr__()

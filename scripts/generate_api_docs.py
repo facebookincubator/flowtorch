@@ -208,7 +208,6 @@ def search_symbols(config):
             patterns["include"]["modules"].fullmatch(x) is not None
             and patterns["exclude"]["modules"].fullmatch(x) is None
         ):
-
             new_y1 = [
                 (a, b)
                 for a, b in y[1]

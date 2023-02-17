@@ -7,6 +7,8 @@ Copyright © Meta Platforms, Inc
 This source code is licensed under the MIT license found in the
 [LICENSE.txt](https://github.com/facebookincubator/flowtorch/blob/main/LICENSE.txt) file in the root directory of this source tree.
 
+> :warning: **Development of FlowTorch has moved**: This repo will be frozen, and development continued at [stefanwebb/flowtorch](https://github.com/stefanwebb/flowtorch).
+
 # Overview
 
 FlowTorch is a PyTorch library for learning and sampling from complex probability distributions using a class of methods called [Normalizing Flows](https://arxiv.org/abs/1908.09257).
