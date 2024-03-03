@@ -11,6 +11,7 @@ class Exp(Fixed):
     r"""
     Elementwise bijector via the mapping :math:`y = \exp(x)`.
     """
+
     codomain = constraints.positive
 
     def _forward(

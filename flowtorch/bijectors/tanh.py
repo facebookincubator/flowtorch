@@ -13,6 +13,7 @@ class Tanh(Fixed):
     r"""
     Transform via the mapping :math:`y = \tanh(x)`.
     """
+
     codomain = constraints.interval(-1.0, 1.0)
 
     def _forward(

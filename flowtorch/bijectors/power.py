@@ -12,6 +12,7 @@ class Power(Fixed):
     r"""
     Elementwise bijector via the mapping :math:`y = x^{\text{exponent}}`.
     """
+
     domain = constraints.positive
     codomain = constraints.positive
 
