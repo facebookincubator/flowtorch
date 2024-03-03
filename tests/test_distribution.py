@@ -15,7 +15,8 @@ def test_tdist_standalone():
     def make_tdist():
         # train a flow here
         base_dist = torch.distributions.Independent(
-            torch.distributions.Normal(torch.zeros(input_dim), torch.ones(input_dim)), 1
+            torch.distributions.Normal(torch.zeros(input_dim), torch.ones(input_dim)),
+            1,
         )
         bijector = bijs.AffineAutoregressive()
         tdist = dist.Flow(base_dist, bijector)
@@ -37,9 +38,9 @@ def test_neals_funnel_vi():
     flow = dist.Flow(base_dist, bijector)
     bijector = flow.bijector
 
-    opt = torch.optim.Adam(flow.parameters(), lr=2e-3)
+    opt = torch.optim.Adam(flow.parameters(), lr=1e-2)
     num_elbo_mc_samples = 200
-    for _ in range(100):
+    for _ in range(500):
         z0 = flow.base_dist.rsample(sample_shape=(num_elbo_mc_samples,))
         zk = bijector.forward(z0)
         ldj = zk._log_detJ

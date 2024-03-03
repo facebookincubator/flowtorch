@@ -15,7 +15,6 @@ def get_net() -> AffineAutoregressive:
         [
             AffineAutoregressive(params.DenseAutoregressive()),
             AffineAutoregressive(params.DenseAutoregressive()),
-            AffineAutoregressive(params.DenseAutoregressive()),
         ]
     )
     ar = ar(
