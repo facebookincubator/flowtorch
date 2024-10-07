@@ -1,6 +1,7 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Sequence, Tuple
+from collections.abc import Sequence
+from typing import Tuple
 
 import torch
 import torch.nn as nn
@@ -38,7 +39,7 @@ def create_mask(
     hidden_dims: Sequence[int],
     permutation: torch.LongTensor,
     output_multiplier: int,
-) -> Tuple[Sequence[torch.Tensor], torch.Tensor]:
+) -> tuple[Sequence[torch.Tensor], torch.Tensor]:
     """
     Creates MADE masks for a conditional distribution
     :param input_dim: the dimensionality of the input variable

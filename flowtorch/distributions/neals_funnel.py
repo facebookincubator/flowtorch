@@ -14,19 +14,17 @@ class NealsFunnel(dist.Distribution):
     """
 
     support = constraints.real
-    arg_constraints: Dict[str, dist.constraints.Constraint] = {}
+    arg_constraints: dict[str, dist.constraints.Constraint] = {}
 
     def __init__(self, validate_args: Any = None) -> None:
         d = 2
         batch_shape, event_shape = torch.Size([]), (d,)
-        super(NealsFunnel, self).__init__(
-            batch_shape, event_shape, validate_args=validate_args
-        )
+        super().__init__(batch_shape, event_shape, validate_args=validate_args)
 
     def rsample(
         self,
-        sample_shape: Optional[Union[torch.Tensor, torch.Size]] = None,
-        context: Optional[torch.Tensor] = None,
+        sample_shape: torch.Tensor | torch.Size | None = None,
+        context: torch.Tensor | None = None,
     ) -> torch.Tensor:
         if not sample_shape:
             sample_shape = torch.Size()
@@ -39,7 +37,7 @@ class NealsFunnel(dist.Distribution):
         return z
 
     def log_prob(
-        self, value: torch.Tensor, context: Optional[torch.Tensor] = None
+        self, value: torch.Tensor, context: torch.Tensor | None = None
     ) -> torch.Tensor:
         if self._validate_args:
             self._validate_sample(value)

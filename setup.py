@@ -35,7 +35,7 @@ if sys.version_info < (REQUIRED_MAJOR, REQUIRED_MINOR):
 
 
 # read in README.md as the long description
-with open("README.md", "r") as fh:
+with open("README.md") as fh:
     long_description = fh.read()
 
 setup(
@@ -66,7 +66,7 @@ setup(
     ],
     long_description=long_description,
     long_description_content_type="text/markdown",
-    python_requires=">={}.{}".format(REQUIRED_MAJOR, REQUIRED_MINOR),
+    python_requires=f">={REQUIRED_MAJOR}.{REQUIRED_MINOR}",
     install_requires=[
         "torch>=1.8.1",
     ],

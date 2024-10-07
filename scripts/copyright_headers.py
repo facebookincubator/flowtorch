@@ -19,7 +19,7 @@ class ReadState(Enum):
 def get_header(filename):
     state = ReadState.EMPTY
     header = []
-    with open(filename, "r") as f:
+    with open(filename) as f:
         for line_idx, line in enumerate(f.readlines()):
             line = line.strip()
             # Finite state machine to read "header" of Python source
@@ -134,7 +134,7 @@ if __name__ == "__main__":
 
             if not args.check:
                 # Read the file
-                with open(name, "r") as f:
+                with open(name) as f:
                     lines = f.readlines()
 
                 # Replace the header

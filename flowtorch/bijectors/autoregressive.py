@@ -1,6 +1,7 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Any, cast, Optional, Sequence
+from collections.abc import Sequence
+from typing import Any, cast, Optional
 
 import flowtorch
 import flowtorch.parameters
@@ -19,10 +20,10 @@ class Autoregressive(Bijector):
 
     def __init__(
         self,
-        params_fn: Optional[flowtorch.Lazy] = None,
+        params_fn: flowtorch.Lazy | None = None,
         *,
         shape: torch.Size,
-        context_shape: Optional[torch.Size] = None,
+        context_shape: torch.Size | None = None,
         **kwargs: Any,
     ) -> None:
         # Event shape is determined by `shape` argument
@@ -42,8 +43,8 @@ class Autoregressive(Bijector):
     def inverse(
         self,
         y: torch.Tensor,
-        x: Optional[torch.Tensor] = None,
-        context: Optional[torch.Tensor] = None,
+        x: torch.Tensor | None = None,
+        context: torch.Tensor | None = None,
     ) -> torch.Tensor:
         # TODO: Allow that context can have a batch shape
         assert context is None  # or context.shape == (self._context_size,)
@@ -58,7 +59,7 @@ class Autoregressive(Bijector):
             self._params_fn.permutation
         )  # TODO: type-safe named buffer (e.g. "permutation") access
         # TODO: Make permutation, inverse work for other event shapes
-        log_detJ: Optional[torch.Tensor] = None
+        log_detJ: torch.Tensor | None = None
         for idx in cast(torch.LongTensor, permutation):
             _params = self._params_fn(x_new.clone(), context=context)
             x_temp, log_detJ = self._inverse(y, params=_params)
@@ -78,6 +79,6 @@ class Autoregressive(Bijector):
         return x_new
 
     def _log_abs_det_jacobian(
-        self, x: torch.Tensor, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
+        self, x: torch.Tensor, y: torch.Tensor, params: Sequence[torch.Tensor] | None
     ) -> torch.Tensor:
         raise NotImplementedError

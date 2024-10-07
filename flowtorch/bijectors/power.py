@@ -1,6 +1,7 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Optional, Sequence, Tuple
+from collections.abc import Sequence
+from typing import Optional, Tuple
 
 import flowtorch
 import torch
@@ -19,18 +20,18 @@ class Power(Fixed):
     # TODO: Tensor valued exponents and corresponding determination of event_dim
     def __init__(
         self,
-        params_fn: Optional[flowtorch.Lazy] = None,
+        params_fn: flowtorch.Lazy | None = None,
         *,
         shape: torch.Size,
-        context_shape: Optional[torch.Size] = None,
+        context_shape: torch.Size | None = None,
         exponent: float = 2.0,
     ) -> None:
         super().__init__(params_fn, shape=shape, context_shape=context_shape)
         self.exponent = exponent
 
     def _forward(
-        self, x: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
-    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        self, x: torch.Tensor, params: Sequence[torch.Tensor] | None
+    ) -> tuple[torch.Tensor, torch.Tensor | None]:
         y = x.pow(self.exponent)
         ladj = self._log_abs_det_jacobian(x, y, params)
         return y, ladj
@@ -38,8 +39,8 @@ class Power(Fixed):
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional[Sequence[torch.Tensor]] = None,
-    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        params: Sequence[torch.Tensor] | None = None,
+    ) -> tuple[torch.Tensor, torch.Tensor | None]:
         x = y.pow(1 / self.exponent)
         ladj = self._log_abs_det_jacobian(x, y, params)
         return x, ladj
@@ -48,6 +49,6 @@ class Power(Fixed):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[Sequence[torch.Tensor]],
+        params: Sequence[torch.Tensor] | None,
     ) -> torch.Tensor:
         return torch.abs(self.exponent * y / x).log()

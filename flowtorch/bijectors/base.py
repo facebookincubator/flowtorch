@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 import warnings
-from typing import Callable, Optional, Sequence, Tuple, Union
+from collections.abc import Callable, Sequence
+from typing import Optional, Tuple, Union
 
 import flowtorch.parameters
 import torch
@@ -23,10 +24,10 @@ class Bijector(torch.nn.Module, metaclass=flowtorch.LazyMeta):
 
     def __init__(
         self,
-        params_fn: Optional[flowtorch.Lazy] = None,
+        params_fn: flowtorch.Lazy | None = None,
         *,
         shape: torch.Size,
-        context_shape: Optional[torch.Size] = None,
+        context_shape: torch.Size | None = None,
     ) -> None:
         super().__init__()
 
@@ -43,16 +44,14 @@ class Bijector(torch.nn.Module, metaclass=flowtorch.LazyMeta):
         self._context_shape = context_shape
 
         # Instantiate parameters (tensor, hypernets, etc.)
-        self._params_fn: Optional[Union[Parameters, torch.nn.ModuleList]] = None
+        self._params_fn: Parameters | torch.nn.ModuleList | None = None
         if params_fn is not None:
             param_shapes = self.param_shapes(shape)
             self._params_fn = params_fn(  # type: ignore
                 param_shapes, self._shape, self._context_shape
             )
 
-    def _check_bijective_x(
-        self, x: torch.Tensor, context: Optional[torch.Tensor]
-    ) -> bool:
+    def _check_bijective_x(self, x: torch.Tensor, context: torch.Tensor | None) -> bool:
         return (
             isinstance(x, BijectiveTensor)
             and x.from_inverse()
@@ -63,7 +62,7 @@ class Bijector(torch.nn.Module, metaclass=flowtorch.LazyMeta):
     def forward(
         self,
         x: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+        context: torch.Tensor | None = None,
     ) -> torch.Tensor:
         # TODO: Allow that context can have a batch shape
         assert context is None  # or context.shape == (self._context_size,)
@@ -85,8 +84,8 @@ class Bijector(torch.nn.Module, metaclass=flowtorch.LazyMeta):
     def _forward(
         self,
         x: torch.Tensor,
-        params: Optional[Sequence[torch.Tensor]],
-    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        params: Sequence[torch.Tensor] | None,
+    ) -> tuple[torch.Tensor, torch.Tensor | None]:
         """
         Abstract method to compute forward transformation.
         """
@@ -94,9 +93,7 @@ class Bijector(torch.nn.Module, metaclass=flowtorch.LazyMeta):
             f"layer {self.__class__.__name__} does not have an `_forward` method"
         )
 
-    def _check_bijective_y(
-        self, y: torch.Tensor, context: Optional[torch.Tensor]
-    ) -> bool:
+    def _check_bijective_y(self, y: torch.Tensor, context: torch.Tensor | None) -> bool:
         return (
             isinstance(y, BijectiveTensor)
             and y.from_forward()
@@ -107,8 +104,8 @@ class Bijector(torch.nn.Module, metaclass=flowtorch.LazyMeta):
     def inverse(
         self,
         y: torch.Tensor,
-        x: Optional[torch.Tensor] = None,
-        context: Optional[torch.Tensor] = None,
+        x: torch.Tensor | None = None,
+        context: torch.Tensor | None = None,
     ) -> torch.Tensor:
         # TODO: Allow that context can have a batch shape
         assert context is None  # or context.shape == (self._context_size,)
@@ -131,8 +128,8 @@ class Bijector(torch.nn.Module, metaclass=flowtorch.LazyMeta):
     def _inverse(
         self,
         y: torch.Tensor,
-        params: Optional[Sequence[torch.Tensor]],
-    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        params: Sequence[torch.Tensor] | None,
+    ) -> tuple[torch.Tensor, torch.Tensor | None]:
         """
         Abstract method to compute inverse transformation.
         """
@@ -144,7 +141,7 @@ class Bijector(torch.nn.Module, metaclass=flowtorch.LazyMeta):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+        context: torch.Tensor | None = None,
     ) -> torch.Tensor:
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.
@@ -182,7 +179,7 @@ class Bijector(torch.nn.Module, metaclass=flowtorch.LazyMeta):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[Sequence[torch.Tensor]],
+        params: Sequence[torch.Tensor] | None,
     ) -> torch.Tensor:
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.

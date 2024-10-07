@@ -1,7 +1,8 @@
 # Copyright (c) Meta Platforms, Inc
 import copy
 import warnings
-from typing import Optional, Sequence
+from collections.abc import Sequence
+from typing import Optional
 
 import flowtorch.parameters
 import torch
@@ -19,7 +20,7 @@ class Compose(Bijector):
         bijectors: Sequence[flowtorch.Lazy],
         *,
         shape: torch.Size,
-        context_shape: Optional[torch.Size] = None,
+        context_shape: torch.Size | None = None,
     ):
         assert len(bijectors) > 0
         super().__init__(None, shape=shape, context_shape=context_shape)
@@ -49,9 +50,9 @@ class Compose(Bijector):
     def forward(
         self,
         x: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+        context: torch.Tensor | None = None,
     ) -> torch.Tensor:
-        log_detJ: Optional[torch.Tensor] = None
+        log_detJ: torch.Tensor | None = None
         x_temp = x
         for bijector in self.bijectors:
             y = bijector.forward(x_temp, context)  # type: ignore
@@ -83,10 +84,10 @@ class Compose(Bijector):
     def inverse(
         self,
         y: torch.Tensor,
-        x: Optional[torch.Tensor] = None,
-        context: Optional[torch.Tensor] = None,
+        x: torch.Tensor | None = None,
+        context: torch.Tensor | None = None,
     ) -> torch.Tensor:
-        log_detJ: Optional[torch.Tensor] = None
+        log_detJ: torch.Tensor | None = None
         y_temp = y
         for bijector in reversed(self.bijectors._modules.values()):  # type: ignore
             x = bijector.inverse(y_temp, context)  # type: ignore
@@ -116,7 +117,7 @@ class Compose(Bijector):
         return x  # type: ignore
 
     def log_abs_det_jacobian(
-        self, x: torch.Tensor, y: torch.Tensor, context: Optional[torch.Tensor] = None
+        self, x: torch.Tensor, y: torch.Tensor, context: torch.Tensor | None = None
     ) -> torch.Tensor:
         """
         Computes the log det jacobian `log |dy/dx|` given input and output.

@@ -54,7 +54,7 @@ def _select_bins(x: torch.Tensor, idx: torch.Tensor) -> torch.Tensor:
 
 def _calculate_knots(
     lengths: torch.Tensor, lower: float, upper: float
-) -> Tuple[torch.Tensor, torch.Tensor]:
+) -> tuple[torch.Tensor, torch.Tensor]:
     """
     Given a tensor of unscaled bin lengths that sum to 1, plus the lower and upper
     limits, returns the shifted and scaled lengths plus knot positions
@@ -83,7 +83,7 @@ def monotonic_rational_spline(
     widths: torch.Tensor,
     heights: torch.Tensor,
     derivatives: torch.Tensor,
-    lambdas: Optional[torch.Tensor] = None,
+    lambdas: torch.Tensor | None = None,
     inverse: bool = False,
     bound: float = 3.0,
     min_bin_width: float = 1e-3,
@@ -91,7 +91,7 @@ def monotonic_rational_spline(
     min_derivative: float = 1e-3,
     min_lambda: float = 0.025,
     eps: float = 1e-6,
-) -> Tuple[torch.Tensor, torch.Tensor]:
+) -> tuple[torch.Tensor, torch.Tensor]:
     """
     Calculating a monotonic rational spline (linear or quadratic) or its inverse,
     plus the log(abs(detJ)) required for normalizing flows.

@@ -4,8 +4,9 @@ import importlib
 import inspect
 import os
 import pkgutil
+from collections.abc import Callable, Sequence
 from functools import partial
-from typing import Any, Callable, Optional, Sequence, Tuple
+from typing import Any, Optional, Tuple
 
 import flowtorch
 from flowtorch.bijectors.base import Bijector
@@ -35,18 +36,18 @@ def isderivedclass(cls: type, base_cls: type) -> bool:
     return inspect.isclass(cls) and issubclass_byname(cls, base_cls)
 
 
-def list_bijectors() -> Sequence[Tuple[str, Bijector]]:
+def list_bijectors() -> Sequence[tuple[str, Bijector]]:
     ans = _walk_packages("bijectors", partial(isderivedclass, base_cls=Bijector))
     ans = [a for a in ans if ".ops." not in a[1].__module__]
     return list({classname(cls[1]): cls for cls in ans}.values())
 
 
-def list_parameters() -> Sequence[Tuple[str, Parameters]]:
+def list_parameters() -> Sequence[tuple[str, Parameters]]:
     ans = _walk_packages("parameters", partial(isderivedclass, base_cls=Parameters))
     return list({classname(cls[1]): cls for cls in ans}.values())
 
 
-def list_distributions() -> Sequence[Tuple[str, Parameters]]:
+def list_distributions() -> Sequence[tuple[str, Parameters]]:
     ans = _walk_packages(
         "distributions", partial(isderivedclass, base_cls=Distribution)
     )
@@ -54,8 +55,8 @@ def list_distributions() -> Sequence[Tuple[str, Parameters]]:
 
 
 def _walk_packages(
-    modname: str, filter: Optional[Callable[[Any], bool]]
-) -> Sequence[Tuple[str, Any]]:
+    modname: str, filter: Callable[[Any], bool] | None
+) -> Sequence[tuple[str, Any]]:
     classes = []
 
     # NOTE: I use path of flowtorch rather than e.g. flowtorch.bijectors

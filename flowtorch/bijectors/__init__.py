@@ -93,6 +93,6 @@ for bij_name, cls in standard_bijectors:
 
 __all__ = ["standard_bijectors", "meta_bijectors", "invertible_bijectors"] + [
     cls
-    for cls, _ in cast(List[Tuple[str, Bijector]], meta_bijectors)
-    + cast(List[Tuple[str, Bijector]], standard_bijectors)
+    for cls, _ in cast(list[tuple[str, Bijector]], meta_bijectors)
+    + cast(list[tuple[str, Bijector]], standard_bijectors)
 ]

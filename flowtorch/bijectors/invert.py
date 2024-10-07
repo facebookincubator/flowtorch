@@ -1,5 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
-from typing import Optional, Sequence
+from collections.abc import Sequence
+from typing import Optional
 
 import flowtorch
 import torch
@@ -25,7 +26,7 @@ class Invert(Bijector):
         bijector: flowtorch.Lazy,
         *,
         shape: torch.Size,
-        context_shape: Optional[torch.Size] = None,
+        context_shape: torch.Size | None = None,
     ) -> None:
         b = bijector(shape=shape)
         super().__init__(None, shape=shape, context_shape=context_shape)
@@ -34,7 +35,7 @@ class Invert(Bijector):
     def forward(
         self,
         x: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+        context: torch.Tensor | None = None,
     ) -> torch.Tensor:
         y = self.bijector.inverse(x, context=context)  # type: ignore
         return y
@@ -42,8 +43,8 @@ class Invert(Bijector):
     def inverse(
         self,
         y: torch.Tensor,
-        x: Optional[torch.Tensor] = None,
-        context: Optional[torch.Tensor] = None,
+        x: torch.Tensor | None = None,
+        context: torch.Tensor | None = None,
     ) -> torch.Tensor:
         if x is not None:
             raise RuntimeError("x must be None when calling InverseBijector.inverse")
@@ -54,7 +55,7 @@ class Invert(Bijector):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
+        context: torch.Tensor | None = None,
     ) -> torch.Tensor:
         return self.bijector.log_abs_det_jacobian(y, x, context)  # type: ignore
 

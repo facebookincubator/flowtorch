@@ -2,13 +2,14 @@
 
 import inspect
 from collections import OrderedDict
-from typing import Any, Mapping, Tuple
+from collections.abc import Mapping
+from typing import Any, Tuple
 
 
 # TODO: Move functions to flowtorch.utils?
 def partial_signature(
     sig: inspect.Signature, *args: Any, **kwargs: Any
-) -> Tuple[inspect.Signature, Mapping[str, Any]]:
+) -> tuple[inspect.Signature, Mapping[str, Any]]:
     """
     Given an inspect.Signature object and a dictionary of (name, val) pairs,
     bind the names to the signature and return a new modified signature

@@ -11,10 +11,10 @@ from flowtorch.parameters.tensor import Tensor
 class Elementwise(Bijector):
     def __init__(
         self,
-        params_fn: Optional[flowtorch.Lazy] = None,
+        params_fn: flowtorch.Lazy | None = None,
         *,
         shape: torch.Size,
-        context_shape: Optional[torch.Size] = None,
+        context_shape: torch.Size | None = None,
         **kwargs: Any,
     ) -> None:
         if not params_fn:

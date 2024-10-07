@@ -8,7 +8,8 @@
 #       rational_quadratic.py
 # under the MIT license.
 
-from typing import Any, Optional, Sequence, Tuple
+from collections.abc import Sequence
+from typing import Any, Optional, Tuple
 
 import flowtorch
 import torch
@@ -21,10 +22,10 @@ from torch.distributions.utils import _sum_rightmost
 class Spline(Bijector):
     def __init__(
         self,
-        params_fn: Optional[flowtorch.Lazy] = None,
+        params_fn: flowtorch.Lazy | None = None,
         *,
         shape: torch.Size,
-        context_shape: Optional[torch.Size] = None,
+        context_shape: torch.Size | None = None,
         count_bins: int = 8,
         bound: float = 3.0,
         order: str = "linear",
@@ -44,14 +45,14 @@ class Spline(Bijector):
         super().__init__(params_fn, shape=shape, context_shape=context_shape)
 
     def _forward(
-        self, x: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        self, x: torch.Tensor, params: Sequence[torch.Tensor] | None
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         y, log_detJ = self._op(x, params)
         return y, _sum_rightmost(log_detJ, self.domain.event_dim)
 
     def _inverse(
-        self, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        self, y: torch.Tensor, params: Sequence[torch.Tensor] | None
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         x_new, log_detJ = self._op(y, params, inverse=True)
         return x_new, _sum_rightmost(-log_detJ, self.domain.event_dim)
 
@@ -59,7 +60,7 @@ class Spline(Bijector):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[Sequence[torch.Tensor]],
+        params: Sequence[torch.Tensor] | None,
     ) -> torch.Tensor:
         _, log_detJ = self._op(x, params)
         return _sum_rightmost(log_detJ, self.domain.event_dim)
@@ -67,13 +68,13 @@ class Spline(Bijector):
     def _op(
         self,
         input: torch.Tensor,
-        params: Optional[Sequence[torch.Tensor]],
+        params: Sequence[torch.Tensor] | None,
         inverse: bool = False,
         **kwargs: Any,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         assert params is not None
 
-        lambdas: Optional[torch.Tensor] = None
+        lambdas: torch.Tensor | None = None
         if self.order == "linear":
             widths, heights, derivatives, lambdas = params
             lambdas = torch.sigmoid(lambdas)

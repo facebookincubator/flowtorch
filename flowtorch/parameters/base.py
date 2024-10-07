@@ -1,6 +1,7 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Optional, Sequence
+from collections.abc import Sequence
+from typing import Optional
 
 import torch
 from flowtorch import LazyMeta
@@ -15,7 +16,7 @@ class Parameters(torch.nn.Module, metaclass=LazyMeta):
         self,
         param_shapes: Sequence[torch.Size],
         input_shape: torch.Size,
-        context_shape: Optional[torch.Size],
+        context_shape: torch.Size | None,
     ) -> None:
         super().__init__()
         self.input_shape = input_shape
@@ -24,17 +25,17 @@ class Parameters(torch.nn.Module, metaclass=LazyMeta):
 
     def forward(
         self,
-        x: Optional[torch.Tensor] = None,
-        context: Optional[torch.Tensor] = None,
-    ) -> Optional[Sequence[torch.Tensor]]:
+        x: torch.Tensor | None = None,
+        context: torch.Tensor | None = None,
+    ) -> Sequence[torch.Tensor] | None:
         # TODO: Caching etc.
         return self._forward(x, context)
 
     def _forward(
         self,
-        x: Optional[torch.Tensor] = None,
-        context: Optional[torch.Tensor] = None,
-    ) -> Optional[Sequence[torch.Tensor]]:
+        x: torch.Tensor | None = None,
+        context: torch.Tensor | None = None,
+    ) -> Sequence[torch.Tensor] | None:
         # I raise an exception rather than using @abstractmethod and
         # metaclass=ABC so that we can reserve the metaclass for lazy
         # evaluation.

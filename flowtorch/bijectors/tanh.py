@@ -1,7 +1,8 @@
 # Copyright (c) Meta Platforms, Inc
 
 import math
-from typing import Optional, Sequence, Tuple
+from collections.abc import Sequence
+from typing import Optional, Tuple
 
 import torch
 import torch.distributions.constraints as constraints
@@ -17,20 +18,20 @@ class Tanh(Fixed):
     codomain = constraints.interval(-1.0, 1.0)
 
     def _forward(
-        self, x: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
-    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        self, x: torch.Tensor, params: Sequence[torch.Tensor] | None
+    ) -> tuple[torch.Tensor, torch.Tensor | None]:
         y = torch.tanh(x)
         ladj = self._log_abs_det_jacobian(x, y, params)
         return y, ladj
 
     def _inverse(
-        self, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
-    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        self, y: torch.Tensor, params: Sequence[torch.Tensor] | None
+    ) -> tuple[torch.Tensor, torch.Tensor | None]:
         x = torch.atanh(y)
         ladj = self._log_abs_det_jacobian(x, y, params)
         return x, ladj
 
     def _log_abs_det_jacobian(
-        self, x: torch.Tensor, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
+        self, x: torch.Tensor, y: torch.Tensor, params: Sequence[torch.Tensor] | None
     ) -> torch.Tensor:
         return 2.0 * (math.log(2.0) - x - F.softplus(-2.0 * x))

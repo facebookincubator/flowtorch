@@ -1,6 +1,7 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Optional, Sequence, Tuple
+from collections.abc import Sequence
+from typing import Optional, Tuple
 
 import flowtorch
 import torch
@@ -19,10 +20,10 @@ class Affine(Bijector):
 
     def __init__(
         self,
-        params_fn: Optional[flowtorch.Lazy] = None,
+        params_fn: flowtorch.Lazy | None = None,
         *,
         shape: torch.Size,
-        context_shape: Optional[torch.Size] = None,
+        context_shape: torch.Size | None = None,
         clamp_values: bool = False,
         log_scale_min_clip: float = -5.0,
         log_scale_max_clip: float = 3.0,
@@ -36,7 +37,7 @@ class Affine(Bijector):
 
     def _scale_fn(
         self, unbounded_scale: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         # NOTE: Need to hardcode log(f(x)) for numerical stability
         if self.scale_fn == "softplus":
             scale = F.softplus(unbounded_scale)
@@ -54,7 +55,7 @@ class Affine(Bijector):
 
     def _inv_scale_fn(
         self, unbounded_scale: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         # NOTE: Need to hardcode 1./log(f(x)) for numerical stability
         if self.scale_fn == "softplus":
             scale = F.softplus(unbounded_scale)
@@ -72,8 +73,8 @@ class Affine(Bijector):
         return inverse_scale, log_scale
 
     def _forward(
-        self, x: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        self, x: torch.Tensor, params: Sequence[torch.Tensor] | None
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         assert params is not None
 
         mean, unbounded_scale = params
@@ -87,8 +88,8 @@ class Affine(Bijector):
         return y, _sum_rightmost(log_scale, self.domain.event_dim)
 
     def _inverse(
-        self, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        self, y: torch.Tensor, params: Sequence[torch.Tensor] | None
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         assert params is not None
 
         mean, unbounded_scale = params
@@ -105,7 +106,7 @@ class Affine(Bijector):
         self,
         x: torch.Tensor,
         y: torch.Tensor,
-        params: Optional[Sequence[torch.Tensor]],
+        params: Sequence[torch.Tensor] | None,
     ) -> torch.Tensor:
         assert params is not None
 
@@ -118,6 +119,6 @@ class Affine(Bijector):
 
         return _sum_rightmost(log_scale, self.domain.event_dim)
 
-    def param_shapes(self, shape: torch.Size) -> Tuple[torch.Size, torch.Size]:
+    def param_shapes(self, shape: torch.Size) -> tuple[torch.Size, torch.Size]:
         # A mean and log variance for every dimension of the event shape
         return shape, shape

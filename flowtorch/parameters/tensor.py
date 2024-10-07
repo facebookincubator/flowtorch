@@ -1,6 +1,7 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Optional, Sequence
+from collections.abc import Sequence
+from typing import Optional
 
 import torch
 import torch.nn as nn
@@ -12,7 +13,7 @@ class Tensor(Parameters):
         self,
         param_shapes: Sequence[torch.Size],
         input_shape: torch.Size,
-        context_shape: Optional[torch.Size] = None,
+        context_shape: torch.Size | None = None,
     ) -> None:
         super().__init__(param_shapes, input_shape, context_shape)
 
@@ -22,6 +23,6 @@ class Tensor(Parameters):
         )
 
     def _forward(
-        self, x: Optional[torch.Tensor] = None, context: Optional[torch.Tensor] = None
-    ) -> Optional[Sequence[torch.Tensor]]:
+        self, x: torch.Tensor | None = None, context: torch.Tensor | None = None
+    ) -> Sequence[torch.Tensor] | None:
         return list(self.params)

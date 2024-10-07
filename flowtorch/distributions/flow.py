@@ -11,7 +11,7 @@ from torch.distributions.utils import _sum_rightmost
 
 class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
     _default_sample_shape = torch.Size()
-    arg_constraints: Dict[str, dist.constraints.Constraint] = {}
+    arg_constraints: dict[str, dist.constraints.Constraint] = {}
 
     def __init__(
         self,
@@ -22,7 +22,7 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         torch.nn.Module.__init__(self)
 
         self.base_dist = base_dist
-        self._context: Optional[torch.Tensor] = None
+        self._context: torch.Tensor | None = None
         self.bijector = bijector(shape=base_dist.event_shape)
 
         # TODO: Confirm that the following logic works. Shouldn't it use
@@ -45,8 +45,8 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
 
     def sample(
         self,
-        sample_shape: Union[Tensor, torch.Size] = _default_sample_shape,
-        context: Optional[torch.Tensor] = None,
+        sample_shape: Tensor | torch.Size = _default_sample_shape,
+        context: torch.Tensor | None = None,
     ) -> Tensor:
         """
         Generates a sample_shape shaped sample or sample_shape shaped batch of
@@ -63,8 +63,8 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
 
     def rsample(
         self,
-        sample_shape: Union[Tensor, torch.Size] = _default_sample_shape,
-        context: Optional[torch.Tensor] = None,
+        sample_shape: Tensor | torch.Size = _default_sample_shape,
+        context: torch.Tensor | None = None,
     ) -> Tensor:
         """
         Generates a sample_shape shaped reparameterized sample or sample_shape
@@ -79,7 +79,7 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         return x
 
     def rnormalize(
-        self, value: torch.Tensor, context: Optional[torch.Tensor] = None
+        self, value: torch.Tensor, context: torch.Tensor | None = None
     ) -> Tensor:
         """
         Push a tensor through the normalizing direction of the flow where
@@ -91,7 +91,7 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         return self.bijector.inverse(value, context)  # type: ignore
 
     def normalize(
-        self, value: torch.Tensor, context: Optional[torch.Tensor] = None
+        self, value: torch.Tensor, context: torch.Tensor | None = None
     ) -> Tensor:
         """
         Push a tensor through the normalizing direction of the flow and
@@ -101,7 +101,7 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
             return self.rnormalize(value, context)
 
     def log_prob(
-        self, value: torch.Tensor, context: Optional[torch.Tensor] = None
+        self, value: torch.Tensor, context: torch.Tensor | None = None
     ) -> torch.Tensor:
         """
         Scores the sample by inverting the transform(s) and computing the score

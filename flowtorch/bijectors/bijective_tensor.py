@@ -1,5 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
-from typing import Any, Iterator, Optional, Type, TYPE_CHECKING, Union
+from collections.abc import Iterator
+from typing import Any, Optional, Type, TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
     from flowtorch.bijectors.base import Bijector
@@ -9,20 +10,16 @@ from torch import Tensor
 
 class BijectiveTensor(Tensor):
     def __repr__(self, *, tensor_contents: Any = None) -> Any:  # type: ignore
-        r_str = (
-            super(BijectiveTensor, self)
-            .__repr__()
-            .replace("tensor", "bijective_tensor")
-        )
+        r_str = super().__repr__().replace("tensor", "bijective_tensor")
         return r_str
 
     def register(
         self,
         input: Tensor,
         output: Tensor,
-        context: Optional[Tensor],
+        context: Tensor | None,
         bijector: "Bijector",
-        log_detJ: Optional[Tensor],
+        log_detJ: Tensor | None,
         mode: str,
     ) -> "BijectiveTensor":
         self._input = input
@@ -42,12 +39,12 @@ or `'inverse'`. got {self._mode}"
 
     @classmethod
     def __torch_function__(
-        cls: Type["BijectiveTensor"],
+        cls: type["BijectiveTensor"],
         func: Any,
         types: Any,
         args: Any = (),
         kwargs: Any = None,
-    ) -> Union[Any, Tensor]:
+    ) -> Any | Tensor:
         if kwargs is None:
             kwargs = {}
         # we don't want to create a new BijectiveTensor when summing,
@@ -75,7 +72,7 @@ or `'inverse'`. got {self._mode}"
                 return parent.parent
         raise RuntimeError("bijector not found in flow")
 
-    def check_context(self, context: Optional[Tensor]) -> bool:
+    def check_context(self, context: Tensor | None) -> bool:
         return self._context is context
 
     def from_forward(self) -> bool:
@@ -105,7 +102,7 @@ or `'inverse'`. got {self._mode}"
             return False
 
     @property
-    def log_detJ(self) -> Optional[Tensor]:
+    def log_detJ(self) -> Tensor | None:
         return self._log_detJ
 
     @property
@@ -116,7 +113,7 @@ or `'inverse'`. got {self._mode}"
             return self._output
 
     def parents(self) -> Iterator[Tensor]:
-        child: Union[Tensor, BijectiveTensor] = self
+        child: Tensor | BijectiveTensor = self
         while True:
             assert isinstance(child, BijectiveTensor)
             child = parent = child.parent
@@ -128,9 +125,9 @@ or `'inverse'`. got {self._mode}"
 def to_bijective_tensor(
     x: Tensor,
     y: Tensor,
-    context: Optional[Tensor],
+    context: Tensor | None,
     bijector: "Bijector",
-    log_detJ: Optional[Tensor],
+    log_detJ: Tensor | None,
     mode: str = "forward",
 ) -> BijectiveTensor:
     if mode == "inverse":

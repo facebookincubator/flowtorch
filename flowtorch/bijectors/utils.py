@@ -1,6 +1,7 @@
 # Copyright (c) Meta Platforms, Inc
 import functools
-from typing import Any, Callable, List, Sequence
+from collections.abc import Callable, Sequence
+from typing import Any, List
 
 _RECORD_FLOW = True
 
@@ -8,7 +9,7 @@ _RECORD_FLOW = True
 class _context_manager:
     def __init__(self, value: bool = True) -> None:
         self.value = value
-        self.prev: List[bool] = []
+        self.prev: list[bool] = []
 
     def __call__(self, func: Callable) -> Any:
         @functools.wraps(func)

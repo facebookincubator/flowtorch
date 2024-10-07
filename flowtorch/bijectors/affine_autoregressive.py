@@ -12,10 +12,10 @@ from flowtorch.bijectors.ops.affine import Affine as AffineOp
 class AffineAutoregressive(AffineOp, Autoregressive):
     def __init__(
         self,
-        params_fn: Optional[flowtorch.Lazy] = None,
+        params_fn: flowtorch.Lazy | None = None,
         *,
         shape: torch.Size,
-        context_shape: Optional[torch.Size] = None,
+        context_shape: torch.Size | None = None,
         clamp_values: bool = False,
         log_scale_min_clip: float = -5.0,
         log_scale_max_clip: float = 3.0,

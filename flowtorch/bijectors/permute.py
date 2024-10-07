@@ -1,6 +1,7 @@
 # Copyright (c) Meta Platforms, Inc
 
-from typing import Optional, Sequence, Tuple
+from collections.abc import Sequence
+from typing import Optional, Tuple
 
 import flowtorch
 import torch
@@ -17,18 +18,18 @@ class Permute(Fixed, VolumePreserving):
     # TODO: A new abstraction so can defer construction of permutation
     def __init__(
         self,
-        params_fn: Optional[flowtorch.Lazy] = None,
+        params_fn: flowtorch.Lazy | None = None,
         *,
         shape: torch.Size,
-        context_shape: Optional[torch.Size] = None,
-        permutation: Optional[torch.Tensor] = None,
+        context_shape: torch.Size | None = None,
+        permutation: torch.Tensor | None = None,
     ) -> None:
         super().__init__(params_fn, shape=shape, context_shape=context_shape)
         self.permutation = permutation
 
     def _forward(
-        self, x: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
-    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        self, x: torch.Tensor, params: Sequence[torch.Tensor] | None
+    ) -> tuple[torch.Tensor, torch.Tensor | None]:
         if self.permutation is None:
             self.permutation = torch.randperm(x.shape[-1])
 
@@ -37,8 +38,8 @@ class Permute(Fixed, VolumePreserving):
         return y, ladj
 
     def _inverse(
-        self, y: torch.Tensor, params: Optional[Sequence[torch.Tensor]]
-    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        self, y: torch.Tensor, params: Sequence[torch.Tensor] | None
+    ) -> tuple[torch.Tensor, torch.Tensor | None]:
         if self.permutation is None:
             self.permutation = torch.randperm(y.shape[-1])
 
@@ -47,7 +48,7 @@ class Permute(Fixed, VolumePreserving):
         return x, ladj
 
     @lazy_property
-    def inv_permutation(self) -> Optional[torch.Tensor]:
+    def inv_permutation(self) -> torch.Tensor | None:
         if self.permutation is None:
             return None
 

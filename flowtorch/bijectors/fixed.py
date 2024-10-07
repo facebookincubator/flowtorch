@@ -1,5 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
-from typing import Optional, Sequence
+from collections.abc import Sequence
+from typing import Optional
 
 import flowtorch
 import torch
@@ -10,10 +11,10 @@ from flowtorch.bijectors.base import Bijector
 class Fixed(Bijector):
     def __init__(
         self,
-        params_fn: Optional[flowtorch.Lazy] = None,
+        params_fn: flowtorch.Lazy | None = None,
         *,
         shape: torch.Size,
-        context_shape: Optional[torch.Size] = None,
+        context_shape: torch.Size | None = None,
     ) -> None:
         # TODO: In the future, make Fixed actually mean that there is no autograd
         # through params
