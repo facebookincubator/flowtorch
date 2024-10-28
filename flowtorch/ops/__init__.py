@@ -46,6 +46,8 @@ def _select_bins(x: torch.Tensor, idx: torch.Tensor) -> torch.Tensor:
     # Note that by convention, the context variable batch dimensions must broadcast
     # over the input batch dimensions.
     if len(idx.shape) >= len(x.shape):
+        # pyre-fixme[58]: `+` is not supported for operand types `Tuple[int, ...]`
+        #  and `Size`.
         x = x.reshape((1,) * (len(idx.shape) - len(x.shape)) + x.shape)
         x = x.expand(idx.shape[:-2] + (-1,) * 2)
 
@@ -268,6 +270,7 @@ def monotonic_rational_spline(
                 * theta_one_minus_theta
             )
             derivative_numerator = input_delta.pow(2) * (
+                # pyre-fixme[16]: `float` has no attribute `pow`.
                 input_derivatives_plus_one * root.pow(2)
                 + 2 * input_delta * theta_one_minus_theta
                 + input_derivatives * (1 - root).pow(2)

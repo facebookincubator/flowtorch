@@ -17,6 +17,6 @@ class VolumePreserving(Bijector):
         return torch.zeros(
             x.size()[: -self.domain.event_dim],
             dtype=x.dtype,
-            layout=x.layout,  # pyre-ignore[16]
+            layout=x.layout,
             device=x.device,
         )

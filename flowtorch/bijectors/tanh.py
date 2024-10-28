@@ -34,4 +34,5 @@ class Tanh(Fixed):
     def _log_abs_det_jacobian(
         self, x: torch.Tensor, y: torch.Tensor, params: Sequence[torch.Tensor] | None
     ) -> torch.Tensor:
+        # pyre-fixme[7]: Expected `Tensor` but got `float`.
         return 2.0 * (math.log(2.0) - x - F.softplus(-2.0 * x))

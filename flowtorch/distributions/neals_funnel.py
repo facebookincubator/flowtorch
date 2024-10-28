@@ -19,8 +19,11 @@ class NealsFunnel(dist.Distribution):
     def __init__(self, validate_args: Any = None) -> None:
         d = 2
         batch_shape, event_shape = torch.Size([]), (d,)
+        # pyre-fixme[6]: For 2nd argument expected `Size` but got `Tuple[int]`.
         super().__init__(batch_shape, event_shape, validate_args=validate_args)
 
+    # pyre-fixme[14]: `rsample` overrides method defined in `Distribution`
+    #  inconsistently.
     def rsample(
         self,
         sample_shape: torch.Tensor | torch.Size | None = None,

@@ -79,6 +79,7 @@ def _walk_packages(
         else:
             finder = None
 
+        # pyre-fixme[61]: `finder` is undefined, or not always defined.
         if finder is not None:
             module = finder.load_module(this_modname)
 
@@ -90,6 +91,7 @@ def _walk_packages(
             classes.extend(this_classes)
 
             del module
+            # pyre-fixme[61]: `finder` is undefined, or not always defined.
             del finder
 
         else:

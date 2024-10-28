@@ -58,6 +58,7 @@ class Compose(Bijector):
             y = bijector.forward(x_temp, context)  # type: ignore
             if is_record_flow_graph_enabled() and requires_log_detJ():
                 if isinstance(y, BijectiveTensor) and y.from_forward():
+                    # pyre-fixme[16]: `BijectiveTensor` has no attribute `_log_detJ`.
                     _log_detJ = y._log_detJ
                 elif isinstance(x_temp, BijectiveTensor) and x_temp.from_inverse():
                     _log_detJ = x_temp._log_detJ
@@ -74,11 +75,14 @@ class Compose(Bijector):
         # TODO: Check that this doesn't contain bugs!
         if (
             is_record_flow_graph_enabled()
+            # pyre-fixme[61]: `y` is undefined, or not always defined.
             and not isinstance(y, BijectiveTensor)
+            # pyre-fixme[61]: `y` is undefined, or not always defined.
             and not (isinstance(x, BijectiveTensor) and y in set(x.parents()))
         ):
             # we exclude y that are bijective tensors for Compose
             y = to_bijective_tensor(x, x_temp, context, self, log_detJ, mode="forward")
+        # pyre-fixme[61]: `y` is undefined, or not always defined.
         return y
 
     def inverse(
@@ -93,6 +97,7 @@ class Compose(Bijector):
             x = bijector.inverse(y_temp, context)  # type: ignore
             if is_record_flow_graph_enabled() and requires_log_detJ():
                 if isinstance(y_temp, BijectiveTensor) and y_temp.from_forward():
+                    # pyre-fixme[16]: `BijectiveTensor` has no attribute `_log_detJ`.
                     _log_detJ = y_temp._log_detJ
                 elif isinstance(x, BijectiveTensor) and x.from_inverse():
                     _log_detJ = x._log_detJ

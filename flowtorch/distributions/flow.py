@@ -28,7 +28,9 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         # TODO: Confirm that the following logic works. Shouldn't it use
         # .domain and .codomain?? Infer shape from constructed self.bijector
         shape = (
-            self.base_dist.batch_shape + self.base_dist.event_shape  # pyre-ignore[16]
+            self.base_dist.batch_shape
+            # pyre-fixme[58]: `+` is not supported for operand types `Size` and `Size`.
+            + self.base_dist.event_shape
         )
         event_dim = self.bijector.domain.event_dim  # type: ignore
         event_dim = max(event_dim, len(self.base_dist.event_shape))
@@ -36,13 +38,20 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         event_shape = shape[len(shape) - event_dim :]
 
         dist.Distribution.__init__(
-            self, batch_shape, event_shape, validate_args=validate_args
+            self,
+            # pyre-fixme[6]: For 2nd argument expected `Size` but got `Tuple[int, ...]`.
+            batch_shape,
+            # pyre-fixme[6]: For 3rd argument expected `Size` but got `Tuple[int, ...]`.
+            event_shape,
+            validate_args=validate_args,
         )
 
     def condition(self, context: torch.Tensor) -> "Flow":
         self._context = context
         return self
 
+    # pyre-fixme[14]: `sample` overrides method defined in `Distribution`
+    #  inconsistently.
     def sample(
         self,
         sample_shape: Tensor | torch.Size = _default_sample_shape,
@@ -57,10 +66,14 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         if context is None:
             context = self._context
         with torch.no_grad():
+            # pyre-fixme[6]: For 1st argument expected `Union[List[int], Size,
+            #  typing.Tuple[int, ...]]` but got `Union[Size, Tensor]`.
             x = self.base_dist.sample(sample_shape)
             x = self.bijector.forward(x, context)  # type: ignore
             return x
 
+    # pyre-fixme[14]: `rsample` overrides method defined in `Distribution`
+    #  inconsistently.
     def rsample(
         self,
         sample_shape: Tensor | torch.Size = _default_sample_shape,
@@ -74,6 +87,8 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         """
         if context is None:
             context = self._context
+        # pyre-fixme[6]: For 1st argument expected `Union[List[int], Size,
+        #  typing.Tuple[int, ...]]` but got `Union[Size, Tensor]`.
         x = self.base_dist.rsample(sample_shape)
         x = self.bijector.forward(x, context)  # type: ignore
         return x
@@ -109,7 +124,7 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         """
         if context is None:
             context = self._context
-        event_dim = len(self.event_shape)  # pyre-ignore[16]
+        event_dim = len(self.event_shape)
 
         x = self.bijector.inverse(value, context)  # type: ignore
         log_prob = -_sum_rightmost(
@@ -118,7 +133,7 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         )
         log_prob = log_prob + _sum_rightmost(
             self.base_dist.log_prob(x),
-            event_dim - len(self.base_dist.event_shape),  # pyre-ignore[16]
+            event_dim - len(self.base_dist.event_shape),
         )
 
         return log_prob

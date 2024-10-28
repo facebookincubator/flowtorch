@@ -56,11 +56,15 @@ class Autoregressive(Bijector):
         # NOTE: Inversion is an expensive operation that scales in the
         # dimension of the input
         permutation = (
+            # pyre-fixme[16]: Item `None` of `Union[None, Parameters, ModuleList]`
+            #  has no attribute `permutation`.
             self._params_fn.permutation
         )  # TODO: type-safe named buffer (e.g. "permutation") access
         # TODO: Make permutation, inverse work for other event shapes
         log_detJ: torch.Tensor | None = None
         for idx in cast(torch.LongTensor, permutation):
+            # pyre-fixme[29]: `Union[None, flowtorch.parameters.base.Parameters,
+            #  torch.nn.modules.container.ModuleList]` is not a function.
             _params = self._params_fn(x_new.clone(), context=context)
             x_temp, log_detJ = self._inverse(y, params=_params)
             x_new[..., idx] = x_temp[..., idx]

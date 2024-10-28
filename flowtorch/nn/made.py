@@ -116,6 +116,7 @@ class MaskedLinear(nn.Linear):
         super().__init__(in_features, out_features, bias)
         self.register_buffer("mask", mask.data)
 
+    # pyre-fixme[14]: `forward` overrides method defined in `Linear` inconsistently.
     def forward(self, _input: torch.Tensor) -> torch.Tensor:
         masked_weight = self.weight * self.mask
         return F.linear(_input, masked_weight, self.bias)

@@ -89,6 +89,10 @@ def generate_class_markdown(symbol_name: str, entity: Any) -> str:
         try:
             if hasattr(member_object, "__wrapped__"):
                 # decorators = get_decorators(member_object)
+                # pyre-fixme[16]: Item `BuiltinFunctionType` of
+                #  `Union[BuiltinFunctionType, ClassMethodDescriptorType, FunctionType,
+                #  MethodDescriptorType, MethodType, WrapperDescriptorType]` has no
+                #  attribute `__wrapped__`.
                 member_object = member_object.__wrapped__
         except Exception:
             pass
@@ -267,6 +271,7 @@ def walk_packages(
         else:
             finder = None
 
+        # pyre-fixme[61]: `finder` is undefined, or not always defined.
         if finder is not None:
             module = finder.load_module(this_modname)
 
@@ -278,6 +283,7 @@ def walk_packages(
             modules[this_modname] = (module, documentable_symbols(module))
 
             del module
+            # pyre-fixme[61]: `finder` is undefined, or not always defined.
             del finder
 
         else:
