@@ -1,5 +1,7 @@
 # Copyright (c) Meta Platforms, Inc
 
+# pyre-unsafe
+
 import flowtorch.bijectors as bijs
 import flowtorch.distributions as dist
 import flowtorch.parameters as params

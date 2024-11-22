@@ -1,5 +1,7 @@
 # Copyright (c) Meta Platforms, Inc
 
+# pyre-unsafe
+
 import math
 from collections.abc import Sequence
 from typing import Optional, Tuple

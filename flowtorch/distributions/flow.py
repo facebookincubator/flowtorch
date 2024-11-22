@@ -1,5 +1,7 @@
 # Copyright (c) Meta Platforms, Inc
 
+# pyre-unsafe
+
 from typing import Any, Dict, Optional, Union
 
 import flowtorch

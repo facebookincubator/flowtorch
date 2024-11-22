@@ -1,4 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
+
+# pyre-unsafe
 from typing import Any, Optional
 
 import flowtorch

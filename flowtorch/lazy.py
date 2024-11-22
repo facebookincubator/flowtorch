@@ -1,5 +1,7 @@
 # Copyright (c) Meta Platforms, Inc
 
+# pyre-unsafe
+
 import inspect
 from collections import OrderedDict
 from collections.abc import Mapping

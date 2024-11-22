@@ -1,4 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
+
+# pyre-unsafe
 import functools
 from collections.abc import Callable, Sequence
 from typing import Any, List

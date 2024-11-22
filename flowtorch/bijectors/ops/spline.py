@@ -1,5 +1,7 @@
 # Copyright (c) Meta Platforms, Inc
 
+# pyre-unsafe
+
 # This implementation is adapted in part from:
 # * https://github.com/tonyduan/normalizing-flows/blob/master/nf/flows.py;
 # * https://github.com/hmdolatabadi/LRS_NF/blob/master/nde/transforms/

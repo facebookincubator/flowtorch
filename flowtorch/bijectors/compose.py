@@ -1,4 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
+
+# pyre-unsafe
 import copy
 import warnings
 from collections.abc import Sequence

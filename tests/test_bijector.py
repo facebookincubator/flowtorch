@@ -1,4 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
+
+# pyre-unsafe
 import warnings
 
 import flowtorch.bijectors as bijectors

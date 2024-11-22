@@ -1,5 +1,7 @@
 # Copyright (c) Meta Platforms, Inc
 
+# pyre-unsafe
+
 import warnings
 from collections.abc import Callable, Sequence
 from typing import Optional
