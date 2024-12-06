@@ -35,9 +35,7 @@ class Spline(Bijector):
         if order not in ["linear", "quadratic"]:
             raise ValueError(
                 "Keyword argument 'order' must be one of ['linear', \
-'quadratic'], but '{}' was found!".format(
-                    order
-                )
+'quadratic'], but '{}' was found!".format(order)
             )
 
         self.count_bins = count_bins
