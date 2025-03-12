@@ -9,7 +9,7 @@ from collections import OrderedDict
 from collections.abc import Callable, Mapping, Sequence
 from inspect import isclass, isfunction, signature
 from types import ModuleType
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 
 def get_decorators(function: Callable) -> Sequence[str]:
@@ -259,35 +259,16 @@ def walk_packages(
 
     # The followings line uncovered a bug that hasn't been fixed in mypy:
     # https://github.com/python/mypy/issues/1422
-    for importer, this_modname, _ in pkgutil.walk_packages(
+    for _, this_modname, _ in pkgutil.walk_packages(
         path=path,  # type: ignore  # mypy issue #1422
         prefix=f"{module.__name__}.",
         onerror=lambda x: None,
     ):
-        # Conditions required for mypy
-        if importer is not None:
-            if isinstance(importer, importlib.abc.MetaPathFinder):
-                finder = importer.find_module(this_modname, None)
-            elif isinstance(importer, importlib.abc.PathEntryFinder):
-                finder = importer.find_module(this_modname)
-        else:
-            finder = None
-
-        # pyre-fixme[61]: `finder` is undefined, or not always defined.
-        if finder is not None:
-            module = finder.load_module(this_modname)
-
-        else:
-            raise Exception("Finder is none")
+        module = importlib.import_module(this_modname)
 
         if module is not None:
             # Get all classes and functions imported/defined in module
             modules[this_modname] = (module, documentable_symbols(module))
-
-            del module
-            # pyre-fixme[61]: `finder` is undefined, or not always defined.
-            del finder
-
         else:
             raise Exception("Module is none")
 

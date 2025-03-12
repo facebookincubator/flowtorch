@@ -8,7 +8,7 @@ import os
 import pkgutil
 from collections.abc import Callable, Sequence
 from functools import partial
-from typing import Any, Optional, Tuple
+from typing import Any
 
 import flowtorch
 from flowtorch.bijectors.base import Bijector
@@ -67,34 +67,18 @@ def _walk_packages(
 
     # The followings line uncovered a bug that hasn't been fixed in mypy:
     # https://github.com/python/mypy/issues/1422
-    for importer, this_modname, _ in pkgutil.walk_packages(
+    for _, this_modname, _ in pkgutil.walk_packages(
         path=path,  # type: ignore  # mypy issue #1422
         prefix=f"{flowtorch.__name__}.{modname}.",
         onerror=lambda x: None,
     ):
-        # Conditions required for mypy
-        if importer is not None:
-            if isinstance(importer, importlib.abc.MetaPathFinder):
-                finder = importer.find_module(this_modname, None)
-            elif isinstance(importer, importlib.abc.PathEntryFinder):
-                finder = importer.find_module(this_modname)
-        else:
-            finder = None
-
-        # pyre-fixme[61]: `finder` is undefined, or not always defined.
-        if finder is not None:
-            module = finder.load_module(this_modname)
-
-        else:
-            raise Exception("Finder is none")
+        module = importlib.import_module(this_modname)
 
         if module is not None:
             this_classes = inspect.getmembers(module, filter)
             classes.extend(this_classes)
 
             del module
-            # pyre-fixme[61]: `finder` is undefined, or not always defined.
-            del finder
 
         else:
             raise Exception("Module is none")
