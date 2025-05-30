@@ -41,6 +41,7 @@ class Compose(Bijector):
         # of contraints
         self.domain = copy.copy(self.bijectors[0].domain)  # type: ignore
         self.codomain = copy.copy(self.bijectors[-1].codomain)  # type: ignore
+        # pyre-fixme[16]: Undefined attribute: Item `torch._tensor.Tensor` of `typing.Union[torch...
         max_event_dim = max([b.codomain.event_dim for b in self.bijectors])
         if max_event_dim > self.codomain.event_dim:
             self.codomain = constraints.independent(
@@ -69,7 +70,9 @@ class Compose(Bijector):
                         "neither of x nor y contains the log-abs-det-jacobian"
                     )
                 _log_detJ = _sum_rightmost(
-                    _log_detJ, self.codomain.event_dim - bijector.codomain.event_dim
+                    _log_detJ,
+                    # pyre-fixme[16]: Undefined attribute: Item `torch._tensor.Tensor` of `typing...
+                    self.codomain.event_dim - bijector.codomain.event_dim,
                 )
                 log_detJ = log_detJ + _log_detJ if log_detJ is not None else _log_detJ
             x_temp = y
