@@ -46,6 +46,7 @@ class Permute(Fixed, VolumePreserving):
         if self.permutation is None:
             self.permutation = torch.randperm(y.shape[-1])
 
+        # pyre-fixme[6]: For 3rd argument expected `Tensor` but got `Optional[Tensor]`.
         x = torch.index_select(y, -1, self.inv_permutation)
         ladj = self._log_abs_det_jacobian(x, y, params)
         return x, ladj

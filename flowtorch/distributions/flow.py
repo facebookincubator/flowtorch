@@ -30,6 +30,7 @@ class Flow(torch.nn.Module, dist.Distribution, metaclass=flowtorch.LazyMeta):
         # TODO: Confirm that the following logic works. Shouldn't it use
         # .domain and .codomain?? Infer shape from constructed self.bijector
         shape = (
+            # pyre-fixme[6]: For 1st argument expected `tuple[int, ...]` but got `Size`.
             self.base_dist.batch_shape
             # pyre-fixme[58]: `+` is not supported for operand types `Size` and `Size`.
             + self.base_dist.event_shape

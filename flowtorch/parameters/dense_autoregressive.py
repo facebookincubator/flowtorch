@@ -182,6 +182,7 @@ class DenseAutoregressive(Parameters):
         # results ~ (batch_shape, param_shapes[0]), ...
         result = tuple(
             # pyre-fixme[58]: `+` is not supported for operand types `Size` and `Size`.
+            # pyre-fixme[6]: For 1st argument expected `tuple[int, ...]` but got `Size`.
             h_slice.view(batch_shape + p_shape)
             for h_slice, p_shape in zip(result, list(self.param_shapes))
         )

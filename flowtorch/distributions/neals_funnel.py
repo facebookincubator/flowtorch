@@ -34,7 +34,11 @@ class NealsFunnel(dist.Distribution):
         if not sample_shape:
             sample_shape = torch.Size()
         eps = _standard_normal(
-            (sample_shape[0], 2), dtype=torch.float, device=torch.device("cpu")
+            # pyre-fixme[6]: For 1st argument expected `Sequence[Union[int,
+            #  SymInt]]` but got `Tuple[Union[int, Tensor], int]`.
+            (sample_shape[0], 2),
+            dtype=torch.float,
+            device=torch.device("cpu"),
         )
         z = torch.zeros(eps.shape)
         z[..., 1] = torch.tensor(3.0) * eps[..., 1]
