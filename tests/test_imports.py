@@ -54,14 +54,14 @@ def tst_imports(cls_name, detected, imported):
     error_msg = []
     if len(unimported):
         error_msg.append(
-            f'The following {cls_name} classes are declared but not imported: \
-{", ".join(unimported)}'
+            f"The following {cls_name} classes are declared but not imported: \
+{', '.join(unimported)}"
         )
 
     if len(undetected):
         error_msg.append(
-            f'The following {cls_name} classes are imported but not detected: \
-{", ".join(undetected)}'
+            f"The following {cls_name} classes are imported but not detected: \
+{', '.join(undetected)}"
         )
 
     if len(error_msg):

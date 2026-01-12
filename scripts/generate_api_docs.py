@@ -97,8 +97,8 @@ out in the future.
     }
 
     header = f"""---
-id: {item['id']}
-sidebar_label: {item['sidebar_label']}
+id: {item["id"]}
+sidebar_label: {item["sidebar_label"]}
 ---"""
 
     # Convert symbol to MDX

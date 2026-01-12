@@ -88,8 +88,9 @@ def print_results(count_changed, args):
         print(f"{count_changed} files would be changed.")
     elif args.check:
         print(
-            f"""{count_changed} files would be changed and {len(source_files) /
-                 - count_changed} files would be unchanged."""
+            f"""{count_changed} files would be changed and {
+                len(source_files) / -count_changed
+            } files would be unchanged."""
         )
     elif count_changed:
         print(f"{count_changed} files fixed.")

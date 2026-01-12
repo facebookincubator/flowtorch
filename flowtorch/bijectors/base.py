@@ -169,7 +169,7 @@ class Bijector(torch.nn.Module, metaclass=flowtorch.LazyMeta):
         if ladj is None:
             if is_record_flow_graph_enabled():
                 warnings.warn(
-                    "Computing _log_abs_det_jacobian from values and not " "from cache."
+                    "Computing _log_abs_det_jacobian from values and not from cache."
                 )
             params = (
                 self._params_fn(x, context) if self._params_fn is not None else None
