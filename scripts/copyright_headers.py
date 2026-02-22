@@ -1,11 +1,46 @@
 # Copyright (c) Meta Platforms, Inc
+"""Check and fix Meta copyright headers."""
 
 import argparse
 import os
 import sys
 from enum import Enum
+import ast
 
-from flowtorch.utils import copyright_header
+def _resolve_copyright_header():
+    # Prefer importing from source to preserve single source of truth, but avoid
+    # importing the full package in environments where it fails on import.
+    try:
+        from flowtorch.utils import copyright_header as header
+        return header
+    except Exception:
+        pass
+
+    utils_path = os.path.join(os.path.dirname(__file__), "..", "flowtorch", "utils.py")
+    if os.path.exists(utils_path):
+        with open(utils_path, encoding="utf-8") as f:
+            source = f.read()
+
+        try:
+            tree = ast.parse(source)
+            for node in tree.body:
+                if (
+                    isinstance(node, ast.Assign)
+                    and any(
+                        isinstance(target, ast.Name) and target.id == "copyright_header"
+                        for target in node.targets
+                    )
+                    and isinstance(node.value, ast.Constant)
+                    and isinstance(node.value.value, str)
+                ):
+                    return node.value.value
+        except Exception:
+            return "Copyright (c) Meta Platforms, Inc"
+
+    return "Copyright (c) Meta Platforms, Inc"
+
+
+copyright_header = _resolve_copyright_header()
 
 lines_header = ["# " + ln + "\n" for ln in copyright_header.splitlines()]
 
