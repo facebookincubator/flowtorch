@@ -2,8 +2,6 @@
 
 # pyre-unsafe
 
-from typing import Optional
-
 import flowtorch
 import torch
 from flowtorch.bijectors.elementwise import Elementwise
