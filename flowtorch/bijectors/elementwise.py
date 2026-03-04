@@ -1,7 +1,7 @@
 # Copyright (c) Meta Platforms, Inc
 
 # pyre-unsafe
-from typing import Any, Optional
+from typing import Any
 
 import flowtorch
 import torch
