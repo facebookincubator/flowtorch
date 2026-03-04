@@ -3,7 +3,7 @@
 # pyre-unsafe
 
 from collections.abc import Sequence
-from typing import Any, cast, Optional
+from typing import Any, cast
 
 import flowtorch
 import flowtorch.parameters
