@@ -38,7 +38,7 @@ class Compose(Bijector):
         # TODO: domain of next bijector must be compatible with codomain
         # of previous one
         # TODO: Intelligent way to calculate final codomain, like an algebra
-        # of contraints
+        # of constraints
         self.domain = copy.copy(self.bijectors[0].domain)  # type: ignore
         self.codomain = copy.copy(self.bijectors[-1].codomain)  # type: ignore
         # pyre-fixme[16]: Undefined attribute: Item `torch._tensor.Tensor` of `typing.Union[torch...
