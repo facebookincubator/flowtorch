@@ -76,6 +76,7 @@ def test_gradient_matching(mode):
         assert xinv is x
         print(f"op with bij tensor took {time.time() - t1} for mode={mode}")
         ldj.backward()
+        # pyrefly: ignore [missing-attribute]
         g_bijtensor = x.grad.clone()
     bij_time = time.time() - t0
     print("bij tensor time: ", bij_time)
@@ -96,6 +97,7 @@ def test_gradient_matching(mode):
         assert xinv is not x
         print(f"op with regular tensor took {time.time() - t1} for mode={mode}")
         ldj.backward()
+        # pyrefly: ignore [missing-attribute]
         g_tensor = x.grad.clone()
     tensor_time = time.time() - t0
     print("regular tensor time: ", tensor_time)

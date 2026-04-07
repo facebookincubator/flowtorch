@@ -37,5 +37,6 @@ def test_compose():
     optimizer = torch.optim.Adam(flow.parameters())
     assert optimizer.param_groups[0]["params"][0].grad is None
     flow.log_prob(torch.randn((100,) + event_shape)).sum().backward()
+    # pyrefly: ignore [missing-attribute]
     assert optimizer.param_groups[0]["params"][0].grad.abs().sum().item() > 1e-3
     optimizer.zero_grad()

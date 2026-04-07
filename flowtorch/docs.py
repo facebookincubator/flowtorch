@@ -91,7 +91,6 @@ def generate_class_markdown(symbol_name: str, entity: Any) -> str:
         try:
             if hasattr(member_object, "__wrapped__"):
                 # decorators = get_decorators(member_object)
-                # pyre-fixme[16]: Item `BuiltinFunctionType` of
                 #  `Union[BuiltinFunctionType, ClassMethodDescriptorType, FunctionType,
                 #  MethodDescriptorType, MethodType, WrapperDescriptorType]` has no
                 #  attribute `__wrapped__`.

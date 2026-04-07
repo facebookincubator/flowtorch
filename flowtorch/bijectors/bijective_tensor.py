@@ -65,14 +65,12 @@ or `'inverse'`. got {self._mode}"
         return is_bijector
 
     def bijectors(self) -> Iterator["Bijector"]:
-        # pyre-fixme[16]: `BijectiveTensor` has no attribute `_bijector`.
         yield self._bijector
         for parent in self.parents():
             if isinstance(parent, BijectiveTensor):
                 yield parent._bijector
 
     def get_parent_from_bijector(self, bijector: "Bijector") -> Tensor:
-        # pyre-fixme[16]: `BijectiveTensor` has no attribute `_bijector`.
         if self._bijector is bijector:
             return self.parent
         for parent in self.parents():
@@ -83,20 +81,15 @@ or `'inverse'`. got {self._mode}"
         raise RuntimeError("bijector not found in flow")
 
     def check_context(self, context: Tensor | None) -> bool:
-        # pyre-fixme[16]: `BijectiveTensor` has no attribute `_context`.
         return self._context is context
 
     def from_forward(self) -> bool:
-        # pyre-fixme[16]: `BijectiveTensor` has no attribute `_mode`.
         return self._mode == "forward"
 
     def from_inverse(self) -> bool:
-        # pyre-fixme[16]: `BijectiveTensor` has no attribute `_mode`.
         return self._mode == "inverse"
 
     def detach_from_flow(self) -> Tensor:
-        # pyre-fixme[16]: `BijectiveTensor` has no attribute `_output`.
-        # pyre-fixme[16]: `BijectiveTensor` has no attribute `_input`.
         detached_tensor = self._output if self.from_forward() else self._input
         if isinstance(detached_tensor, BijectiveTensor):
             raise RuntimeError("the detached tensor is an instance of BijectiveTensor.")
@@ -105,10 +98,8 @@ or `'inverse'`. got {self._mode}"
     def has_ancestor(self, tensor: Tensor) -> bool:
         if tensor is self:
             return False  # self is no parent of self
-        # pyre-fixme[16]: `BijectiveTensor` has no attribute `_input`.
         elif self.from_forward() and self._input is tensor:
             return True
-        # pyre-fixme[16]: `BijectiveTensor` has no attribute `_output`.
         elif self.from_inverse() and self._output is tensor:
             return True
         elif self.from_forward() and isinstance(self._input, BijectiveTensor):
@@ -120,23 +111,19 @@ or `'inverse'`. got {self._mode}"
 
     @property
     def log_detJ(self) -> Tensor | None:
-        # pyre-fixme[16]: `BijectiveTensor` has no attribute `_log_detJ`.
         return self._log_detJ
 
     @property
     def parent(self) -> Tensor:
         if self.from_forward():
-            # pyre-fixme[16]: `BijectiveTensor` has no attribute `_input`.
             return self._input
         else:
-            # pyre-fixme[16]: `BijectiveTensor` has no attribute `_output`.
             return self._output
 
     def parents(self) -> Iterator[Tensor]:
         child: Tensor | BijectiveTensor = self
         while True:
             assert isinstance(child, BijectiveTensor)
-            # pyre-fixme[16]: `Tensor` has no attribute `parent`.
             child = parent = child.parent
             yield parent
             if not isinstance(child, BijectiveTensor):

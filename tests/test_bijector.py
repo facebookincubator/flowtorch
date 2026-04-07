@@ -77,6 +77,7 @@ def test_jacobian(flow, epsilon=1e-2):
             # Have to account for permutation potentially introduced by MADE network
             # TODO: Make this more general with structure abstraction
             if hasattr(params, "permutation"):
+                # pyrefly: ignore [unbound-name]
                 jacobian[(inv_permutation[idx[0]], inv_permutation[jdx[0]])] = float(
                     delta[(Ellipsis, *jdx)].data.sum()
                 )

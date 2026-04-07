@@ -61,7 +61,6 @@ class Compose(Bijector):
             y = bijector.forward(x_temp, context)  # type: ignore
             if is_record_flow_graph_enabled() and requires_log_detJ():
                 if isinstance(y, BijectiveTensor) and y.from_forward():
-                    # pyre-fixme[16]: `BijectiveTensor` has no attribute `_log_detJ`.
                     _log_detJ = y._log_detJ
                 elif isinstance(x_temp, BijectiveTensor) and x_temp.from_inverse():
                     _log_detJ = x_temp._log_detJ
@@ -70,6 +69,7 @@ class Compose(Bijector):
                         "neither of x nor y contains the log-abs-det-jacobian"
                     )
                 _log_detJ = _sum_rightmost(
+                    # pyrefly: ignore [bad-argument-type]
                     _log_detJ,
                     # pyre-fixme[16]: Undefined attribute: Item `torch._tensor.Tensor` of `typing...
                     self.codomain.event_dim - bijector.codomain.event_dim,
@@ -82,12 +82,10 @@ class Compose(Bijector):
             is_record_flow_graph_enabled()
             # pyre-fixme[61]: `y` is undefined, or not always defined.
             and not isinstance(y, BijectiveTensor)
-            # pyre-fixme[61]: `y` is undefined, or not always defined.
             and not (isinstance(x, BijectiveTensor) and y in set(x.parents()))
         ):
             # we exclude y that are bijective tensors for Compose
             y = to_bijective_tensor(x, x_temp, context, self, log_detJ, mode="forward")
-        # pyre-fixme[61]: `y` is undefined, or not always defined.
         return y
 
     def inverse(
@@ -102,7 +100,6 @@ class Compose(Bijector):
             x = bijector.inverse(y_temp, context)  # type: ignore
             if is_record_flow_graph_enabled() and requires_log_detJ():
                 if isinstance(y_temp, BijectiveTensor) and y_temp.from_forward():
-                    # pyre-fixme[16]: `BijectiveTensor` has no attribute `_log_detJ`.
                     _log_detJ = y_temp._log_detJ
                 elif isinstance(x, BijectiveTensor) and x.from_inverse():
                     _log_detJ = x._log_detJ
@@ -112,7 +109,9 @@ class Compose(Bijector):
                     )
                 event_dim: int = bijector.codomain.event_dim  # type: ignore
                 _log_detJ = _sum_rightmost(
-                    _log_detJ, self.codomain.event_dim - event_dim
+                    # pyrefly: ignore [bad-argument-type]
+                    _log_detJ,
+                    self.codomain.event_dim - event_dim,
                 )
                 log_detJ = log_detJ + _log_detJ if log_detJ is not None else _log_detJ
             y_temp = x  # type: ignore
@@ -163,6 +162,7 @@ class Compose(Bijector):
             if not _use_cached_inverse:
                 y_inv = bijector.inverse(y, context)  # type: ignore
             else:
+                # pyrefly: ignore [unbound-name]
                 y_inv = parents.pop()
             _log_detJ = bijector.log_abs_det_jacobian(y_inv, y, context)  # type: ignore
             event_dim: int = bijector.codomain.event_dim  # type: ignore

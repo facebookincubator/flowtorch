@@ -120,5 +120,6 @@ class MaskedLinear(nn.Linear):
 
     # pyre-fixme[14]: `forward` overrides method defined in `Linear` inconsistently.
     def forward(self, _input: torch.Tensor) -> torch.Tensor:
+        # pyrefly: ignore [unsupported-operation]
         masked_weight = self.weight * self.mask
         return F.linear(_input, masked_weight, self.bias)
