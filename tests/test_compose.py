@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 
-# pyre-unsafe
+# pyre-strict
 
 import flowtorch.bijectors as bijs
 import flowtorch.distributions as dist
@@ -10,7 +10,7 @@ import torch.distributions
 import torch.optim
 
 
-def test_compose():
+def test_compose() -> None:
     transforms = bijs.Compose(
         bijectors=[
             bijs.AffineAutoregressive(
