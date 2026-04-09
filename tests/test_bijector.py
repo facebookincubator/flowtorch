@@ -97,7 +97,7 @@ def test_jacobian(flow, epsilon=1e-2):
     # Test that lower triangular with non-zero diagonal for autoregressive flows
     if hasattr(params, "permutation"):
 
-        def nonzero(x):
+        def nonzero(x: torch.Tensor) -> torch.Tensor:
             return torch.sign(torch.abs(x))
 
         diag_sum = torch.sum(torch.diag(nonzero(jacobian)))
@@ -128,7 +128,7 @@ def test_inverse(flow, epsilon=1e-5):
     assert (J_1 - J_2).abs().max().item() < epsilon
 
 
-def test_invert():
+def test_invert() -> None:
     # Define a simple bijector to invert
     ar = Compose(
         [
