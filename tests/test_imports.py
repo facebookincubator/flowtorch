@@ -11,7 +11,7 @@ import flowtorch.parameters
 import flowtorch.utils
 
 
-def test_parameters_imports():
+def test_parameters_imports() -> None:
     tst_imports(
         "Parameters",
         [cls for cls, _ in flowtorch.utils.list_parameters()],
@@ -23,7 +23,7 @@ def test_parameters_imports():
     )
 
 
-def test_bijector_imports():
+def test_bijector_imports() -> None:
     tst_imports(
         "Bijector",
         [cls for cls, _ in flowtorch.utils.list_bijectors()],
