@@ -1,10 +1,9 @@
 # Copyright (c) Meta Platforms, Inc
 
-# pyre-unsafe
+# pyre-strict
 
 import warnings
 from collections.abc import Callable, Sequence
-from typing import Optional
 
 import torch
 import torch.nn as nn
