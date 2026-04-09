@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 
-# pyre-unsafe
+# pyre-strict
 
 import flowtorch.bijectors as bijs
 import flowtorch.distributions as dist
@@ -11,10 +11,10 @@ import torch.distributions
 import torch.optim
 
 
-def test_tdist_standalone():
+def test_tdist_standalone() -> None:
     input_dim = 3
 
-    def make_tdist():
+    def make_tdist() -> dist.Flow:
         # train a flow here
         base_dist = torch.distributions.Independent(
             torch.distributions.Normal(torch.zeros(input_dim), torch.ones(input_dim)), 1
@@ -28,7 +28,7 @@ def test_tdist_standalone():
     assert True
 
 
-def test_neals_funnel_vi():
+def test_neals_funnel_vi() -> None:
     torch.manual_seed(42)
     nf = dist.NealsFunnel()
     bijector = bijs.AffineAutoregressive(params_fn=params.DenseAutoregressive())
