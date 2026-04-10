@@ -1,10 +1,9 @@
 # Copyright (c) Meta Platforms, Inc
 
-# pyre-unsafe
+# pyre-strict
 
 import math
 from collections.abc import Sequence
-from typing import Tuple
 
 import torch
 import torch.distributions.constraints as constraints
