@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 
-# pyre-unsafe
+# pyre-strict
 
 from collections.abc import Sequence
 from typing import Any, cast
@@ -17,8 +17,8 @@ from flowtorch.parameters.dense_autoregressive import DenseAutoregressive
 
 class Autoregressive(Bijector):
     # "Default" event shape is to operate on vectors
-    domain = constraints.real_vector
-    codomain = constraints.real_vector
+    domain: constraints.Constraint = constraints.real_vector
+    codomain: constraints.Constraint = constraints.real_vector
 
     def __init__(
         self,
