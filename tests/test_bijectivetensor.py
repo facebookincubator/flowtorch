@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 
-# pyre-unsafe
+# pyre-strict
 import time
 
 import flowtorch.parameters as params
@@ -30,7 +30,7 @@ def get_net() -> AffineAutoregressive:
     return ar
 
 
-def test_forward():
+def test_forward() -> None:
     ar = get_net()
     x = torch.randn(50, dim_x, requires_grad=True)
     y = ar.forward(x)
@@ -43,7 +43,7 @@ def test_forward():
         assert ar.forward(y) is not x
 
 
-def test_backward():
+def test_backward() -> None:
     ar = get_net()
     x = torch.randn(50, dim_x, requires_grad=True)
     y = ar.inverse(x)
@@ -57,7 +57,7 @@ def test_backward():
 
 
 @pytest.mark.parametrize("mode", ["forward", "inverse"])
-def test_gradient_matching(mode):
+def test_gradient_matching(mode: str) -> None:
     ar = get_net()
 
     print("test with bijective tensor")
