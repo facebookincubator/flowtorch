@@ -1,9 +1,8 @@
 # Copyright (c) Meta Platforms, Inc
 
-# pyre-unsafe
+# pyre-strict
 
 from collections.abc import Sequence
-from typing import Optional, Tuple
 
 import flowtorch
 import torch
@@ -16,8 +15,8 @@ class Power(Fixed):
     Elementwise bijector via the mapping :math:`y = x^{\text{exponent}}`.
     """
 
-    domain = constraints.positive
-    codomain = constraints.positive
+    domain: constraints.Constraint = constraints.positive
+    codomain: constraints.Constraint = constraints.positive
 
     # TODO: Tensor valued exponents and corresponding determination of event_dim
     def __init__(
