@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import warnings
 from collections.abc import Callable, Sequence
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 
 import flowtorch.parameters
 import torch
