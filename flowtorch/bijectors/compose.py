@@ -4,7 +4,6 @@
 import copy
 import warnings
 from collections.abc import Sequence
-from typing import Optional
 
 import flowtorch.parameters
 import torch
