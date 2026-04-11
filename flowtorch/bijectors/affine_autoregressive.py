@@ -1,8 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 
-# pyre-unsafe
-
-from typing import Optional
+# pyre-strict
 
 import flowtorch
 import flowtorch.parameters
