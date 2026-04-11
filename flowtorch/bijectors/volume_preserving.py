@@ -3,7 +3,6 @@
 # pyre-unsafe
 
 from collections.abc import Sequence
-from typing import Optional
 
 import torch
 import torch.distributions
