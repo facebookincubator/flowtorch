@@ -2,7 +2,6 @@
 
 # pyre-unsafe
 from collections.abc import Sequence
-from typing import Optional
 
 import flowtorch
 import torch
