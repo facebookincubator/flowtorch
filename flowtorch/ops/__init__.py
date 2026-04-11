@@ -1,8 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 
-# pyre-unsafe
-
-from typing import Optional, Tuple
+# pyre-strict
 
 import torch
 import torch.nn.functional as F
