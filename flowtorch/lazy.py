@@ -5,7 +5,7 @@
 import inspect
 from collections import OrderedDict
 from collections.abc import Mapping
-from typing import Any, Tuple
+from typing import Any
 
 
 # TODO: Move functions to flowtorch.utils?
