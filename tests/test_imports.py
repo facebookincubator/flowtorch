@@ -35,7 +35,7 @@ def test_bijector_imports() -> None:
     )
 
 
-def test_distribution_imports():
+def test_distribution_imports() -> None:
     tst_imports(
         "Distribution",
         [cls for cls, _ in flowtorch.utils.list_distributions()],
@@ -47,7 +47,7 @@ def test_distribution_imports():
     )
 
 
-def tst_imports(cls_name, detected, imported):
+def tst_imports(cls_name: str, detected: list[str], imported: list[str]) -> None:
     unimported = set(detected).difference(set(imported))
     undetected = set(imported).difference(set(detected))
 
