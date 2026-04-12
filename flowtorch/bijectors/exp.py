@@ -3,7 +3,6 @@
 # pyre-unsafe
 
 from collections.abc import Sequence
-from typing import Tuple
 
 import torch
 import torch.distributions.constraints as constraints
