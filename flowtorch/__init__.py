@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc
 
-# pyre-unsafe
+# pyre-strict
 
 from flowtorch.lazy import Lazy, LazyMeta
 
