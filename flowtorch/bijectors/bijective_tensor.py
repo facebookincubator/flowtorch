@@ -1,8 +1,8 @@
 # Copyright (c) Meta Platforms, Inc
 
-# pyre-unsafe
+# pyre-strict
 from collections.abc import Iterator
-from typing import Any, Optional, Type, TYPE_CHECKING, Union
+from typing import Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from flowtorch.bijectors.base import Bijector
